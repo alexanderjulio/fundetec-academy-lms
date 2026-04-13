@@ -1,0 +1,57 @@
+:root {
+  /* Colors - Fundetec Official Identity */
+  --primary-color: #2F4B8C;   /* Azul Universitario Universitario */
+  --primary-light: #3d5fb1;
+  --secondary-color: #28B449; /* Verde Institucional */
+  --secondary-light: #32cd5a;
+  --accent-color: #f5a623;    /* Radiant Gold */
+  --accent-light: #fbbf24;
+  
+  /* Neutrals */
+  --background: #ffffff;
+  --foreground: #0c1e45;
+  --white: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #4b5563; /* Darker for better contrast */
+  --gray-600: #374151;
+  --gray-700: #1e293b;
+  --gray-800: #0f172a;
+  --gray-900: #020617;
+  
+  /* Semantic */
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  
+  /* Layout */
+  --container-max-width: 1200px;
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 20px;
+  
+  /* Shadows - Premium Elevation (Prolijo) */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px -2px rgba(12, 30, 69, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 15px 35px -5px rgba(12, 30, 69, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 25px 50px -12px rgba(12, 30, 69, 0.2);
+  --shadow-premium: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 20px -5px rgba(12, 30, 69, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  --shadow-interactive:
+    0 20px 25px -5px rgba(12, 30, 69, 0.15),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Standardizing contrast: Fundetec uses a high-visibility light theme by default */
