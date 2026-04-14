@@ -31,7 +31,7 @@ async function promoteToCoordinator() {
     return;
   }
 
-  console.log(`✅ Usuario encontrado: ${profile.full_name} (Rol actual: ${profile.role_id})`);
+  console.log(`✅ Usuario encontrado: ${profile.full_name} (ID: ${profile.id}, Rol actual: ${profile.role_id})`);
 
   // 2. Actualizar el role_id a 2 (Coordinador)
   const { error: updateError } = await supabase

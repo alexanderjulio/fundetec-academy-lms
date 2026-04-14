@@ -44,25 +44,8 @@ export async function proxy(request) {
     return NextResponse.redirect(url);
   }
 
-  // 2. Si hay sesión, verificar ROLES para rutas específicas
+  // 2. Seguridad Estricta por Rol
   if (session) {
-    // Si intenta acceder a login o landing ya estando logueado, redirigir a su panel
-    if (path === '/' || path === '/login') {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role_id')
-        .eq('id', session.user.id)
-        .single();
-      
-      const role = profile?.role_id;
-      if (role === 1) url.pathname = '/admin';
-      else if (role === 2) url.pathname = '/coordinador';
-      else url.pathname = '/dashboard';
-      
-      return NextResponse.redirect(url);
-    }
-
-    // Restricciones de rutas por rol
     const { data: profile } = await supabase
       .from('profiles')
       .select('role_id')
@@ -71,20 +54,30 @@ export async function proxy(request) {
 
     const role = profile?.role_id;
 
-    // Admin puede entrar a /admin, /coordinador y /dashboard (todo)
-    if (path.startsWith('/admin') && role !== 1) {
-      url.pathname = '/dashboard';
+    // Redirección si intenta entrar a login o landing ya estando logueado
+    if (path === '/' || path === '/login') {
+      if (role === 1) url.pathname = '/admin';
+      else if (role === 2) url.pathname = '/coordinador';
+      else url.pathname = '/dashboard';
       return NextResponse.redirect(url);
     }
 
-    // Coordinador solo puede entrar a /coordinador o /dashboard
-    if (path.startsWith('/coordinador') && role !== 2 && role !== 1) {
-      url.pathname = '/dashboard';
+    // BLOQUEO ESTRICTO:
+    
+    // Si es ADMIN (role 1), solo puede estar en /admin
+    if (role === 1 && (path.startsWith('/dashboard') || path.startsWith('/coordinador'))) {
+      url.pathname = '/admin';
       return NextResponse.redirect(url);
     }
 
-    // Estudiante (o roles desconocidos) NO puede entrar a admin ni coordinador
-    if ((path.startsWith('/admin') || path.startsWith('/coordinador')) && (role === 3 || !role)) {
+    // Si es COORDINADOR (role 2), solo puede estar en /coordinador
+    if (role === 2 && (path.startsWith('/admin') || path.startsWith('/dashboard'))) {
+      url.pathname = '/coordinador';
+      return NextResponse.redirect(url);
+    }
+
+    // Si es ESTUDIANTE (role 3 o sin rol definido), solo puede estar en /dashboard
+    if ((role === 3 || !role) && (path.startsWith('/admin') || path.startsWith('/coordinador'))) {
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
     }

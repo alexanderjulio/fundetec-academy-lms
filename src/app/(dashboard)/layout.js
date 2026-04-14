@@ -10,6 +10,7 @@ import '@/app/dashboard.css';
 export default function DashboardLayout({ children }) {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+  const [displayName, setDisplayName] = useState('Usuario Fundetec');
   const [notifications, setNotifications] = useState([]);
   const [showNotifs, setShowNotifs] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -20,19 +21,42 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     async function getProfileAndNotifs() {
       try {
+        setLoading(true);
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
-          const { data: profileData } = await supabase
+          const { data: profileData, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
 
+          if (error) {
+            console.error('Error fetching profile:', error.message);
+          }
+
           if (profileData) {
             setProfile(profileData);
+            setDisplayName(profileData.full_name || session.user.user_metadata?.full_name || 'Usuario Fundetec');
             fetchNotifications(session.user.id, profileData);
+
+            // SEGURIDAD ESTRICTA: Redirigir al panel correcto si está en la ruta equivocada
+            const roleId = profileData.role_id;
+            const pathname = window.location.pathname;
+
+            if (roleId === 1 && !pathname.startsWith('/admin')) {
+              window.location.href = '/admin';
+            } else if (roleId === 2 && !pathname.startsWith('/coordinador')) {
+              window.location.href = '/coordinador';
+            } else if ((roleId === 3 || !roleId) && !pathname.startsWith('/dashboard')) {
+              window.location.href = '/dashboard';
+            }
+          } else {
+            // Fallback al nombre de la sesión si no hay perfil
+            setDisplayName(session.user.user_metadata?.full_name || 'Usuario Fundetec');
           }
+        } else {
+          window.location.href = '/login';
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -172,8 +196,8 @@ export default function DashboardLayout({ children }) {
                 className={`user-profile group ${showUserMenu ? 'active' : ''}`}
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <span className="user-name group-hover:text-secondary-color transition-colors">{profile?.full_name || 'Usuario Fundetec'}</span>
-                <div className="user-avatar group-hover:scale-110 transition-transform">{profile?.full_name?.charAt(0) || '👤'}</div>
+                <span className="user-name group-hover:text-secondary-color transition-colors">{displayName}</span>
+                <div className="user-avatar group-hover:scale-110 transition-transform">{displayName.charAt(0)}</div>
               </div>
 
               {showUserMenu && (
