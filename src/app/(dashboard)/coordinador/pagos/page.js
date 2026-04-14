@@ -108,23 +108,32 @@ export default function ManualPaymentsPage() {
 
     if (!error) {
       setRecentPayments(data);
-      // Calcular stats
-      const today = new Date().toDateString();
-      const month = new Date().getMonth();
-      const year = new Date().getFullYear();
       
-      const todayTotal = data
-        .filter(p => new Date(p.created_at).toDateString() === today)
-        .reduce((sum, p) => sum + p.amount, 0);
+      // 2. Cálculo de estadísticas independiente (sin límite de historial)
+      const now = new Date();
+      const todayString = now.toDateString();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      // Consultamos todos los pagos del mes para este coordinador
+      const startOfMonth = new Date(currentYear, currentMonth, 1).toISOString();
       
-      const monthTotal = data
-        .filter(p => {
-          const d = new Date(p.created_at);
-          return d.getMonth() === month && d.getFullYear() === year;
-        })
-        .reduce((sum, p) => sum + p.amount, 0);
+      const { data: monthData } = await supabase
+        .from('payments')
+        .select('amount, created_at')
+        .eq('registered_by', session.user.id)
+        .gte('created_at', startOfMonth);
+
+      if (monthData) {
+        const todayTotal = monthData
+          .filter(p => new Date(p.created_at).toDateString() === todayString)
+          .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
         
-      setStats({ today: todayTotal, month: monthTotal });
+        const monthTotal = monthData
+          .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+          
+        setStats({ today: todayTotal, month: monthTotal });
+      }
     }
   };
 
