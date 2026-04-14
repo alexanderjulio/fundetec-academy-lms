@@ -71,7 +71,7 @@ export async function proxy(request) {
 
     const role = profile?.role_id;
 
-    // Admin puede entrar a /admin, /coordinador y /dashboard
+    // Admin puede entrar a /admin, /coordinador y /dashboard (todo)
     if (path.startsWith('/admin') && role !== 1) {
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
@@ -83,8 +83,8 @@ export async function proxy(request) {
       return NextResponse.redirect(url);
     }
 
-    // Estudiante NO puede entrar a admin ni coordinador
-    if ((path.startsWith('/admin') || path.startsWith('/coordinador')) && role === 3) {
+    // Estudiante (o roles desconocidos) NO puede entrar a admin ni coordinador
+    if ((path.startsWith('/admin') || path.startsWith('/coordinador')) && (role === 3 || !role)) {
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
     }
