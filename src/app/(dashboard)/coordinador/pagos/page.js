@@ -9,9 +9,12 @@ import { optimizeImage } from '@/utils/imageOptimizer';
 const Icons = {
   Search: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
   Check: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>,
-  PDF: () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>,
-  Link: () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>,
-  Chevron: () => <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+  PDF: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>,
+  Link: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>,
+  Chevron: () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>,
+  Receipt: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5V6.5"/></svg>,
+  Transfer: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 7 10 10"/><path d="M17 7v10H7"/></svg>,
+  Cash: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
 };
 
 export default function ManualPaymentsPage() {
@@ -200,65 +203,88 @@ export default function ManualPaymentsPage() {
   };
 
   return (
-    <div className="payments-container max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 animate-fade-in font-display">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm relative overflow-hidden">
-        <div className="space-y-1 relative z-10">
-          <h1 className="text-4xl md:text-5xl font-black text-primary-color tracking-tighter leading-none">
+    <div className="payments-container max-w-[1440px] mx-auto p-4 md:p-8 space-y-8 animate-fade-in font-display">
+      <header className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-6 bg-primary-color p-1 relative rounded-[40px] overflow-hidden shadow-2xl shadow-primary-color/20">
+        <div className="flex-1 p-8 md:p-12 relative z-10">
+          <div className="flex items-center gap-3 mb-4 opacity-70">
+            <span className="w-2 h-2 bg-secondary-color rounded-full animate-ping"></span>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Central de Finanzas</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-none mb-3">
             Centro de <span className="text-secondary-color">Recaudación</span>
           </h1>
-          <p className="text-gray-400 font-medium italic">Gestión financiera y comprobantes de mentoría personalizada.</p>
+          <p className="text-white/50 font-medium italic text-sm md:text-base max-w-xl">Gestión financiera y comprobantes de mentoría personalizada con trazabilidad total.</p>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 relative z-10">
-           <div className="bg-emerald-50 p-6 px-10 rounded-[32px] border border-emerald-100/50">
-              <p className="text-[10px] font-black uppercase text-emerald-600 tracking-widest pl-1">Recaudado Hoy</p>
-              <p className="text-3xl font-black text-emerald-600 mt-1">${stats.today.toLocaleString()}</p>
+        <div className="flex flex-col md:flex-row gap-4 p-4 lg:p-8 relative z-10 w-full lg:w-auto">
+           <div className="bg-white/10 backdrop-blur-3xl p-8 rounded-[40px] border border-white/10 flex-1 min-w-[220px] group hover:bg-white/20 transition-all duration-500">
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[10px] font-black uppercase text-secondary-color tracking-[0.2em]">Recaudado Hoy</span>
+                <span className="text-xl opacity-50">⚡</span>
+              </div>
+              <p className="text-4xl font-black text-white tracking-tighter leading-tight">${stats.today.toLocaleString()}</p>
            </div>
-           <div className="bg-primary-color p-6 px-10 rounded-[32px] text-white">
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-60 pl-1">Balance Mensual</p>
-              <p className="text-3xl font-black mt-1">${stats.month.toLocaleString()}</p>
+           <div className="bg-secondary-color p-8 rounded-[40px] flex-1 min-w-[220px] shadow-xl shadow-secondary-color/20 group hover:scale-[1.02] transition-all duration-500">
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[10px] font-black uppercase text-primary-color tracking-[0.2em] opacity-60">Balance Mensual</span>
+                <Icons.Receipt />
+              </div>
+              <p className="text-4xl font-black text-primary-color tracking-tighter leading-tight">${stats.month.toLocaleString()}</p>
            </div>
         </div>
-        {/* Decorativo */}
-        <div className="absolute right-0 top-0 w-32 h-32 bg-secondary-color/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+        
+        {/* Mesh Background Effect */}
+        <div className="absolute top-0 right-0 w-[50%] h-full bg-gradient-to-l from-secondary-color/20 to-transparent pointer-events-none"></div>
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none"></div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* CONSOLA DE REGISTRO */}
-        <section className="lg:col-span-4 bg-white p-10 rounded-[64px] border border-gray-100 shadow-xl space-y-8 relative overflow-hidden">
-           <div className="space-y-2">
-              <h2 className="text-2xl font-black text-primary-color tracking-tighter">Nuevo Registro</h2>
-              <div className="h-1 w-12 bg-secondary-color rounded-full"></div>
+        {/* CONSOLA DE REGISTRO PREMIUM */}
+        <section className="lg:col-span-4 bg-white/70 backdrop-blur-3xl p-10 rounded-[56px] border border-white shadow-2xl space-y-8 relative group">
+           {/* Glass Decorative */}
+           <div className="absolute -top-20 -right-20 w-40 h-40 bg-secondary-color/10 rounded-full blur-[60px] group-hover:bg-secondary-color/20 transition-all duration-700"></div>
+           
+           <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 bg-primary-color rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary-color/20">
+                <Icons.Receipt />
+              </div>
+              <div className="space-y-0.5">
+                <h2 className="text-2xl font-black text-primary-color tracking-tighter">Nuevo Registro</h2>
+                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Consola de Abonos</p>
+              </div>
            </div>
 
-           <form onSubmit={handleSubmit} className="space-y-6">
+           <form onSubmit={handleSubmit} className="space-y-7 relative z-10">
               <div className="space-y-3 relative">
                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Buscar Alumno</label>
-                 <div className="relative group">
-                    <span className="absolute left-6 top-1/2 -translate-y-1/2 opacity-20"><Icons.Search /></span>
+                 <div className="relative group/search">
+                    <span className="absolute left-6 top-1/2 -translate-y-1/2 opacity-20 group-focus-within/search:opacity-100 group-focus-within/search:text-secondary-color transition-all transition-duration-300"><Icons.Search /></span>
                     <input 
                       type="text" 
-                      placeholder="Nombre del estudiante..."
+                      placeholder="Escribe el nombre aquí..."
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
-                      className="w-full bg-slate-50 border-none p-5 pl-14 rounded-[28px] outline-none font-bold text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all"
+                      className="w-full bg-slate-100/50 border-none p-6 pl-14 rounded-[32px] outline-none font-bold text-primary-color focus:ring-[6px] focus:ring-secondary-color/20 focus:bg-white transition-all duration-500 shadow-inner"
                     />
                  </div>
                  
                  {searchResults.length > 0 && (
-                    <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-50 bg-white rounded-[32px] shadow-2xl border border-gray-100 overflow-hidden divide-y divide-gray-50 animate-pop">
+                    <div className="absolute top-[calc(100%+12px)] left-2 right-2 z-50 bg-white/95 backdrop-blur-xl rounded-[32px] shadow-[0_30px_60px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden divide-y divide-gray-50 animate-pop">
                        {searchResults.map(s => (
                           <button 
                             key={s.id} 
                             type="button"
                             onClick={() => selectStudent(s)}
-                            className="w-full p-5 text-left hover:bg-slate-50 transition-all flex items-center justify-between group/item"
+                            className="w-full p-6 text-left hover:bg-secondary-color/10 transition-all flex items-center gap-5 group/item"
                           >
-                             <div>
-                                <p className="text-sm font-black text-primary-color">{s.full_name}</p>
-                                <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">{s.enrollments?.length} Inscripción(es)</p>
+                             <div className="w-12 h-12 rounded-2xl bg-primary-color text-white flex items-center justify-center font-black text-sm group-hover/item:scale-110 transition-transform">
+                                {s.full_name?.substring(0,1).toUpperCase()}
                              </div>
-                             <span className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity"><Icons.Chevron /></span>
+                             <div className="flex-1 min-w-0">
+                                <p className="text-sm font-black text-primary-color truncate uppercase">{s.full_name}</p>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{s.enrollments?.length} Inscripción(es) Activa(s)</p>
+                             </div>
+                             <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity"><Icons.Chevron /></span>
                           </button>
                        ))}
                     </div>
@@ -266,60 +292,67 @@ export default function ManualPaymentsPage() {
               </div>
 
               {selectedStudent && (
-                 <div className="space-y-6 animate-fade-in">
+                 <div className="space-y-7 animate-fade-in">
                     <div className="space-y-3 relative">
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Diplomado / Programa</label>
-                       <div className="relative">
+                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Matrícula / Deuda Real</label>
+                       <div className="relative group">
                           <select 
                             value={selectedEnrollment}
                             onChange={(e) => setSelectedEnrollment(e.target.value)}
-                            className="w-full appearance-none bg-slate-50 border-none p-5 pr-14 rounded-[28px] outline-none font-bold text-sm text-primary-color cursor-pointer"
+                            className="w-full appearance-none bg-emerald-500 text-white border-none p-6 pr-14 rounded-[32px] outline-none font-black text-[13px] uppercase tracking-wider cursor-pointer shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all"
                           >
                              {enrollments.map(e => (
-                                <option key={e.id} value={e.id}>
-                                   {e.courses.title} (${(e.calculatedBalance ?? 0).toLocaleString()})
+                                <option key={e.id} value={e.id} className="text-primary-color">
+                                   {e.courses.title} - SALDO: ${(e.calculatedBalance ?? 0).toLocaleString()}
                                 </option>
                              ))}
                           </select>
-                          <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-30"><Icons.Chevron /></div>
+                          <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-white/50"><Icons.Chevron /></div>
                        </div>
                     </div>
 
                     <div className="space-y-3">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Monto del Abono</label>
                        <div className="relative group">
-                          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-primary-color/20">$</span>
+                          <span className="absolute left-8 top-1/2 -translate-y-1/2 text-3xl font-black text-primary-color/20">$</span>
                           <input 
                             type="number" 
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className="w-full bg-slate-50 border-none p-8 pl-14 rounded-[32px] outline-none text-4xl font-black text-primary-color focus:ring-4 focus:ring-emerald-500/10 placeholder:text-gray-100 transition-all"
+                            className="w-full bg-slate-100/50 border-none p-10 pl-16 rounded-[40px] outline-none text-5xl font-black text-primary-color focus:ring-[8px] focus:ring-emerald-500/10 focus:bg-white placeholder:text-gray-100 transition-all duration-500 shadow-inner"
                           />
                        </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Método de Pago</label>
-                       <div className="grid grid-cols-2 gap-3">
+                       <div className="grid grid-cols-2 gap-4">
                           <button 
                             type="button"
                             onClick={() => setPaymentMethod('transfer')}
-                            className={`p-4 rounded-[24px] text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'transfer' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
-                          >Transferencia</button>
+                            className={`p-6 rounded-[32px] flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'transfer' ? 'bg-primary-color text-white shadow-2xl shadow-primary-color/20' : 'bg-slate-100 text-gray-400 hover:bg-slate-200'}`}
+                          >
+                             <Icons.Transfer />
+                             <span>Transferencia</span>
+                          </button>
                           <button 
                             type="button"
                             onClick={() => setPaymentMethod('cash')}
-                            className={`p-4 rounded-[24px] text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'cash' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
-                          >Efectivo</button>
+                            className={`p-6 rounded-[32px] flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'cash' ? 'bg-secondary-color text-primary-color shadow-2xl shadow-secondary-color/20' : 'bg-slate-100 text-gray-400 hover:bg-slate-200'}`}
+                          >
+                             <Icons.Cash />
+                             <span>Efectivo</span>
+                          </button>
                        </div>
                     </div>
 
                     <div className="space-y-3">
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Soporte Digital</label>
+                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Comprobante (Archivo)</label>
                        <label className="block w-full cursor-pointer group">
-                          <div className="w-full border-2 border-dashed border-gray-100 p-6 rounded-[28px] text-center group-hover:bg-slate-50 group-hover:border-secondary-color transition-all">
-                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{file ? file.name : 'Click para subir comprobante'}</p>
+                          <div className="w-full border-3 border-dashed border-gray-100 p-8 rounded-[40px] text-center group-hover:bg-slate-50 group-hover:border-emerald-500/30 transition-all duration-500">
+                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{file ? file.name : 'Subir Imagen / PDF'}</p>
+                             <p className="text-[8px] text-emerald-500 font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Optimizado automático</p>
                           </div>
                           <input type="file" className="hidden" onChange={e => setFile(e.target.files[0])} />
                        </label>
@@ -328,52 +361,72 @@ export default function ManualPaymentsPage() {
                     <button 
                       type="submit" 
                       disabled={loading}
-                      className="w-full py-7 bg-primary-color text-white rounded-[32px] font-black text-[11px] uppercase tracking-widest shadow-2xl shadow-primary-color/20 hover:bg-secondary-color hover:text-primary-color transition-all"
+                      className="w-full py-8 bg-emerald-500 text-white rounded-[40px] font-black text-[12px] uppercase tracking-[0.2em] shadow-3xl shadow-emerald-500/30 hover:bg-primary-color hover:scale-[1.02] active:scale-[0.98] transition-all duration-500"
                     >
-                       {loading ? 'Procesando Transacción...' : 'Registrar y Generar Comprobante'}
+                       {loading ? 'Sincronizando...' : 'Completar Registro y PDF'}
                     </button>
                  </div>
               )}
            </form>
         </section>
 
-        {/* LIBRO MAYOR DE TRANSACCIONES */}
-        <div className="lg:col-span-8 space-y-6">
-           <div className="bg-white rounded-[64px] border border-gray-100 shadow-sm overflow-hidden min-h-[600px]">
-              <header className="p-10 border-b border-gray-100 flex justify-between items-center">
-                 <h2 className="text-xl font-black text-primary-color tracking-tighter">Registros Recientes</h2>
-                 <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-full leading-none">Últimos 10 movimientos</span>
+        {/* LIBRO MAYOR DE TRANSACCIONES PREMIUM */}
+        <div className="lg:col-span-8 space-y-6 group/table">
+           <div className="bg-white rounded-[64px] border border-gray-100 shadow-sm overflow-hidden min-h-[700px] flex flex-col hover:shadow-2xl hover:shadow-primary-color/5 transition-all duration-700">
+              <header className="p-10 border-b border-gray-50 flex justify-between items-center bg-slate-50/30">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                       <Icons.Receipt />
+                    </div>
+                    <div>
+                       <h2 className="text-xl font-black text-primary-color tracking-tighter">Historial Reciente</h2>
+                       <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Trazabilidad de Últimos 10 movimientos</p>
+                    </div>
+                 </div>
+                 <div className="flex gap-2">
+                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">Conectado</span>
+                 </div>
               </header>
 
-              <table className="w-full border-separate border-spacing-0">
-                 <thead>
-                    <tr className="bg-slate-50/50">
-                       <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400">Estudiante / Programa</th>
-                       <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400">Tipo</th>
-                       <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400">Monto</th>
-                       <th className="p-8 text-right text-[9px] font-black uppercase tracking-widest text-gray-400">Acciones</th>
+              <div className="flex-1 overflow-x-auto">
+                <table className="w-full border-separate border-spacing-0">
+                  <thead>
+                    <tr className="bg-white">
+                      <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Estudiante / Programa</th>
+                      <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Método</th>
+                      <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Monto</th>
+                      <th className="p-8 text-right text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Comprobante</th>
                     </tr>
-                 </thead>
-                 <tbody>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
                     {recentPayments.map(p => (
-                       <tr key={p.id} className="group hover:bg-slate-50/30 transition-all">
-                          <td className="p-8 border-b border-gray-50">
-                             <div className="min-w-0">
-                                <p className="text-sm font-black text-primary-color truncate group-hover:text-secondary-color transition-colors">{p.enrollment?.student?.full_name}</p>
-                                <p className="text-[10px] font-bold text-gray-300 uppercase">{p.enrollment?.courses?.title}</p>
+                       <tr key={p.id} className="group hover:bg-slate-50/50 transition-all duration-300">
+                          <td className="p-8">
+                             <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary-color font-black text-xs group-hover:bg-primary-color group-hover:text-white transition-all duration-500">
+                                   {p.enrollment?.student?.full_name?.substring(0,1).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                   <p className="text-sm font-black text-primary-color truncate group-hover:text-emerald-600 transition-colors uppercase">{p.enrollment?.student?.full_name}</p>
+                                   <p className="text-[9px] font-black text-secondary-color uppercase tracking-wider">{p.enrollment?.courses?.title}</p>
+                                </div>
                              </div>
                           </td>
-                          <td className="p-8 border-b border-gray-50">
-                             <span className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${p.payment_method === 'transfer' ? 'bg-indigo-50 text-indigo-500' : 'bg-emerald-50 text-emerald-500'}`}>
+                          <td className="p-8">
+                             <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit ${p.payment_method === 'transfer' ? 'bg-indigo-50 text-indigo-500 border border-indigo-100' : 'bg-emerald-50 text-emerald-500 border border-emerald-100'}`}>
+                                {p.payment_method === 'transfer' ? <Icons.Transfer /> : <Icons.Cash />}
                                 {p.payment_method === 'transfer' ? 'Transf.' : 'Efectivo'}
                              </span>
                           </td>
-                          <td className="p-8 border-b border-gray-50">
-                             <p className="text-sm font-black text-slate-700 font-display">${p.amount.toLocaleString()}</p>
-                             <p className="text-[9px] font-bold text-gray-300 uppercase">{new Date(p.created_at).toLocaleDateString()}</p>
+                          <td className="p-8">
+                             <div className="space-y-0.5">
+                                <p className="text-lg font-black text-primary-color font-display tracking-tighter">${p.amount.toLocaleString()}</p>
+                                <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{new Date(p.created_at).toLocaleDateString()} · {new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                             </div>
                           </td>
-                          <td className="p-8 border-b border-gray-50 text-right">
-                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                          <td className="p-8 text-right">
+                             <div className="flex justify-end gap-3 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
                                 <button 
                                   onClick={() => generateReceipt({
                                     student: p.enrollment?.student?.full_name,
@@ -381,27 +434,33 @@ export default function ManualPaymentsPage() {
                                     amount: p.amount,
                                     payment_method: p.payment_method
                                   })}
-                                  className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-primary-color hover:text-white transition-all shadow-sm"
-                                  title="Generar Copia PDF"
-                                ><Icons.PDF /></button>
+                                  className="h-10 px-5 bg-white border border-gray-100 text-primary-color rounded-xl flex items-center gap-2 text-[9px] font-black uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all shadow-sm"
+                                >
+                                   <Icons.PDF />
+                                   <span>Recibo</span>
+                                </button>
                                 
                                 {p.receipt_url && (
                                   <a 
                                     href={p.receipt_url} 
                                     target="_blank" 
-                                    className="w-10 h-10 bg-secondary-color/10 text-secondary-color rounded-xl flex items-center justify-center hover:bg-secondary-color hover:text-primary-color transition-all shadow-sm"
-                                    title="Ver Soporte"
+                                    className="w-10 h-10 bg-secondary-color text-primary-color rounded-xl flex items-center justify-center hover:scale-110 transition-all shadow-lg shadow-secondary-color/20"
                                   ><Icons.Link /></a>
                                 )}
                              </div>
                           </td>
                        </tr>
                     ))}
-                    {recentPayments.length === 0 && (
-                       <tr><td colSpan="4" className="p-40 text-center text-gray-300 italic text-xs">Aún no has registrado transacciones en Fundetec.</td></tr>
-                    )}
-                 </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
+
+              {recentPayments.length === 0 && (
+                <div className="flex-1 flex flex-col items-center justify-center p-20 text-center space-y-4 opacity-20">
+                   <div className="text-6xl">📊</div>
+                   <p className="font-black uppercase tracking-[0.4em] text-[10px]">Sin movimientos recientes</p>
+                </div>
+              )}
            </div>
         </div>
       </div>
