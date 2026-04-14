@@ -53,7 +53,17 @@ export default function ManualPaymentsPage() {
     const { data: { session } } = await supabase.auth.getSession();
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, enrollments(id, remaining_balance, courses(title))')
+      .select(`
+        id, 
+        full_name, 
+        enrollments(
+          id, 
+          total_price,
+          remaining_balance, 
+          courses(title), 
+          payments(amount)
+        )
+      `)
       .eq('coordinator_id', session.user.id)
       .ilike('full_name', `%${term}%`)
       .limit(6);
@@ -63,11 +73,22 @@ export default function ManualPaymentsPage() {
 
   const selectStudent = (student) => {
     setSelectedStudent(student);
-    setEnrollments(student.enrollments || []);
+    
+    // Calcular saldos dinámicos para cada inscripción
+    const processedEnrollments = (student.enrollments || []).map(enr => {
+      const total_price = Number(enr.total_price) || 0;
+      const totalPaid = enr.payments?.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0) || 0;
+      return {
+        ...enr,
+        calculatedBalance: total_price - totalPaid
+      };
+    });
+
+    setEnrollments(processedEnrollments);
     setSearchResults([]);
     setSearchTerm(student.full_name);
-    if (student.enrollments?.length > 0) {
-      setSelectedEnrollment(student.enrollments[0].id);
+    if (processedEnrollments.length > 0) {
+      setSelectedEnrollment(processedEnrollments[0].id);
     }
   };
 
@@ -144,9 +165,10 @@ export default function ManualPaymentsPage() {
 
       if (paymentError) throw paymentError;
 
-      // Actualizar automáticamente el saldo en la matrícula
+      // Actualizar automáticamente el saldo en la matrícula (como respaldo, aunque ahora usamos cálculo dinámico)
       const currentEnrollment = enrollments.find(e => e.id === selectedEnrollment);
-      const newBalance = currentEnrollment.remaining_balance - parseFloat(amount);
+      const currentRemaining = currentEnrollment.remaining_balance ?? (Number(currentEnrollment.total_price) || 0);
+      const newBalance = currentRemaining - parseFloat(amount);
 
       const { error: updateError } = await supabase
         .from('enrollments')
@@ -255,7 +277,7 @@ export default function ManualPaymentsPage() {
                           >
                              {enrollments.map(e => (
                                 <option key={e.id} value={e.id}>
-                                   {e.courses.title} (${e.remaining_balance.toLocaleString()})
+                                   {e.courses.title} (${(e.calculatedBalance ?? 0).toLocaleString()})
                                 </option>
                              ))}
                           </select>
