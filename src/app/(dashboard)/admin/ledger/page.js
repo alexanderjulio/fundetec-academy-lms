@@ -56,10 +56,18 @@ export default function StudentLedgerPage() {
       .order('enrolled_at', { ascending: false });
 
     if (!error) {
-      // Calculate total paid per enrollment
+      // Calculate total paid and real balance per enrollment
       const enriched = data.map(enr => {
-        const totalPaid = enr.payments?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
-        return { ...enr, totalPaid };
+        const total_price = Number(enr.total_price) || 0;
+        const totalPaid = enr.payments?.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0) || 0;
+        const calculatedBalance = total_price - totalPaid;
+        
+        return { 
+          ...enr, 
+          total_price,
+          totalPaid, 
+          calculatedBalance 
+        };
       });
       setEnrollments(enriched);
     }
@@ -74,7 +82,7 @@ export default function StudentLedgerPage() {
       coordinator: enr.student?.coordinator?.full_name || 'Administración',
       total_cost: enr.total_price,
       paid: enr.totalPaid,
-      balance: enr.remaining_balance
+      balance: enr.calculatedBalance
     }));
 
     const filename = `Libro_Mayor_Estudiantes_${new Date().getTime()}`;
@@ -92,7 +100,7 @@ export default function StudentLedgerPage() {
       : (filters.coordinator === 'admin' ? !enr.student?.coordinator : enr.student?.coordinator?.id === filters.coordinator);
     const matchesStatus = filters.status === 'all'
       ? true
-      : (filters.status === 'paid' ? enr.remaining_balance <= 0 : enr.remaining_balance > 0);
+      : (filters.status === 'paid' ? enr.calculatedBalance <= 0 : enr.calculatedBalance > 0);
     
     return matchesSearch && matchesCoordinator && matchesStatus;
   });
@@ -100,7 +108,7 @@ export default function StudentLedgerPage() {
   const totals = {
     cost: filteredLedger.reduce((acc, curr) => acc + curr.total_price, 0),
     paid: filteredLedger.reduce((acc, curr) => acc + curr.totalPaid, 0),
-    balance: filteredLedger.reduce((acc, curr) => acc + curr.remaining_balance, 0)
+    balance: filteredLedger.reduce((acc, curr) => acc + curr.calculatedBalance, 0)
   };
 
   return (
@@ -201,8 +209,8 @@ export default function StudentLedgerPage() {
                                     <td className="p-8 border-b border-gray-50 text-center font-display font-black text-gray-400">${(enr.total_price || 0).toLocaleString()}</td>
                                     <td className="p-8 border-b border-gray-50 text-center font-display font-black text-emerald-500">${(enr.totalPaid || 0).toLocaleString()}</td>
                                     <td className="p-8 border-b border-gray-50 text-center">
-                                        <span className={`px-4 py-2 rounded-full text-[10px] font-black font-display ${enr.remaining_balance <= 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
-                                            ${(enr.remaining_balance || 0).toLocaleString()}
+                                        <span className={`px-4 py-2 rounded-full text-[10px] font-black font-display ${enr.calculatedBalance <= 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
+                                            ${(enr.calculatedBalance || 0).toLocaleString()}
                                         </span>
                                     </td>
                                     <td className="p-8 border-b border-gray-50 text-right">
