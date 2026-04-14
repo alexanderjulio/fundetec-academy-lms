@@ -109,30 +109,24 @@ export default function ManualPaymentsPage() {
     if (!error) {
       setRecentPayments(data);
       
-      // 2. Cálculo de estadísticas independiente (sin límite de historial)
-      const now = new Date();
-      const todayString = now.toDateString();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
+      // 2. Cálculo de estadísticas (Hoy y Histórico Total)
+      const todayString = new Date().toDateString();
 
-      // Consultamos todos los pagos del mes para este coordinador
-      const startOfMonth = new Date(currentYear, currentMonth, 1).toISOString();
-      
-      const { data: monthData } = await supabase
+      // Consultamos absolutamente todos los pagos para este coordinador
+      const { data: allData } = await supabase
         .from('payments')
         .select('amount, created_at')
-        .eq('registered_by', session.user.id)
-        .gte('created_at', startOfMonth);
+        .eq('registered_by', session.user.id);
 
-      if (monthData) {
-        const todayTotal = monthData
+      if (allData) {
+        const todayTotal = allData
           .filter(p => new Date(p.created_at).toDateString() === todayString)
           .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
         
-        const monthTotal = monthData
+        const historicalTotal = allData
           .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
           
-        setStats({ today: todayTotal, month: monthTotal });
+        setStats({ today: todayTotal, historical: historicalTotal });
       }
     }
   };
@@ -235,10 +229,10 @@ export default function ManualPaymentsPage() {
            </div>
            <div className="bg-secondary-color p-8 rounded-[40px] flex-1 min-w-[220px] shadow-xl shadow-secondary-color/20 group hover:scale-[1.02] transition-all duration-500">
               <div className="flex justify-between items-start mb-4">
-                <span className="text-[10px] font-black uppercase text-primary-color tracking-[0.2em] opacity-60">Balance Mensual</span>
+                <span className="text-[10px] font-black uppercase text-primary-color tracking-[0.2em] opacity-60">Recaudo Histórico</span>
                 <Icons.Receipt />
               </div>
-              <p className="text-4xl font-black text-primary-color tracking-tighter leading-tight">${stats.month.toLocaleString()}</p>
+              <p className="text-4xl font-black text-primary-color tracking-tighter leading-tight">${(stats.historical || 0).toLocaleString()}</p>
            </div>
         </div>
         
