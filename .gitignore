@@ -46,3 +46,9 @@ scratch/
 *.zip
 .skill/
 database*.sql
+
+# Backups & Credentials
+/backups/
+service_account.json
+oauth_credentials.json
+token.json

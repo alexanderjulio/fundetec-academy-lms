@@ -1,0 +1,20 @@
+[
+  {
+    "id": "3e0ed8a2-5b61-46c0-9026-ba16954d4a25",
+    "student_id": "4f37e391-be32-481e-9d7d-1ad64a1511e2",
+    "course_id": "25bbf022-3519-42c7-8749-90d37f9e2da7",
+    "status": "active",
+    "total_price": 50000,
+    "remaining_balance": 10000,
+    "enrolled_at": "2026-04-10T23:12:43.746005+00:00"
+  },
+  {
+    "id": "ad2db8f4-357f-44ff-a009-598b3f30d34e",
+    "student_id": "4f37e391-be32-481e-9d7d-1ad64a1511e2",
+    "course_id": "4efd05e0-1895-4bf2-8f1d-18e9f64086f6",
+    "status": "active",
+    "total_price": null,
+    "remaining_balance": null,
+    "enrolled_at": "2026-04-13T18:46:38.188042+00:00"
+  }
+]

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Navbar from '@/components/layout/Navbar';
 
-export default function ResetPasswordPage() {
+function ResetContent() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,66 +39,84 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card glass-card">
-        <header className="login-header">
-          <span className="logo-text">FUNDETEC <span className="accent">ACADEMY</span></span>
-          <h1>Nueva Contraseña</h1>
-          <p>Define tu nueva clave de acceso segura.</p>
-        </header>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-secondary-color/30">
+      <Navbar />
+      
+      <main className="flex-1 flex items-center justify-center p-6 pt-24">
+        <div className="w-full max-w-md bg-white p-10 md:p-12 rounded-[40px] border border-gray-100 shadow-2xl shadow-primary-color/5 space-y-10 animate-fade-in">
+          <header className="space-y-3 text-center">
+            <span className="text-[10px] font-black text-secondary-color uppercase tracking-[0.3em] bg-secondary-color/10 px-4 py-1.5 rounded-full">Seguridad de Cuenta</span>
+            <h1 className="text-3xl md:text-4xl font-black text-primary-color tracking-tighter font-display leading-none">
+              Nueva Contraseña
+            </h1>
+            <p className="text-gray-400 font-medium italic text-sm">
+              Define tu nueva clave de acceso institucional.
+            </p>
+          </header>
 
-        {status.msg && (
-          <div className={`status-box ${status.type}`}>
-            {status.msg}
-          </div>
-        )}
+          {status.msg && (
+            <div className={`p-4 rounded-2xl text-sm font-bold text-center animate-pop border ${
+              status.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'
+            }`}>
+              {status.msg}
+            </div>
+          )}
 
-        <form onSubmit={handleReset} className="modern-form">
-          <div className="form-group">
-            <label>Nueva Contraseña</label>
-            <input 
-              type="password" 
-              required 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="••••••••" 
-            />
-          </div>
-          <div className="form-group">
-            <label>Confirmar Contraseña</label>
-            <input 
-              type="password" 
-              required 
-              value={confirmPassword} 
-              onChange={(e) => setConfirmPassword(e.target.value)} 
-              placeholder="••••••••" 
-            />
-          </div>
+          <form onSubmit={handleReset} className="space-y-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Nueva Contraseña</label>
+              <input 
+                type="password" 
+                required 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                placeholder="••••••••" 
+                className="w-full bg-slate-50 border border-gray-100 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-secondary-color/10 focus:border-secondary-color transition-all font-mono font-bold text-primary-color placeholder:text-gray-300"
+              />
+            </div>
 
-          <button type="submit" disabled={loading} className="btn btn-primary btn-full">
-            {loading ? 'Actualizando...' : 'Cambiar Contraseña'}
-          </button>
-        </form>
-      </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Confirmar Contraseña</label>
+              <input 
+                type="password" 
+                required 
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)} 
+                placeholder="••••••••" 
+                className="w-full bg-slate-50 border border-gray-100 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-secondary-color/10 focus:border-secondary-color transition-all font-mono font-bold text-primary-color placeholder:text-gray-300"
+              />
+            </div>
 
-      <style jsx>{`
-        .login-page {
-          min-height: 100vh; display: flex; align-items: center; justify-content: center;
-          background: #0c1e45; padding: 2rem;
-        }
-        .login-card { width: 100%; max-width: 480px; padding: 4rem 3.5rem; border-radius: 40px; color: white; }
-        .login-header { text-align: center; margin-bottom: 3rem; }
-        .logo-text { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; }
-        .logo-text .accent { color: #16a34a; }
-        .status-box { padding: 1.25rem; border-radius: 20px; margin-bottom: 2rem; text-align: center; font-size: 0.9rem; }
-        .status-box.error { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
-        .status-box.success { background: rgba(34, 197, 94, 0.1); color: #86efac; }
-        .modern-form { display: flex; flex-direction: column; gap: 2rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.8rem; }
-        label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
-        input { background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); padding: 1.25rem; border-radius: 20px; color: white; outline: none; }
-        .btn-full { width: 100%; padding: 1.25rem; border-radius: 100px; background: #16a34a; color: white; font-weight: 700; margin-top: 1rem; }
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className="w-full bg-primary-color text-white p-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color/10 active:scale-95 disabled:opacity-50"
+            >
+              {loading ? 'Actualizando...' : 'Cambiar Contraseña'}
+            </button>
+          </form>
+        </div>
+      </main>
+
+      <footer className="p-10 text-center">
+        <p className="text-[8px] font-black uppercase text-gray-300 tracking-[0.5em]">Fundetec Academy • Secure Protocol</p>
+      </footer>
+
+      <style jsx global>{`
+        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes pop { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .font-display { font-family: 'Outfit', sans-serif; }
       `}</style>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center font-black animate-pulse text-gray-300 text-[10px] tracking-widest">CARGANDO MÓDULO DE SEGURIDAD...</div>}>
+      <ResetContent />
+    </Suspense>
   );
 }

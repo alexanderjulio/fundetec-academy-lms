@@ -1,0 +1,13 @@
+[
+  {
+    "id": "41932fb1-8e1c-47cc-9ad7-d030ccf1bee2",
+    "enrollment_id": "3e0ed8a2-5b61-46c0-9026-ba16954d4a25",
+    "amount": 20000,
+    "payment_date": "2026-04-10",
+    "receipt_url": null,
+    "registered_by": "5672adbc-f395-424b-808e-caf46933d1bd",
+    "payment_method": "cash",
+    "notes": "Abono inicial en matrícula",
+    "created_at": "2026-04-10T23:12:44.03603+00:00"
+  }
+]

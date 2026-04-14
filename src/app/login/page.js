@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginContent() {
   const [isLogin, setIsLogin] = useState(true);
   const [mode, setMode] = useState('auth'); // 'auth' or 'forgot'
   const [email, setEmail] = useState('');
@@ -214,7 +214,14 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
-
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center font-black animate-pulse">CARGANDO ACCESO...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
