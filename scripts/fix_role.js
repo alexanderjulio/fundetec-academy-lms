@@ -33,10 +33,10 @@ async function promoteToCoordinator() {
 
   console.log(`✅ Usuario encontrado: ${profile.full_name} (ID: ${profile.id}, Rol actual: ${profile.role_id})`);
 
-  // 2. Actualizar el role_id a 2 (Coordinador)
+  // 2. Actualizar el role_id a 1 (Administrador)
   const { error: updateError } = await supabase
     .from('profiles')
-    .update({ role_id: 2 })
+    .update({ role_id: 1 })
     .eq('id', profile.id);
 
   if (updateError) {

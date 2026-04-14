@@ -116,15 +116,15 @@ export default function StudentLedgerPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full lg:w-auto z-10">
             <div className="bg-slate-50 p-6 rounded-[32px] border border-gray-100">
                <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest block mb-1">Total Contratado</span>
-               <span className="text-xl font-black text-primary-color">${totals.cost.toLocaleString()}</span>
+               <span className="text-xl font-black text-primary-color">${(totals.cost || 0).toLocaleString()}</span>
             </div>
             <div className="bg-emerald-50 p-6 rounded-[32px] border border-emerald-100">
                <span className="text-[9px] font-black uppercase text-emerald-500 tracking-widest block mb-1">Total Recaudado</span>
-               <span className="text-xl font-black text-emerald-600">${totals.paid.toLocaleString()}</span>
+               <span className="text-xl font-black text-emerald-600">${(totals.paid || 0).toLocaleString()}</span>
             </div>
             <div className="bg-amber-50 p-6 rounded-[32px] border border-amber-100 col-span-2 md:col-span-1">
                <span className="text-[9px] font-black uppercase text-amber-500 tracking-widest block mb-1">Cartera Pendiente</span>
-               <span className="text-xl font-black text-amber-600">${totals.balance.toLocaleString()}</span>
+               <span className="text-xl font-black text-amber-600">${(totals.balance || 0).toLocaleString()}</span>
             </div>
         </div>
       </header>
@@ -198,11 +198,11 @@ export default function StudentLedgerPage() {
                                     <td className="p-8 border-b border-gray-50">
                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{enr.student?.coordinator?.full_name || 'Admin Central'}</span>
                                     </td>
-                                    <td className="p-8 border-b border-gray-50 text-center font-display font-black text-gray-400">${enr.total_price.toLocaleString()}</td>
-                                    <td className="p-8 border-b border-gray-50 text-center font-display font-black text-emerald-500">${enr.totalPaid.toLocaleString()}</td>
+                                    <td className="p-8 border-b border-gray-50 text-center font-display font-black text-gray-400">${(enr.total_price || 0).toLocaleString()}</td>
+                                    <td className="p-8 border-b border-gray-50 text-center font-display font-black text-emerald-500">${(enr.totalPaid || 0).toLocaleString()}</td>
                                     <td className="p-8 border-b border-gray-50 text-center">
                                         <span className={`px-4 py-2 rounded-full text-[10px] font-black font-display ${enr.remaining_balance <= 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
-                                            ${enr.remaining_balance.toLocaleString()}
+                                            ${(enr.remaining_balance || 0).toLocaleString()}
                                         </span>
                                     </td>
                                     <td className="p-8 border-b border-gray-50 text-right">
@@ -222,7 +222,7 @@ export default function StudentLedgerPage() {
                                                         enr.payments.map(p => (
                                                             <div key={p.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-3">
                                                                 <div className="flex justify-between items-start">
-                                                                    <span className="text-xl font-black text-emerald-600">${p.amount.toLocaleString()}</span>
+                                                                    <span className="text-xl font-black text-emerald-600">${(p.amount || 0).toLocaleString()}</span>
                                                                     <span className="text-[9px] font-black uppercase text-gray-300">{new Date(p.payment_date).toLocaleDateString()}</span>
                                                                 </div>
                                                                 <p className="text-[10px] font-bold text-gray-400 leading-tight uppercase tracking-wider">{p.payment_method}</p>
