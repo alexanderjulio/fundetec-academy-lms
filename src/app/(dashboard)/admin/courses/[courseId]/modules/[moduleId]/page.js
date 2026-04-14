@@ -190,6 +190,7 @@ export default function ModuleContentPage() {
     else if (tag === 'b') newText = `${before}<b>${selected}</b>${after}`;
     else if (tag === 'h3') newText = `${before}<h3>${selected}</h3>${after}`;
     else if (tag === 'li') newText = `${before}<ul>\n  <li>${selected}</li>\n</ul>${after}`;
+    else if (tag === 'table') newText = `${before}<table style="width:100%;">\n  <thead>\n    <tr>\n      <th>Columna 1</th>\n      <th>Columna 2</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Dato 1</td>\n      <td>Dato 2</td>\n    </tr>\n  </tbody>\n</table>${after}`;
     
     setLessonForm({ ...lessonForm, content: newText });
     textarea.focus();
@@ -199,19 +200,32 @@ export default function ModuleContentPage() {
 
   return (
     <div className="module-content-page">
-      <nav className="breadcrumb">
-        <Link href={`/admin/courses/${courseId}`}>← Volver al Malla del Curso</Link>
+      <nav className="mb-10 animate-fade-in">
+        <Link href={`/admin/courses/${courseId}`} className="group inline-flex items-center gap-3 bg-slate-50 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:bg-primary-color hover:text-white transition-all shadow-sm">
+          <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span>
+          Volver a la Malla del Curso
+        </Link>
       </nav>
 
-      <header className="page-header">
-        <div className="header-info">
-          <span className="course-name">{course?.title}</span>
-          <h1>{module?.title}</h1>
-          <p>Organiza las lecciones y evaluaciones de este módulo.</p>
+      <header className="bg-white rounded-[48px] p-10 md:p-14 mb-12 shadow-2xl shadow-slate-100 flex flex-col md:flex-row justify-between items-center md:items-end gap-8 animate-slide-up border border-slate-50">
+        <div className="space-y-3 text-center md:text-left">
+          <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">{course?.title}</span>
+          <h1 className="text-5xl font-black text-primary-color tracking-tighter font-display leading-tight">{module?.title}</h1>
+          <p className="text-gray-400 font-bold text-sm">Gestiona la secuencia de aprendizaje y las evaluaciones de este módulo académico.</p>
         </div>
-        <div className="header-actions">
-          <button className="btn btn-outline" onClick={() => handleOpenExamModal()}>+ Examen</button>
-          <button className="btn btn-primary" onClick={() => handleOpenLessonModal()}>+ Lección</button>
+        <div className="flex gap-4 shrink-0">
+          <button 
+            className="flex items-center gap-3 bg-slate-50 text-gray-400 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100" 
+            onClick={() => handleOpenExamModal()}
+          >
+            <span className="text-lg">+</span> EXAMEN
+          </button>
+          <button 
+            className="flex items-center gap-3 bg-primary-color text-white px-8 py-5 rounded-[28px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color/20" 
+            onClick={() => handleOpenLessonModal()}
+          >
+            <span className="text-lg">+</span> LECCIÓN
+          </button>
         </div>
       </header>
 
@@ -272,105 +286,179 @@ export default function ModuleContentPage() {
         </section>
       </div>
 
-      {/* Lesson Modal con Editor Enriquecido Fundetec */}
+      {/* MODAL DE LECCIÓN REDISEÑADO PREMIUM */}
       {isLessonModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card animate-pop wide-modal scrollable">
-            <header className="modal-header">
-              <h2>{editingLesson ? 'Editar Lección' : 'Nueva Lección'}</h2>
-              <button className="close-btn" onClick={() => setIsLessonModalOpen(false)}>✕</button>
-            </header>
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl animate-fade-in" onClick={() => setIsLessonModalOpen(false)}></div>
+          
+          <div className="relative w-full max-w-5xl bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop max-h-[95vh] flex flex-col">
+             <header className="p-10 pb-0 flex justify-between items-start flex-shrink-0">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Gestor de Contenidos</span>
+                  <h2 className="text-4xl font-black text-primary-color font-display tracking-tighter">
+                    {editingLesson ? 'Ajustar Lección' : 'Nueva Lección'}
+                  </h2>
+                </div>
+                <button onClick={() => setIsLessonModalOpen(false)} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm">✕</button>
+             </header>
 
-            <form onSubmit={handleSaveLesson} className="modern-form">
-              <div className="form-grid">
-                <div className="form-main">
-                  <div className="form-group">
-                    <label>Título de la Lección</label>
-                    <input type="text" required value={lessonForm.title} onChange={e => setLessonForm({...lessonForm, title: e.target.value})} placeholder="Ej: Introducción a la anatomía" />
-                  </div>
+             <form onSubmit={handleSaveLesson} className="flex-1 overflow-y-auto p-10 pt-8 space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                  <div className="lg:col-span-8 space-y-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Título Institucional de la Lección</label>
+                      <input 
+                        type="text" required 
+                        value={lessonForm.title} 
+                        onChange={e => setLessonForm({...lessonForm, title: e.target.value})} 
+                        className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color transition-all text-xl shadow-inner placeholder:text-gray-300"
+                        placeholder="Ej: Introducción a la anatomía clínica"
+                      />
+                    </div>
 
-                  {lessonForm.content_type === 'reading' && (
-                    <div className="rich-editor-container">
-                      <div className="editor-tabs">
-                        <button type="button" className={`tab-btn ${activeTab === 'editor' ? 'active' : ''}`} onClick={() => setActiveTab('editor')}>✍️ Editor</button>
-                        <button type="button" className={`tab-btn ${activeTab === 'preview' ? 'active' : ''}`} onClick={() => setActiveTab('preview')}>👁️ Vista Previa</button>
-                      </div>
+                    {lessonForm.content_type === 'reading' && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between pl-2">
+                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Contenido Académico (Rich Text)</label>
+                           <div className="flex bg-slate-100 p-1 rounded-2xl">
+                             <button type="button" className={`px-4 py-2 rounded-xl text-[10px] font-black transition-all ${activeTab === 'editor' ? 'bg-white text-primary-color shadow-sm' : 'text-gray-400'}`} onClick={() => setActiveTab('editor')}>✍️ EDITOR</button>
+                             <button type="button" className={`px-4 py-2 rounded-xl text-[10px] font-black transition-all ${activeTab === 'preview' ? 'bg-white text-primary-color shadow-sm' : 'text-gray-400'}`} onClick={() => setActiveTab('preview')}>👁️ VISTA PREVIA</button>
+                           </div>
+                        </div>
 
-                      {activeTab === 'editor' ? (
-                        <div className="editor-area">
-                          <div className="editor-toolbar">
-                            <button type="button" onClick={() => insertTag('h3')}>H3</button>
-                            <button type="button" onClick={() => insertTag('b')} style={{fontWeight:800}}>B</button>
-                            <button type="button" onClick={() => insertTag('li')}>• Lista</button>
-                            <button type="button" onClick={() => insertTag('img')}>🖼️ Imagen</button>
-                            <button type="button" onClick={() => insertTag('video')}>🎥 Video</button>
+                        {activeTab === 'editor' ? (
+                          <div className="space-y-4 animate-fade-in">
+                            <div className="flex gap-2 p-2 bg-slate-50 rounded-[24px] overflow-x-auto">
+                              {[
+                                { tag: 'h3', label: 'H3' },
+                                { tag: 'b', label: 'NEGRITA' },
+                                { tag: 'li', label: '• LISTA' },
+                                { tag: 'img', label: '🖼️ IMAGEN' },
+                                { tag: 'video', label: '🎥 VIDEO' },
+                                { tag: 'table', label: '📊 TABLA' }
+                              ].map(tool => (
+                                <button key={tool.tag} type="button" onClick={() => insertTag(tool.tag)} className="px-4 py-2 bg-white rounded-xl text-[9px] font-black text-primary-color shadow-sm border border-slate-100 hover:bg-primary-color hover:text-white transition-all shrink-0">
+                                  {tool.label}
+                                </button>
+                              ))}
+                            </div>
+                            <textarea 
+                              id="lesson-content-editor"
+                              rows="12" 
+                              value={lessonForm.content} 
+                              onChange={e => setLessonForm({...lessonForm, content: e.target.value})}
+                              className="w-full bg-slate-50 border-none p-8 rounded-[40px] outline-none focus:ring-4 focus:ring-secondary-color/10 font-mono text-sm leading-relaxed shadow-inner placeholder:text-gray-300 min-h-[400px]"
+                              placeholder="Empieza a redactar el material para tus estudiantes..."
+                            ></textarea>
                           </div>
-                          <textarea 
-                            id="lesson-content-editor"
-                            rows="12" 
-                            value={lessonForm.content} 
-                            onChange={e => setLessonForm({...lessonForm, content: e.target.value})}
-                            placeholder="Escribe el contenido aquí. Puedes usar HTML o los botones de arriba..."
-                          ></textarea>
-                        </div>
-                      ) : (
-                        <div className="preview-area glass-card" dangerouslySetInnerHTML={{ __html: lessonForm.content || '<p style="color:#aaa; text-align:center;">El contenido está vacío...</p>' }}>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-side">
-                  <div className="form-group">
-                    <label>Tipo de Contenido</label>
-                    <select value={lessonForm.content_type} onChange={e => setLessonForm({...lessonForm, content_type: e.target.value})}>
-                      <option value="video">🎞️ Video (Principal)</option>
-                      <option value="reading">📖 Lectura / Artículo</option>
-                      <option value="file">📄 Material Descargable</option>
-                    </select>
+                        ) : (
+                          <div className="bg-white border-2 border-slate-50 p-10 rounded-[40px] shadow-inner min-h-[500px] animate-fade-in prose max-w-none" dangerouslySetInnerHTML={{ __html: lessonForm.content || '<p class="text-gray-300 text-center italic mt-20">El contenido está esperando ser redactado...</p>' }}>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {(lessonForm.content_type === 'video' || lessonForm.content_type === 'file') && (
-                    <div className="form-group animate-slide">
-                      <label>{lessonForm.content_type === 'video' ? 'URL del Video' : 'URL del Archivo'}</label>
-                      <input type="text" value={lessonForm.content_url} onChange={e => setLessonForm({...lessonForm, content_url: e.target.value})} placeholder="https://..." />
-                      <p className="hint">{lessonForm.content_type === 'video' ? 'Pega el link de YouTube, Vimeo o Cloudinary.' : 'Sube tu archivo a un storage y pega el link directo.'}</p>
+                  <div className="lg:col-span-4 space-y-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Formato de Lección</label>
+                      <select 
+                        value={lessonForm.content_type} 
+                        onChange={e => setLessonForm({...lessonForm, content_type: e.target.value})}
+                        className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-primary-color transition-all text-sm shadow-inner appearance-none cursor-pointer"
+                      >
+                        <option value="video">🎞️ VIDEO (PRINCIPAL)</option>
+                        <option value="reading">📖 LECTURA / ARTÍCULO</option>
+                        <option value="file">📄 MATERIAL DESCARGABLE</option>
+                      </select>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              <div className="modal-actions">
-                <button type="button" className="btn btn-outline" onClick={() => setIsLessonModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Guardando...' : (editingLesson ? 'Guardar Cambios' : 'Añadir Lección')}
-                </button>
-              </div>
-            </form>
+                    {(lessonForm.content_type === 'video' || lessonForm.content_type === 'file') && (
+                      <div className="space-y-2 animate-fade-in">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">
+                          {lessonForm.content_type === 'video' ? 'Enlace del Video' : 'Localización del Archivo'}
+                        </label>
+                        <input 
+                          type="text" 
+                          value={lessonForm.content_url} 
+                          onChange={e => setLessonForm({...lessonForm, content_url: e.target.value})} 
+                          className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-medium text-gray-500 transition-all text-sm shadow-inner placeholder:text-gray-300"
+                          placeholder="https://..." 
+                        />
+                        <p className="text-[9px] text-gray-400 font-bold px-3 leading-relaxed">
+                          {lessonForm.content_type === 'video' ? 'Soportamos YouTube, Vimeo y links directos de Cloudinary.' : 'Asegúrate de que el link tenga permisos de acceso público.'}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="p-8 bg-emerald-50 rounded-[40px] border border-emerald-100/50 space-y-4">
+                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Tips Académicos</p>
+                        <p className="text-xs font-bold text-emerald-800/60 leading-relaxed">
+                          Utiliza títulos cortos y directos. Una lección ideal no debería superar los 15 minutos de video o las 1000 palabras de lectura.
+                        </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4 pb-4">
+                   <button type="button" onClick={() => setIsLessonModalOpen(false)} className="flex-1 bg-slate-50 text-gray-400 py-6 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-100 hover:text-gray-500 transition-all">Descartar</button>
+                   <button type="submit" disabled={loading} className="flex-2 bg-primary-color text-white py-6 px-12 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/20">
+                     {loading ? 'Sincronizando...' : (editingLesson ? 'Actualizar Lección' : 'Añadir Lección')}
+                   </button>
+                </div>
+             </form>
           </div>
         </div>
       )}
 
-      {/* Exam Modal (Simple) */}
+      {/* MODAL DE EXAMEN REDISEÑADO PREMIUM */}
       {isExamModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card animate-pop">
-            <h2>{editingExam ? 'Editar Examen' : 'Nuevo Examen'}</h2>
-            <form onSubmit={handleSaveExam} className="modern-form">
-              <div className="form-group">
-                <label>Título del Examen</label>
-                <input type="text" required value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} placeholder="Ej: Evaluación Primer Ciclo" />
-              </div>
-              <div className="form-group">
-                <label>Puntaje Mínimo para Aprobar (%)</label>
-                <input type="number" required value={examForm.min_pass_score} onChange={e => setExamForm({...examForm, min_pass_score: e.target.value})} min="1" max="100" />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn btn-outline" onClick={() => setIsExamModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>Crear Evaluación</button>
-              </div>
-            </form>
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl animate-fade-in" onClick={() => setIsExamModalOpen(false)}></div>
+          
+          <div className="relative w-full max-w-lg bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop">
+             <header className="p-10 pb-0 flex justify-between items-start">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Evaluación Académica</span>
+                  <h2 className="text-4xl font-black text-primary-color font-display tracking-tighter">
+                    {editingExam ? 'Ajustar Examen' : 'Nuevo Examen'}
+                  </h2>
+                </div>
+                <button onClick={() => setIsExamModalOpen(false)} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm">✕</button>
+             </header>
+
+             <form onSubmit={handleSaveExam} className="p-10 pt-8 space-y-8">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Nombre del Examen</label>
+                    <input 
+                      type="text" required 
+                      value={examForm.title} 
+                      onChange={e => setExamForm({...examForm, title: e.target.value})} 
+                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color transition-all text-xl shadow-inner placeholder:text-gray-300"
+                      placeholder="Ej: Evaluación Primer Ciclo" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Nota de Aprobación (%)</label>
+                    <input 
+                      type="number" required 
+                      value={examForm.min_pass_score} 
+                      onChange={e => setExamForm({...examForm, min_pass_score: e.target.value})} 
+                      min="1" max="100" 
+                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-xl text-primary-color shadow-inner"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                   <button type="button" onClick={() => setIsExamModalOpen(false)} className="flex-1 bg-slate-50 text-gray-400 py-6 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-100 hover:text-gray-500 transition-all">Cancelar</button>
+                   <button type="submit" className="flex-2 bg-primary-color text-white py-6 px-12 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/20">
+                     {editingExam ? 'Guardar Cambios' : 'Crear Evaluación'}
+                   </button>
+                </div>
+             </form>
           </div>
         </div>
       )}
@@ -429,11 +517,30 @@ export default function ModuleContentPage() {
         .editor-toolbar button { padding: 0.4rem 0.8rem; background: var(--gray-50); border-radius: 6px; font-size: 0.75rem; font-weight: 800; color: var(--primary-color); border: 1px solid var(--gray-100); }
         .editor-toolbar button:hover { background: var(--primary-color); color: white; }
         
-        textarea { width: 100%; border: none !important; border-radius: 0 !important; font-family: 'Courier New', Courier, monospace; line-height: 1.6; }
-        .preview-area { padding: 2rem; min-height: 350px; background: white; overflow-y: auto; font-size: 1rem; line-height: 1.8; color: var(--gray-800); }
-        .preview-area h3 { color: var(--primary-color); margin: 1.5rem 0 1rem; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.4rem; }
-        .preview-area p { margin-bottom: 1rem; }
-        .preview-area ul { padding-left: 1.5rem; margin-bottom: 1rem; list-style: disc; }
+        /* Academic Content Preview System */
+        .preview-area { 
+          padding: 3rem; 
+          min-height: 500px; 
+          background: #fafafa; 
+          overflow-y: auto; 
+          font-size: 1.1rem; 
+          line-height: 1.8; 
+          color: var(--primary-color); 
+          border-radius: 40px;
+          box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .preview-area h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem; tracking: -0.05em; }
+        .preview-area h2 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; margin: 2rem 0 1rem; }
+        .preview-area h3 { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; margin: 1.5rem 0 1rem; color: #10B981; }
+        .preview-area p { margin-bottom: 1.5rem; color: #4b5563; font-weight: 500; }
+        .preview-area ul { padding-left: 1.5rem; margin-bottom: 1.5rem; list-style: none; }
+        .preview-area li { margin-bottom: 0.8rem; position: relative; padding-left: 1.5rem; }
+        .preview-area li::before { content: '•'; position: absolute; left: 0; color: #10B981; font-weight: 900; }
+        .preview-area table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 2rem 0; background: white; border-radius: 20px; overflow: hidden; border: 1px solid #f3f4f6; }
+        .preview-area th { background: #f9fafb; padding: 1rem; text-align: left; font-[10px] font-black uppercase tracking-widest text-gray-400 border-bottom: 1px solid #f3f4f6; }
+        .preview-area td { padding: 1rem; border-bottom: 1px solid #f9fafb; font-size: 1rem; color: #4b5563; }
+        .preview-area tr:last-child td { border-bottom: none; }
+        .preview-area img { border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); margin: 2rem 0; width: 100%; object-fit: cover; }
 
         .hint { font-size: 0.75rem; color: var(--gray-400); margin-top: 0.4rem; font-style: italic; }
 

@@ -165,8 +165,7 @@ export async function updateLandingSection(slug, updates, actorRole) {
   try {
     const { error } = await adminClient
       .from('landing_sections')
-      .update(updates)
-      .eq('slug', slug);
+      .upsert({ ...updates, slug }, { onConflict: 'slug' });
 
     if (error) throw error;
     return { success: true, message: `Sección ${slug} actualizada con éxito.` };
@@ -195,6 +194,44 @@ export async function confirmEmailManual(userId) {
     return { success: true, message: 'Cuenta activada manualmente con éxito.' };
   } catch (error) {
     console.error('Confirm Email Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Force graduation status for a student.
+ */
+export async function manualGraduateStudent(studentId, actorRole) {
+  if (actorRole > 2) return { success: false, error: 'Acción restringida a administradores y coordinadores.' };
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!serviceRoleKey) return { success: false, error: 'Error de clave de servicio.' };
+  
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+  try {
+    const { error } = await adminClient
+      .from('profiles')
+      .update({ 
+        status: 'graduado',
+        graduation_date: new Date().toISOString()
+      })
+      .eq('id', studentId);
+
+    if (error) throw error;
+
+    // Notificar al estudiante de su nuevo logro
+    await adminClient.from('global_notifications').insert({
+      title: '🎓 ¡Felicidades, te has graduado!',
+      message: 'La administración ha validado tu trayectoria y te ha otorgado el estado de Graduado. ¡Tu esfuerzo ha dado frutos!',
+      target_type: 'individual',
+      coordinator_id: studentId 
+    });
+
+    return { success: true, message: 'Estudiante graduado oficialmente.' };
+  } catch (error) {
     return { success: false, error: error.message };
   }
 }

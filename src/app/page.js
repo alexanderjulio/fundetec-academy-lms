@@ -6,6 +6,7 @@ import ContactForm from '@/components/ContactForm';
 import { supabase } from '@/lib/supabase';
 
 // Imágenes dinámicas gestionadas desde /admin/landing
+const DEFAULT_COURSE_IMAGE = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800";
 
 export default function Home() {
   const [sections, setSections] = useState({});
@@ -93,53 +94,74 @@ export default function Home() {
       <main className="overflow-hidden">
         {/* HERO SECTION */}
         {hero.is_visible && (
-          <section id="inicio" className="relative min-h-[90vh] flex items-center pt-24 pb-20">
-            <div className="absolute inset-0 z-0 overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary-color/5 to-transparent"></div>
-              <div className="absolute -top-[20%] -right-[10%] w-[60%] h-[120%] bg-secondary-color/5 blur-[120px] rounded-full rotate-12"></div>
+          <section id="inicio" className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden">
+            {/* MESH GRADIENT BACKGROUND */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary-color/10 blur-[120px] rounded-full animate-glow-pulse"></div>
+              <div className="absolute top-[20%] right-[5%] w-[30%] h-[30%] bg-secondary-color/10 blur-[100px] rounded-full animate-mesh-float"></div>
+              <div className="absolute bottom-[10%] left-[20%] w-[50%] h-[50%] bg-accent-color/5 blur-[150px] rounded-full opacity-50"></div>
+              <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#0C1E45_1px,transparent_1px)] [background-size:32px_32px]"></div>
             </div>
 
             <div className="container mx-auto px-6 relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                <div className="lg:col-span-7 space-y-10 animate-fade-in">
-                  <div className="space-y-4">
-                    <span className="inline-block px-4 py-1.5 bg-secondary-color/10 text-secondary-color text-[10px] font-black uppercase tracking-[0.3em] rounded-full">
-                      {hero.content.preTitle || "Educación de Élite"}
-                    </span>
-                    <h1 className="text-6xl md:text-8xl font-black text-primary-color tracking-tighter leading-[0.9] font-display">
-                      {hero.title.replace(/<span>(.*?)<\/span>/g, '$1') || "Transforma tu Futuro Hoy"}
+                <div className="lg:col-span-7 space-y-12 animate-fade-in">
+                  <div className="space-y-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary-color/10 border border-secondary-color/20 rounded-full">
+                       <span className="w-2 h-2 bg-secondary-color rounded-full animate-pulse"></span>
+                       <span className="text-secondary-color text-[10px] font-black uppercase tracking-[0.3em]">
+                        {hero.content.preTitle || "Academia de Excelencia"}
+                       </span>
+                    </div>
+                    
+                    <h1 
+                      className="text-7xl md:text-9xl font-black tracking-tighter leading-[0.85] font-display text-primary-color"
+                      style={{ letterSpacing: '-0.04em' }}
+                    >
+                      <span className="block text-premium-gradient" dangerouslySetInnerHTML={{ __html: hero.title || "Tu Título Académico Más Cerca de Ti" }} />
                     </h1>
-                    <p className="text-xl text-gray-400 font-medium max-w-xl leading-relaxed">
-                      {hero.subtitle || "Aprende con los mejores expertos y obtén certificaciones que impulsan tu carrera profesional."}
-                    </p>
+
+                    <p 
+                      className="text-xl text-gray-500 font-medium max-w-xl leading-relaxed text-balance"
+                      dangerouslySetInnerHTML={{ __html: hero.subtitle || "Educación 100% Virtual con validez oficial. Estudia a tu ritmo, obtén tu título CLEI o certifícate en los Técnicos Laborales de mayor demanda." }}
+                    />
                   </div>
 
                   <div className="flex flex-wrap gap-6">
-                    <a href={hero.content.cta1_link || "#tecnicos"} className="px-10 py-5 bg-primary-color text-white rounded-[24px] font-black text-sm uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/20 active:scale-95">
-                      {hero.content.cta1_text || "Ver Programas"}
+                    <a href={hero.content.cta1_link || "#tecnicos"} className="group relative px-12 py-6 bg-primary-color text-white rounded-[28px] font-black text-sm uppercase tracking-widest overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-primary-color/40">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                      <span className="relative z-10">{hero.content.cta1_text || "Iniciar Matrícula 🚀"}</span>
                     </a>
-                    <a href={hero.content.cta2_link || "#bachillerato"} className="px-10 py-5 bg-white border-2 border-primary-color/10 text-primary-color rounded-[24px] font-black text-sm uppercase tracking-widest hover:border-primary-color transition-all active:scale-95">
-                      {hero.content.cta2_text || "Bachillerato CLEI"}
+                    <a href={hero.content.cta2_link || "#bachillerato"} className="px-12 py-6 glass-card text-primary-color rounded-[28px] font-black text-sm uppercase tracking-widest hover:bg-white transition-all active:scale-95 flex items-center gap-2">
+                      {hero.content.cta2_text || "Explorar Programas"}
                     </a>
                   </div>
 
-                  <div className="flex items-center gap-12 pt-8 border-t border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🏅</span>
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Institución Certificada</span>
+                  <div className="flex items-center gap-12 pt-10 border-t border-gray-100/50">
+                    <div className="flex items-center gap-3 group">
+                      <div className="w-10 h-10 rounded-xl bg-accent-color/10 flex items-center justify-center group-hover:scale-110 transition-transform">🏅</div>
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-tight">Institución<br/>Certificada</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🌍</span>
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Educación 100% Virtual</span>
+                    <div className="flex items-center gap-3 group">
+                      <div className="w-10 h-10 rounded-xl bg-secondary-color/10 flex items-center justify-center group-hover:scale-110 transition-transform">🌍</div>
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-tight">Educación<br/>100% Virtual</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 relative animate-float">
-                  <div className="relative z-10 rounded-[60px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(12,30,69,0.3)] border-[12px] border-white">
-                    <img src={hero.content.image_url || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80"} alt="Fundetec Academy" className="w-full h-auto" />
+                <div className="lg:col-span-5 relative">
+                  {/* HERO IMAGE GLOW */}
+                  <div className="absolute -inset-4 bg-gradient-to-r from-primary-color to-secondary-color opacity-20 blur-[60px] animate-glow-pulse -z-10 rounded-full"></div>
+                  
+                  <div className="relative z-10 p-4 glass-card rounded-[70px]">
+                    <div className="rounded-[60px] overflow-hidden shadow-2xl border-[4px] border-white ring-1 ring-gray-100">
+                      <img src={hero.content.image_url || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80"} alt="Fundetec Academy" className="w-full h-auto" />
+                    </div>
                   </div>
-                  <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-secondary-color rounded-[40px] -z-10 rotate-12 shadow-2xl"></div>
+                  
+                  {/* FLOATING DECOR */}
+                  <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-secondary-color rounded-[40px] -z-10 rotate-12 shadow-2xl shadow-secondary-color/20 animate-bounce-slow"></div>
+                  <div className="absolute -top-10 -right-10 w-24 h-24 bg-accent-color/20 rounded-[30px] -z-10 -rotate-12 blur-xl animate-pulse"></div>
                 </div>
               </div>
             </div>
@@ -205,12 +227,14 @@ export default function Home() {
                   <span className="inline-block px-4 py-1.5 bg-primary-color text-white text-[9px] font-black uppercase tracking-widest rounded-full">
                     {bachillerato.content.badge || "Programa CLEI"}
                   </span>
-                  <h2 className="text-5xl md:text-6xl font-black text-primary-color tracking-tighter leading-none font-display">
-                    {bachillerato.title || "Termina tu Bachillerato"}
-                  </h2>
-                  <p className="text-lg text-gray-500 font-medium leading-relaxed">
-                    {bachillerato.subtitle || "Diseñado para jóvenes y adultos que desean certificar sus estudios de forma rápida y legal."}
-                  </p>
+                  <h2 
+                    className="text-5xl md:text-6xl font-black text-primary-color tracking-tighter leading-none font-display"
+                    dangerouslySetInnerHTML={{ __html: bachillerato.title || "Termina tu Bachillerato" }}
+                  />
+                  <p 
+                    className="text-lg text-gray-500 font-medium leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: bachillerato.subtitle || "Diseñado para jóvenes y adultos que desean certificar sus estudios de forma rápida y legal." }}
+                  />
 
                   <ul className="space-y-4">
                     {Array.isArray(bachillerato.content.points) && bachillerato.content.points.map((p, i) => (
@@ -267,7 +291,7 @@ export default function Home() {
                     <div key={prog.id} className="group bg-white rounded-[40px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col">
                       <div className="relative h-56 overflow-hidden">
                         <img
-                          src={prog.thumbnail_url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600'}
+                          src={prog.thumbnail_url || DEFAULT_COURSE_IMAGE}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-primary-color/60 to-transparent"></div>
@@ -296,34 +320,63 @@ export default function Home() {
           </section>
         )}
 
-        {/* FAQ SECTION */}
-        <section className="py-32">
-          <div className="container mx-auto px-6 max-w-4xl">
-            <div className="text-center mb-16 space-y-4">
-              <span className="text-xs font-black text-secondary-color uppercase tracking-[0.4em]">Resolviendo Dudas</span>
-              <h2 className="text-5xl font-black text-primary-color font-display tracking-tight leading-none">Preguntas Frecuentes</h2>
-            </div>
-
-            <div className="space-y-4">
-              {faqs.map((faq, i) => (
-                <div key={i} className="border-b border-gray-100 italic">
-                  <button
+        {/* FAQ SECTION - REDISEÑADO PREMIUM Y DINÁMICO */}
+        {getSection('faq').is_visible && (
+          <section id="faq" className="py-32 bg-slate-50/50 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+            
+            <div className="container mx-auto px-6">
+              <div className="text-center mb-20 space-y-4">
+                <span className="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-[0.4em] rounded-full">
+                  {getSection('faq').content.preTitle || "Resolviendo Dudas"}
+                </span>
+                <h2 className="text-5xl md:text-6xl font-black text-primary-color font-display tracking-tight leading-none">
+                  {getSection('faq').title || "Preguntas Frecuentes"}
+                </h2>
+                <p className="text-gray-400 font-medium max-w-2xl mx-auto italic">
+                  {getSection('faq').subtitle || "Todo lo que necesitas saber sobre tu futuro académico en Fundetec."}
+                </p>
+              </div>
+  
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
+                {(getSection('faq').content.items || faqs).map((faq, i) => (
+                  <div 
+                    key={i} 
+                    className={`group bg-white rounded-[40px] border transition-all duration-500 overflow-hidden cursor-pointer ${
+                      activeFaq === i 
+                        ? 'border-secondary-color shadow-2xl shadow-secondary-color/10 bg-white ring-1 ring-secondary-color' 
+                        : 'border-white shadow-sm hover:shadow-xl hover:-translate-y-1 bg-white/80'
+                    }`}
                     onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                    className="w-full py-8 flex items-center justify-between text-left group"
                   >
-                    <span className={`text-xl font-bold transition-all duration-300 ${activeFaq === i ? 'text-secondary-color' : 'text-primary-color'}`}>
-                      {faq.q}
-                    </span>
-                    <span className={`text-3xl transition-transform duration-300 ${activeFaq === i ? 'rotate-45 text-secondary-color' : 'text-gray-200'}`}>+</span>
-                  </button>
-                  <div className={`overflow-hidden transition-all duration-500 ${activeFaq === i ? 'max-h-[300px] pb-8' : 'max-h-0'}`}>
-                    <p className="text-gray-400 font-medium text-lg leading-relaxed not-italic">{faq.a}</p>
+                    <div className="p-8 md:p-10 flex items-center justify-between gap-6">
+                      <h4 className={`text-lg md:text-xl font-black font-display leading-tight transition-all duration-300 ${
+                        activeFaq === i ? 'text-primary-color' : 'text-primary-color/80 group-hover:text-primary-color'
+                      }`}>
+                        {faq.q}
+                      </h4>
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
+                        activeFaq === i ? 'bg-secondary-color text-primary-color rotate-45' : 'bg-slate-50 text-gray-300 group-hover:bg-slate-100 group-hover:text-primary-color'
+                      }`}>
+                        <span className="text-2xl">+</span>
+                      </div>
+                    </div>
+                    <div className={`overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      activeFaq === i ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}>
+                      <div className="px-8 md:px-10 pb-10">
+                        <div className="w-12 h-1 bg-secondary-color/20 rounded-full mb-6"></div>
+                        <p className="text-gray-500 font-medium text-lg leading-relaxed">
+                          {faq.a}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* CONTACT SECTION */}
         {contacto.is_visible && (
@@ -472,18 +525,6 @@ export default function Home() {
         💬
       </a>
 
-      <style jsx global>{`
-        @keyframes fade-in { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fade-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0); } }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-
-        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .animate-bounce-slow { animation: bounce-slow 4s infinite; }
-
-        .container { max-width: 1400px; margin: 0 auto; }
-      `}</style>
     </div>
   );
 }

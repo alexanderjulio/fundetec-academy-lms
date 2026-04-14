@@ -11,6 +11,7 @@ import {
   updateUserRoleById,
   confirmEmailManual
 } from '@/app/actions/admin_actions';
+import { generatePDFReport, generateExcelReport } from '@/utils/reportGenerators';
 
 const Icons = {
   Plus: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
@@ -202,6 +203,36 @@ export default function AdminUsersPage() {
     setUpdatingId(null);
   };
 
+  const handleOpenPasswordModal = (user) => {
+    setSelectedUser(user);
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$";
+    let pass = "";
+    for (let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+    setNewPassword(pass);
+    setIsPasswordModalOpen(true);
+  };
+
+  const generateRandomPassword = () => {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$";
+    let pass = "";
+    for (let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+    setNewPassword(pass);
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword) return showNotification('Escribe una contraseña válida.', 'error');
+    setLoading(true);
+    const res = await updateUserPassword(selectedUser.id, newPassword, currentUser.role_id);
+    if (res.success) {
+      showNotification(`✅ Clave de ${selectedUser.full_name} actualizada correctamente.`, 'success');
+      setIsPasswordModalOpen(false);
+      setNewPassword('');
+    } else {
+      showNotification('Error: ' + res.error, 'error');
+    }
+    setLoading(false);
+  };
+
   const getStatusBadge = (status) => {
     const isActive = status === 'activo';
     return (
@@ -246,6 +277,45 @@ export default function AdminUsersPage() {
           </button>
         </div>
       </header>
+
+      {/* PANEL DE REPORTES ELITE */}
+      <section className="bg-gradient-to-r from-primary-color to-indigo-900 p-10 rounded-[48px] shadow-2xl shadow-primary-color/20 text-white space-y-8 animate-fade-in relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-[80px] rounded-full -mr-20 -mt-20"></div>
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8 text-center lg:text-left">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black font-display tracking-tight">Reportes de Comunidad</h2>
+            <p className="text-indigo-200 text-sm font-medium">Exporta analíticas de tus estudiantes de forma instantánea.</p>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex bg-white/10 p-2 rounded-[24px] backdrop-blur-md border border-white/10">
+              <button 
+                onClick={() => {
+                  const data = users.filter(u => u.status === 'activo');
+                  generatePDFReport(data, 'Estudiantes Activos', currentUser?.full_name);
+                }}
+                className="px-6 py-3 hover:bg-white hover:text-primary-color rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all"
+              >Activos (PDF)</button>
+              <button 
+                onClick={() => {
+                  const data = users.filter(u => u.status === 'graduado');
+                  generatePDFReport(data, 'Estudiantes Graduados', currentUser?.full_name);
+                }}
+                className="px-6 py-3 hover:bg-white hover:text-primary-color rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all"
+              >Graduados (PDF)</button>
+              <button 
+                onClick={() => generateExcelReport(users, 'Matrícula Total')}
+                className="px-6 py-3 bg-secondary-color text-primary-color rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all shadow-lg"
+              >Excel Total</button>
+            </div>
+            
+            <div className="flex flex-col justify-center items-center px-6">
+                <span className="text-[10px] font-black uppercase text-secondary-color tracking-widest">Total Alumnos</span>
+                <span className="text-3xl font-black font-display leading-tight">{users.length}</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* FILTROS INTEGRADOS */}
       <section className="bg-white p-8 rounded-[48px] border border-gray-100 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
@@ -294,12 +364,12 @@ export default function AdminUsersPage() {
 
       {/* TABLA DE COMUNIDAD BOUTIQUE */}
       <section className="overflow-x-auto bg-white rounded-[64px] border border-gray-100 shadow-sm overflow-hidden min-h-[600px]">
-        {loading && users.length === 0 ? (
+        {loading && users.length === 0 ? 
           <div className="p-40 text-center animate-pulse">
             <div className="w-20 h-20 bg-slate-50 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl">👥</div>
             <p className="text-gray-400 font-black uppercase tracking-[0.4em] text-[10px]">Consultando Comunidad Fundetec...</p>
           </div>
-        ) : (
+        : 
           <table className="w-full border-separate border-spacing-0">
             <thead>
               <tr className="bg-slate-50/50">
@@ -364,6 +434,7 @@ export default function AdminUsersPage() {
                               <option value="diplomado">Diplomado</option>
                               <option value="ies">IES</option>
                               <option value="otro">Otro</option>
+                              <option value="graduado">Graduado</option>
                             </select>
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-20">
                                 <Icons.Chevron />
@@ -448,33 +519,33 @@ export default function AdminUsersPage() {
               )}
             </tbody>
           </table>
-        )}
+        }
       </section>
 
-      {/* MODAL DE REGISTRO INTEGRAL ELITE */}
+        {/* MODAL DE REGISTRO INTEGRAL PREMIUM */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-primary-color/70 backdrop-blur-2xl animate-fade-in" onClick={() => setIsCreateModalOpen(false)}></div>
-          <div className="relative w-full max-w-2xl bg-white rounded-[72px] shadow-2xl overflow-hidden animate-pop">
+          <div className="absolute inset-0 bg-primary-color/60 backdrop-blur-xl animate-fade-in" onClick={() => setIsCreateModalOpen(false)}></div>
+          <div className="relative w-full max-w-2xl bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop border border-white/20">
             <header className="p-12 pb-0 flex justify-between items-start">
-              <div className="space-y-2">
-                <span className="text-[11px] font-black text-secondary-color uppercase tracking-[0.4em]">Admisión Directa</span>
-                <h2 className="text-4xl font-black text-primary-color font-display leading-none tracking-tighter">Registrar Estudiante</h2>
-                <p className="text-gray-400 text-sm font-medium pt-2">Completa la ficha de membresía para dar de alta al nuevo integrante.</p>
+              <div className="space-y-1">
+                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Módulo de Admisiones</span>
+                <h2 className="text-4xl font-black text-primary-color font-display leading-none tracking-tighter">Registrar Perfil</h2>
+                <p className="text-gray-400 text-sm font-medium pt-2">Alta de nuevos integrantes en el ecosistema Fundetec.</p>
               </div>
               <button 
                 onClick={() => setIsCreateModalOpen(false)} 
-                className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all"
+                className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm"
               >✕</button>
             </header>
 
-            <form onSubmit={handleCreateUser} className="p-12 space-y-8">
-              <div className="grid grid-cols-2 gap-6">
+            <form onSubmit={handleCreateUser} className="p-12 pt-8 space-y-8 max-h-[75vh] overflow-y-auto custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Nombre Completo</label>
                   <input 
                     type="text" required
-                    className="w-full bg-slate-50 border-none p-5 rounded-[24px] outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color"
+                    className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color shadow-inner"
                     placeholder="Ej: Julian Alandete"
                     value={formData.full_name}
                     onChange={e => setFormData({...formData, full_name: e.target.value})}
@@ -484,17 +555,17 @@ export default function AdminUsersPage() {
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Correo Institucional</label>
                   <input 
                     type="email" required
-                    className="w-full bg-slate-50 border-none p-5 rounded-[24px] outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color"
+                    className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color shadow-inner"
                     placeholder="ejemplo@fundetec.edu.co"
                     value={formData.email}
                     onChange={e => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">WhatsApp de Contacto</label>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">WhatsApp Directo</label>
                   <input 
                     type="text"
-                    className="w-full bg-slate-50 border-none p-5 rounded-[24px] outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color"
+                    className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color shadow-inner"
                     placeholder="300 000 0000"
                     value={formData.whatsapp}
                     onChange={e => setFormData({...formData, whatsapp: e.target.value})}
@@ -504,7 +575,7 @@ export default function AdminUsersPage() {
                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Contraseña Temporal</label>
                    <input 
                     type="text" required
-                    className="w-full bg-slate-50 border-none p-5 rounded-[24px] outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color"
+                    className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color shadow-inner"
                     value={formData.password}
                     onChange={e => setFormData({...formData, password: e.target.value})}
                   />
@@ -516,13 +587,13 @@ export default function AdminUsersPage() {
                         for (let i = 0; i < 8; i++) pass += chars[Math.floor(Math.random() * chars.length)];
                         setFormData({...formData, password: pass});
                     }}
-                    className="absolute right-3 bottom-3 p-2 bg-white rounded-xl text-[10px] font-bold border border-gray-100 hover:bg-slate-50"
+                    className="absolute right-3 bottom-2.5 p-2 bg-white rounded-xl text-[10px] font-bold border border-gray-100 hover:bg-slate-50 shadow-sm transition-all"
                   >🎲</button>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Modalidad Académica</label>
                   <select 
-                    className="w-full bg-slate-50 border-none p-5 rounded-[24px] outline-none font-black text-[10px] uppercase tracking-widest text-primary-color cursor-pointer appearance-none"
+                    className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none font-black text-[10px] uppercase tracking-widest text-primary-color cursor-pointer appearance-none shadow-inner"
                     value={formData.student_type}
                     onChange={e => setFormData({...formData, student_type: e.target.value})}
                   >
@@ -534,55 +605,70 @@ export default function AdminUsersPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Estado Inicial</label>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Estado de Cuenta</label>
                   <select 
-                    className="w-full bg-slate-50 border-none p-5 rounded-[24px] outline-none font-black text-[10px] uppercase tracking-widest text-primary-color cursor-pointer appearance-none"
+                    className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none font-black text-[10px] uppercase tracking-widest text-primary-color cursor-pointer appearance-none shadow-inner"
                     value={formData.status}
                     onChange={e => setFormData({...formData, status: e.target.value})}
                   >
                     <option value="activo">Activo</option>
                     <option value="inactivo">Inactivo</option>
+                    <option value="graduado">Graduado</option>
                   </select>
                 </div>
               </div>
 
-              <div className="pt-8 flex gap-4">
+              <div className="pt-4 flex gap-4">
                 <button 
                    type="button" 
                    onClick={() => setIsCreateModalOpen(false)}
-                   className="flex-1 bg-slate-50 text-gray-400 py-6 rounded-[28px] font-black text-[11px] uppercase tracking-widest hover:bg-slate-100 transition-all"
-                >Cancelar</button>
+                   className="flex-1 bg-slate-50 text-gray-400 py-6 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-100 transition-all"
+                >Descartar</button>
                 <button 
                    type="submit" 
                    disabled={loading}
-                   className="flex-1 bg-primary-color text-white py-6 rounded-[28px] font-black text-[11px] uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/20"
-                >{loading ? 'Creando Membresía...' : 'Validar y Registrar'}</button>
+                   className="flex-1 bg-primary-color text-white py-6 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/20"
+                >{loading ? 'Procesando...' : 'Validar y Registrar'}</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL DE PASSWORD (SIMPLIFICADO PARA REUSAR) */}
+      {/* MODAL DE SEGURIDAD PREMIUM */}
       {isPasswordModalOpen && (
         <div className="fixed inset-0 z-[4000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-primary-color/70 backdrop-blur-2xl animate-fade-in" onClick={() => setIsPasswordModalOpen(false)}></div>
-          <div className="relative w-full max-w-md bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop p-12 space-y-8">
-            <h2 className="text-3xl font-black text-primary-color font-display">Resetear Clave</h2>
-            <div className="relative">
-               <input 
-                  type="text" 
-                  className="w-full bg-slate-50 border-none p-6 rounded-[28px] outline-none font-bold text-primary-color" 
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="Nueva clave..."
-               />
-               <button onClick={generateRandomPassword} className="absolute right-4 top-1/2 -translate-y-1/2">🎲</button>
+          <div className="absolute inset-0 bg-primary-color/60 backdrop-blur-xl animate-fade-in" onClick={() => setIsPasswordModalOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop p-12 space-y-8 border border-white/20">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Protocolo de Seguridad</span>
+              <h2 className="text-3xl font-black text-primary-color font-display tracking-tighter">Resetear Clave</h2>
             </div>
-            <button 
-              onClick={handleResetPassword}
-              className="w-full bg-primary-color text-white py-6 rounded-[28px] font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary-color/10"
-            >Confirmar Cambio</button>
+            
+            <div className="space-y-6">
+              <div className="relative">
+                 <input 
+                    type="text" 
+                    className="w-full bg-slate-50 border-none p-6 rounded-[28px] outline-none font-bold text-primary-color shadow-inner text-xl" 
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="Nueva clave..."
+                 />
+                 <button onClick={generateRandomPassword} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white rounded-xl shadow-sm hover:bg-slate-50 transition-all">🎲</button>
+              </div>
+              <p className="text-[10px] text-gray-400 font-medium italic text-center px-4">Asegúrate de comunicar la nueva contraseña al usuario inmediatamente después del cambio.</p>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={handleResetPassword}
+                className="w-full bg-primary-color text-white py-6 rounded-[28px] font-black text-[10px] uppercase tracking-[0.3em] shadow-2xl shadow-primary-color/20 hover:bg-secondary-color hover:text-primary-color transition-all"
+              >Confirmar Cambio</button>
+              <button 
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="w-full py-4 text-gray-400 font-black text-[10px] uppercase tracking-widest hover:text-primary-color transition-all"
+              >Cancelar Protocolo</button>
+            </div>
           </div>
         </div>
       )}

@@ -291,91 +291,93 @@ export default function AdminLeadsPage() {
           </div>
         )}
       </div>
-
-      {/* MODALS RENDERED VIA PORTAL TO PREVENT CSS TRANSFORM CONFLICTS */}
+        {/* MODALS RENDERED VIA PORTAL PREMIUM */}
       {mounted && isModalOpen && selectedLead && createPortal(
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 md:p-10 animate-fade-in">
-          <div className="absolute inset-0 bg-primary-color/60 backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 backdrop-blur-xl bg-slate-900/40 animate-fade-in">
+          <div className="absolute inset-0" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative bg-white w-full max-w-4xl rounded-[64px] border border-white/20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] overflow-hidden animate-pop">
-            <header className="p-12 border-b border-gray-50 bg-slate-50/50 flex justify-between items-center">
-              <div>
-                <span className="text-[10px] font-black text-secondary-color uppercase tracking-[0.4em]">Ficha de Prospecto</span>
-                <h2 className="text-4xl font-black text-primary-color tracking-tighter leading-none mt-2">{selectedLead.full_name}</h2>
+          <div className="relative bg-white w-full max-w-4xl rounded-[64px] shadow-2xl overflow-hidden animate-pop max-h-[90vh] flex flex-col">
+            <header className="p-12 pb-0 flex justify-between items-start flex-shrink-0">
+              <div className="space-y-1">
+                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Ficha de Prospecto</span>
+                <h2 className="text-4xl font-black text-primary-color tracking-tighter leading-none mt-2 font-display">{selectedLead.full_name}</h2>
               </div>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-primary-color hover:scale-110 transition-all font-light text-3xl shadow-sm"
-              >
-                ×
-              </button>
+                className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center text-primary-color hover:text-white hover:bg-red-500 transition-all font-light text-3xl shadow-sm"
+              >✕</button>
             </header>
 
             <div className="p-12 grid grid-cols-1 lg:grid-cols-12 gap-16">
               <div className="lg:col-span-4 space-y-10">
                  <div className="flex flex-col gap-10">
-                    <div className="space-y-1.5">
-                      <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Contacto Directo</p>
-                      <p className="text-xl font-black text-primary-color tracking-tight">{selectedLead.whatsapp}</p>
-                      <p className="text-sm font-bold text-gray-400">{selectedLead.email}</p>
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Contacto Directo</p>
+                      <div className="bg-slate-50 p-6 rounded-3xl shadow-inner">
+                        <p className="text-xl font-black text-primary-color tracking-tight">{selectedLead.whatsapp}</p>
+                        <p className="text-sm font-bold text-gray-400 truncate">{selectedLead.email}</p>
+                      </div>
                     </div>
                     
-                    <div className="space-y-1.5">
-                      <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Programa de Interés</p>
-                      <p className="text-xl font-black text-secondary-color tracking-tight">{selectedLead.program_of_interest || 'Varios'}</p>
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Programa de Interés</p>
+                      <div className="bg-amber-50 p-6 rounded-3xl shadow-inner border border-amber-100/50">
+                        <p className="text-xl font-black text-amber-600 tracking-tight">{selectedLead.program_of_interest || 'Varios'}</p>
+                      </div>
                     </div>
-
+ 
                     <div className="pt-6 border-t border-gray-100">
-                      <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-4">Gestión de Tráfico</p>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 pl-2">Gestión de Tráfico</p>
                       <div className="flex flex-col gap-3">
                          {['new', 'contacted', 'archived'].map(status => (
                             <button
                               key={status}
                               onClick={() => updateStatus(selectedLead.id, status)}
                               disabled={updatingId === selectedLead.id}
-                              className={`px-8 py-4 rounded-[20px] text-[10px] font-black uppercase tracking-widest text-left transition-all flex items-center justify-between ${
+                              className={`px-8 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest text-left transition-all flex items-center justify-between shadow-sm ${
                                 selectedLead.status === status 
-                                  ? 'bg-primary-color text-white shadow-xl' 
+                                  ? 'bg-primary-color text-white shadow-xl shadow-primary-color/20' 
                                   : 'bg-slate-50 text-gray-400 hover:bg-slate-100 hover:text-primary-color'
                               }`}
                             >
-                               {status === 'new' ? 'Marcar como Nuevo' : status === 'contacted' ? 'Marcar Contactado' : 'Mover al Archivo'}
-                               {selectedLead.status === status && <span className="w-2 h-2 bg-secondary-color rounded-full"></span>}
+                               {status === 'new' ? 'Nuevo Registro' : status === 'contacted' ? 'Contactado' : 'Mover al Archivo'}
+                               {selectedLead.status === status && <span className="w-2.5 h-2.5 bg-secondary-color rounded-full animate-pulse"></span>}
                             </button>
                          ))}
                       </div>
                     </div>
                  </div>
               </div>
-
+ 
               <div className="lg:col-span-8 flex flex-col h-full">
-                <div className="flex-1 bg-slate-50 p-10 rounded-[48px] border border-gray-100 relative group overflow-hidden">
+                <div className="flex-1 bg-slate-50 p-10 rounded-[48px] border border-gray-100 relative group overflow-hidden shadow-inner">
                   <div className="absolute top-0 right-0 p-8 text-primary-color/5 group-hover:text-primary-color/10 transition-colors">
                     <Icons.Mail />
                   </div>
-                  <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-6">Mensaje del Interesado</p>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 pl-2">Mensaje del Interesado</p>
                   <p className="text-2xl font-black text-primary-color leading-[1.3] tracking-tighter italic">
-                    "{selectedLead.message_detail || 'No se incluyó un mensaje específico en la solicitud.'}"
+                    "{selectedLead.message_detail || 'Sin mensaje adicional.'}"
                   </p>
                   <div className="mt-12 flex items-center gap-4">
-                    <div className="w-10 h-px bg-gray-200"></div>
+                    <div className="w-10 h-[2px] bg-secondary-color"></div>
                     <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
                        Recibido el {new Date(selectedLead.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                   </div>
                 </div>
-
+ 
                 <div className="mt-10 flex gap-4">
                   <a 
                     href={getWhatsAppLink(selectedLead.whatsapp, selectedLead.full_name)}
                     target="_blank"
-                    className="flex-1 bg-emerald-500 text-white p-6 rounded-[28px] font-black text-sm uppercase tracking-widest text-center shadow-2xl shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4"
+                    className="flex-1 bg-emerald-500 text-white p-7 rounded-[32px] font-black text-xs uppercase tracking-[0.2em] text-center shadow-2xl shadow-emerald-500/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 group"
                   >
-                    <Icons.WhatsApp /> Iniciar Chat de WhatsApp
+                    <div className="group-hover:rotate-12 transition-transform"><Icons.WhatsApp /></div>
+                    Iniciar Conversación Elite
                   </a>
                   <button 
                     onClick={() => setConfirmDeleteId(selectedLead.id)}
-                    className="w-24 bg-red-50 text-red-500 p-6 rounded-[28px] font-black text-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"
+                    className="w-24 bg-red-50 text-red-500 p-6 rounded-[32px] font-black text-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
                   >
                     <Icons.Trash />
                   </button>
@@ -386,38 +388,37 @@ export default function AdminLeadsPage() {
         </div>,
         document.body
       )}
-
-      {/* CUSTOM CONFIRM DELETE MODAL */}
+ 
+      {/* CUSTOM CONFIRM DELETE MODAL PREMIUM */}
       {mounted && confirmDeleteId && createPortal(
-        <div className="fixed inset-0 z-[1100] flex items-center justify-center p-6 animate-fade-in font-display">
-           <div className="absolute inset-0 bg-[#0C1E45]/60 backdrop-blur-sm" onClick={() => setConfirmDeleteId(null)}></div>
-           <div className="relative bg-white p-8 rounded-[40px] shadow-2xl max-w-[340px] w-full text-center space-y-6 animate-pop">
-              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mx-auto">
+        <div className="fixed inset-0 z-[1100] flex items-center justify-center p-6 animate-fade-in">
+           <div className="absolute inset-0 bg-primary-color/70 backdrop-blur-xl" onClick={() => setConfirmDeleteId(null)}></div>
+           <div className="relative bg-white p-10 rounded-[56px] shadow-2xl max-w-[400px] w-full text-center space-y-8 animate-pop border border-white/20">
+              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center text-3xl mx-auto shadow-inner">
                  <Icons.Trash />
               </div>
               <div className="space-y-2">
-                 <h2 className="text-xl font-black text-primary-color tracking-tight">¿Eliminar registro?</h2>
-                 <p className="text-[11px] text-gray-400 font-medium leading-relaxed">Esta acción es permanente y no se podrá deshacer.</p>
+                 <h2 className="text-2xl font-black text-primary-color tracking-tighter font-display">¿Eliminar Prospecto?</h2>
+                 <p className="text-sm text-gray-400 font-medium leading-relaxed px-4">Esta acción removerá permanentemente al interesado de la base de datos de control.</p>
               </div>
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex flex-col gap-3 pt-4">
                  <button 
                   onClick={() => deleteLead()}
-                  className="w-full py-4 bg-red-500 text-white rounded-[20px] font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/10"
+                  className="w-full py-5 bg-red-500 text-white rounded-[24px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-red-600 transition-all shadow-xl shadow-red-500/20"
                  >
                   Confirmar Eliminación
                  </button>
                  <button 
                   onClick={() => setConfirmDeleteId(null)}
-                  className="w-full py-4 bg-slate-50 text-gray-400 rounded-[20px] font-black text-[9px] uppercase tracking-widest hover:bg-slate-100 transition-all"
+                  className="w-full py-5 bg-slate-50 text-gray-400 rounded-[24px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-100 transition-all"
                  >
-                  Cancelar
+                  Mantener Registro
                  </button>
               </div>
            </div>
         </div>,
         document.body
       )}
-
       <style jsx global>{`
         @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }

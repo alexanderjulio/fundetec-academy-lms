@@ -14,7 +14,8 @@ export default function AdminDashboardHome() {
     pendingRevenue: 0,
     actualRevenue: 0,
     studentRevenue: 0,
-    portfolioBalance: 0
+    portfolioBalance: 0,
+    monthlyGraphData: []
   });
   const [activity, setActivity] = useState([]);
   const [coordinators, setCoordinators] = useState([]);
@@ -111,7 +112,8 @@ export default function AdminDashboardHome() {
         actualRevenue: totalPaid,
         pendingRevenue: totalPending,
         studentRevenue: totalStudentPayments,
-        portfolioBalance: totalOutstanding
+        portfolioBalance: totalOutstanding,
+        monthlyGraphData: await calculateMonthlyTrends(selectedCoordinator)
       });
 
       const combinedActivity = [
@@ -154,6 +156,66 @@ export default function AdminDashboardHome() {
     if (type === 'pdf') exportToPDF(exportData, { title: 'REPORTE FINANCIERO FUNDETEC', filename: `${filename}.pdf` });
     if (type === 'excel') exportToExcel(exportData, { filename: `${filename}.xlsx` });
     if (type === 'csv') exportToCSV(exportData, { filename: `${filename}.csv` });
+  };
+
+  /**
+   * Calcula el conteo de estudiantes por mes para los últimos 6 meses.
+   */
+  const calculateMonthlyTrends = async (coordinatorId) => {
+    const months = [];
+    const now = new Date();
+    
+    // Generar últimos 6 meses
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        name: d.toLocaleString('es-ES', { month: 'short' }).replace('.', ''),
+        start: new Date(d.getFullYear(), d.getMonth(), 1).toISOString(),
+        end: new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59).toISOString(),
+        count: 0
+      });
+    }
+
+    // Consultar Supabase para cada mes
+    for (let month of months) {
+      let q = supabase.from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('role_id', 3)
+        .gte('created_at', month.start)
+        .lte('created_at', month.end);
+      
+      if (coordinatorId !== 'all') {
+        if (coordinatorId === 'admin') q = q.is('coordinator_id', null);
+        else q = q.eq('coordinator_id', coordinatorId);
+      }
+
+      const { count } = await q;
+      month.count = count || 0;
+    }
+
+    return months;
+  };
+
+  /**
+   * Genera el path del SVG dinámicamente basado en los datos reales.
+   */
+  const generateDynamicPath = (data) => {
+    if (!data || data.length === 0) return "M0,40 L100,40";
+    
+    const maxVal = Math.max(...data.map(m => m.count), 5); // Base mínima de 5 para escala
+    const points = data.map((m, i) => {
+      const x = (i / (data.length - 1)) * 100;
+      const y = 35 - (m.count / maxVal) * 30; // 35 es el piso, 5 es el tope (SVG viewbox 100x40)
+      return { x, y };
+    });
+
+    // Crear curva suavizada básica
+    let path = `M${points[0].x},${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+        const cp1x = (points[i].x + points[i+1].x) / 2;
+        path += ` Q${cp1x},${points[i].y} ${points[i+1].x},${points[i+1].y}`;
+    }
+    return path;
   };
 
   const kpis = [
@@ -246,11 +308,21 @@ export default function AdminDashboardHome() {
                   <stop offset="100%" stopColor="var(--secondary-color)" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <path d="M0,40 Q10,35 20,38 T40,20 T60,25 T80,10 T100,20 L100,40 L0,40 Z" fill="url(#chartGradient)" />
-              <path d="M0,40 Q10,35 20,38 T40,20 T60,25 T80,10 T100,20" fill="none" stroke="var(--secondary-color)" strokeWidth="2" strokeLinecap="round" className="animate-draw" />
+              <path 
+                d={`${generateDynamicPath(stats.monthlyGraphData)} L100,40 L0,40 Z`} 
+                fill="url(#chartGradient)" 
+              />
+              <path 
+                d={generateDynamicPath(stats.monthlyGraphData)} 
+                fill="none" 
+                stroke="var(--secondary-color)" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                className="animate-draw" 
+              />
             </svg>
-            {['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'].map((month, i) => (
-              <span key={i} className="relative z-10 text-[9px] font-black text-gray-300 uppercase tracking-widest">{month}</span>
+            {(stats.monthlyGraphData.length > 0 ? stats.monthlyGraphData : [{name:'Ene'},{name:'Feb'},{name:'Mar'},{name:'Abr'},{name:'May'},{name:'Jun'}]).map((m, i) => (
+              <span key={i} className="relative z-10 text-[9px] font-black text-gray-400/60 uppercase tracking-widest">{m.name}</span>
             ))}
           </div>
         </div>

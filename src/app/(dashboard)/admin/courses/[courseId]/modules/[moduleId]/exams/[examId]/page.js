@@ -350,76 +350,104 @@ export default function ExamBuilderPage() {
         </div>
       </section>
 
-      {/* Modal de Pregunta */}
+      {/* MODAL DE PREGUNTA PREMIUM */}
       {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card animate-pop">
-            <header className="modal-header">
-              <h2>{editingQuestion ? 'Editar Pregunta' : 'Nueva Pregunta'}</h2>
-              <button className="close-btn" onClick={() => setIsModalOpen(false)}>×</button>
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-primary-color/60 backdrop-blur-xl animate-fade-in" onClick={() => setIsModalOpen(false)}></div>
+          
+          <div className="relative w-full max-w-3xl bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop">
+            <header className="p-10 pb-0 flex justify-between items-start">
+               <div className="space-y-1">
+                 <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Configuración de Reactivo</span>
+                 <h2 className="text-4xl font-black text-primary-color font-display tracking-tighter">
+                   {editingQuestion ? 'Editar Pregunta' : 'Añadir al Banco'}
+                 </h2>
+               </div>
+               <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm">✕</button>
             </header>
 
-            <form onSubmit={handleSaveQuestion}>
-              <div className="form-group mb-6">
-                <label>Tipo de Pregunta</label>
-                <div className="type-selector">
-                  <button type="button" className={questionType === 'single_choice' ? 'active' : ''} onClick={() => handleTypeChange('single_choice')}>Selección Única</button>
-                  <button type="button" className={questionType === 'multiple_choice' ? 'active' : ''} onClick={() => handleTypeChange('multiple_choice')}>Múltiple</button>
-                  <button type="button" className={questionType === 'text_answer' ? 'active' : ''} onClick={() => handleTypeChange('text_answer')}>Abierta</button>
-                  <button type="button" className={questionType === 'true_false' ? 'active' : ''} onClick={() => handleTypeChange('true_false')}>F/V</button>
-                </div>
-              </div>
-
-              <div className="form-group mb-6">
-                <label>Enunciado de la Pregunta</label>
-                <textarea 
-                  value={questionText} 
-                  onChange={(e) => setQuestionText(e.target.value)}
-                  placeholder="Escribe la pregunta aquí..."
-                  required
-                />
-              </div>
-
-              <div className="options-section">
-                <div className="options-header">
-                  <label>{questionType === 'text_answer' ? 'Palabras clave de validación' : 'Opciones de respuesta'}</label>
-                  {['single_choice', 'multiple_choice'].includes(questionType) && (
-                    <button type="button" className="text-btn" onClick={addOption}>+ Añadir Opción</button>
-                  )}
+            <form onSubmit={handleSaveQuestion} className="p-10 pt-8 space-y-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Metodología de Evaluación</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      { id: 'single_choice', label: 'Opción Única' },
+                      { id: 'multiple_choice', label: 'Selección Múltiple' },
+                      { id: 'text_answer', label: 'Abierta' },
+                      { id: 'true_false', label: 'Falso/Verdadero' }
+                    ].map(type => (
+                      <button 
+                        key={type.id}
+                        type="button" 
+                        onClick={() => handleTypeChange(type.id)}
+                        className={`p-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                          questionType === type.id ? 'bg-primary-color text-white shadow-lg' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'
+                        }`}
+                      >
+                        {type.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="options-list">
-                  {options.map((opt, idx) => (
-                    <div key={opt.id} className="option-row">
-                      {questionType !== 'text_answer' && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Enunciado / Premisa</label>
+                  <textarea 
+                    value={questionText} 
+                    onChange={(e) => setQuestionText(e.target.value)}
+                    className="w-full bg-slate-50 border-none p-6 rounded-[32px] outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-gray-700 text-lg shadow-inner min-h-[120px]"
+                    placeholder="Escribe la pregunta académica aquí..."
+                    required
+                  />
+                </div>
+
+                <div className="pt-6 border-t border-gray-100 space-y-6">
+                  <header className="flex justify-between items-center px-2">
+                    <label className="text-[10px] font-black text-primary-color uppercase tracking-widest">
+                      {questionType === 'text_answer' ? 'Configuración de Respuestas Cortas' : 'Alternativas de Respuesta'}
+                    </label>
+                    {['single_choice', 'multiple_choice'].includes(questionType) && (
+                      <button type="button" onClick={addOption} className="text-[10px] font-black text-emerald-500 uppercase tracking-widest hover:underline">+ Nueva Opción</button>
+                    )}
+                  </header>
+
+                  <div className="space-y-3">
+                    {options.map((opt, idx) => (
+                      <div key={opt.id} className="flex items-center gap-4 animate-fade-in">
+                        {questionType !== 'text_answer' && (
+                          <button 
+                            type="button"
+                            onClick={() => toggleOptionCorrect(idx)}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                              opt.is_correct ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-100 text-transparent'
+                            }`}
+                          >
+                            ✓
+                          </button>
+                        )}
                         <input 
-                          type={questionType === 'multiple_choice' ? 'checkbox' : 'radio'} 
-                          checked={opt.is_correct} 
-                          onChange={() => toggleOptionCorrect(idx)}
-                          name="correct_option"
+                          type="text" 
+                          value={opt.text} 
+                          onChange={(e) => updateOptionText(idx, e.target.value)}
+                          placeholder={questionType === 'text_answer' ? "Ej: 'fotosintesis'" : `Texto de la opción ${idx + 1}`}
+                          className="flex-1 bg-slate-50 border-none p-5 rounded-[24px] outline-none focus:bg-white focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color shadow-inner"
+                          required
                         />
-                      )}
-                      <input 
-                        type="text" 
-                        value={opt.text} 
-                        onChange={(e) => updateOptionText(idx, e.target.value)}
-                        placeholder={questionType === 'text_answer' ? "Ej: 'fotosintesis'" : `Opción ${idx + 1}`}
-                        required
-                        className="opt-input"
-                      />
-                      {['single_choice', 'multiple_choice'].includes(questionType) && options.length > 1 && (
-                        <button type="button" className="remove-opt" onClick={() => removeOption(idx)}>×</button>
-                      )}
-                    </div>
-                  ))}
-                  {questionType === 'text_answer' && <p className="hint">Ingresa la respuesta exacta o palabras clave que el sistema debe validar (no distingue mayúsculas ni tildes).</p>}
+                        {['single_choice', 'multiple_choice'].includes(questionType) && options.length > 1 && (
+                          <button type="button" onClick={() => removeOption(idx)} className="w-10 h-10 flex items-center justify-center text-red-300 hover:text-red-500 transition-colors">✕</button>
+                        )}
+                      </div>
+                    ))}
+                    {questionType === 'text_answer' && <p className="text-[10px] text-gray-400 font-medium italic pl-4">Define palabras clave o frases exactas para la validación automática.</p>}
+                  </div>
                 </div>
               </div>
 
-              <footer className="modal-footer">
-                <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Guardando...' : 'Guardar Pregunta'}
+              <footer className="flex gap-4 pt-6">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-slate-50 text-gray-400 py-6 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-100 transition-all">Cancelar</button>
+                <button type="submit" disabled={loading} className="flex-2 bg-primary-color text-white py-6 px-12 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/20">
+                  {loading ? 'Guardando...' : (editingQuestion ? 'Actualizar Pregunta' : 'Añadir al Examen 📚')}
                 </button>
               </footer>
             </form>

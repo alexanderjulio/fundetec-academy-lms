@@ -263,7 +263,7 @@ export default function CourseStructurePage() {
         )}
       </section>
 
-      {/* MODAL REDISEÑADO */}
+      {/* MODAL REDISEÑADO PREMIUM */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-primary-color/60 backdrop-blur-xl animate-fade-in" onClick={() => setIsModalOpen(false)}></div>
@@ -271,41 +271,41 @@ export default function CourseStructurePage() {
           <div className="relative w-full max-w-xl bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop">
              <header className="p-10 pb-0 flex justify-between items-start">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black text-secondary-color uppercase tracking-[0.3em]">
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">
                     {editingModule ? 'Edición de Estructura' : 'Arquitectura Educativa'}
                   </span>
-                  <h2 className="text-3xl font-black text-primary-color font-display tracking-tight">
+                  <h2 className="text-4xl font-black text-primary-color font-display tracking-tighter">
                     {editingModule ? 'Ajustar Módulo' : 'Nuevo Módulo'}
                   </h2>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all">✕</button>
+                <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm">✕</button>
              </header>
 
              <form onSubmit={handleSubmit} className="p-10 pt-8 space-y-8">
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Título del Módulo</label>
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Título del Módulo</label>
                     <input 
                       type="text" required 
                       value={formData.title} 
                       onChange={e => setFormData({...formData, title: e.target.value})} 
-                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color text-lg"
+                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color text-xl shadow-inner"
                       placeholder="Ej: Fundamentos de Gestión"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Icono del Módulo (URL)</label>
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Icono del Módulo (URL)</label>
                     <div className="flex gap-4">
                       <input 
                         type="url" 
                         value={formData.icon_url} 
                         onChange={e => setFormData({...formData, icon_url: e.target.value})} 
-                        className="flex-1 bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-medium text-sm text-gray-500"
+                        className="flex-1 bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-medium text-sm text-gray-500 shadow-inner"
                         placeholder="https://icon-sets..."
                       />
                       {formData.icon_url && (
-                        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 flex-shrink-0 animate-pop">
+                        <div className="w-16 h-16 rounded-[20px] overflow-hidden bg-slate-50 flex-shrink-0 animate-pop shadow-lg ring-4 ring-white">
                           <img src={formData.icon_url} className="w-full h-full object-cover" alt="" />
                         </div>
                       )}
@@ -314,8 +314,8 @@ export default function CourseStructurePage() {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                   <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-slate-50 text-gray-400 py-5 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all">Descartar</button>
-                   <button type="submit" disabled={loading} className="flex-1 bg-primary-color text-white py-5 px-12 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color/10">
+                   <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-slate-50 text-gray-400 py-6 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-100 transition-all">Descartar</button>
+                   <button type="submit" disabled={loading} className="flex-1 bg-primary-color text-white py-6 px-12 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/20">
                      {loading ? 'Procesando...' : (editingModule ? 'Actualizar Nivel' : 'Integrar Módulo')}
                    </button>
                 </div>

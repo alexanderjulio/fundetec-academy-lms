@@ -215,21 +215,6 @@ export default function LoginPage() {
         </div>
       </main>
 
-      <style jsx global>{`
-        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fade-in 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        @keyframes fade-in-right { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-        .animate-fade-in-right { animation: fade-in-right 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-        @keyframes scale-slow { from { transform: scale(1); } to { transform: scale(1.1); } }
-        .animate-scale-slow { animation: scale-slow 20s ease-in-out infinite alternate; }
-
-        @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        
-        .font-display { font-family: 'Outfit', sans-serif; }
-      `}</style>
     </div>
   );
 }

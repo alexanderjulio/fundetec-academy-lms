@@ -98,9 +98,10 @@ export default function CourseDetailPage() {
             <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight tracking-tight text-white drop-shadow-sm">
               {course.title}
             </h1>
-            <p className="text-lg opacity-90 text-white/90 leading-relaxed mb-8 max-w-xl">
-              {course.description}
-            </p>
+            <div 
+              className="text-lg opacity-90 text-white/90 leading-relaxed mb-8 max-w-xl"
+              dangerouslySetInnerHTML={{ __html: course.description }}
+            />
 
             <div className="overall-progress-container w-full max-w-md">
               <div className="flex justify-between items-end mb-2">

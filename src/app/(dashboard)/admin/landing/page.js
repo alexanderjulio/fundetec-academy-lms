@@ -5,12 +5,13 @@ import { supabase } from '@/lib/supabase';
 import { useNotification } from '@/context/NotificationContext';
 import { updateLandingSection } from '@/app/actions/admin_actions';
 import { optimizeImage } from '@/utils/imageOptimizer';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 
 const Icons = {
   Image: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>,
   Save: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v13a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>,
   Chevron: () => <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>,
-  Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+  Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11-8 11 8 11 8-4-8-11-8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
 };
 
 export default function AdminLandingPage() {
@@ -51,11 +52,27 @@ export default function AdminLandingPage() {
   };
 
   const handleSelectSection = (slug) => {
-    const section = sections.find(s => s.slug === slug);
-    if (section) {
-      setSelectedSlug(slug);
-      setEditData({ ...section });
+    let section = sections.find(s => s.slug === slug);
+    
+    if (!section) {
+      // Si la sección no existe en la DB todavía, inicializamos un objeto base
+      section = {
+        slug: slug,
+        title: '',
+        subtitle: '',
+        is_visible: true,
+        content: slug === 'faq' ? { items: [] } : {}
+      };
     }
+
+    setSelectedSlug(slug);
+    // Asegurar que para FAQ siempre exista la estructura de items (incluso si viene de la DB vacía)
+    let processed = { ...section };
+    if (slug === 'faq') {
+      if (!processed.content) processed.content = { items: [] };
+      if (!processed.content.items) processed.content.items = [];
+    }
+    setEditData(processed);
   };
 
   const handleFileUpload = async (file, key) => {
@@ -123,7 +140,7 @@ export default function AdminLandingPage() {
           <p className="text-gray-400 font-medium italic">Administra los recursos visuales y textos de la página principal en tiempo real.</p>
         </div>
         <div className="flex bg-slate-50 p-2 rounded-[24px]">
-           {['hero', 'stats', 'bachillerato', 'tecnicos', 'contacto', 'institucional'].map(slug => (
+           {['hero', 'stats', 'bachillerato', 'tecnicos', 'faq', 'contacto', 'institucional'].map(slug => (
               <button 
                 key={slug}
                 onClick={() => handleSelectSection(slug)}
@@ -166,99 +183,167 @@ export default function AdminLandingPage() {
            <div className="p-12 grid grid-cols-1 lg:grid-cols-2 gap-16">
               {/* TEXTO Y CONFIGURACIÓN */}
               <div className="space-y-8">
-                 <div className="space-y-3">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Título Principal (HTML permitido)</label>
-                    <input 
-                       type="text"
-                       value={editData.title || ''}
-                       onChange={e => setEditData({...editData, title: e.target.value})}
-                       className="w-full bg-slate-100/50 border-none p-6 rounded-[28px] outline-none font-bold text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all text-xl"
-                    />
-                 </div>
+                  <div className="space-y-3">
+                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Título Principal</label>
+                     <RichTextEditor 
+                        value={editData.title || ''}
+                        onChange={val => setEditData({...editData, title: val})}
+                        placeholder="Escribe el título llamativo..."
+                     />
+                  </div>
+                 
                  <div className="space-y-3">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Subtítulo / Descripción</label>
-                    <textarea 
-                       rows="4"
-                       value={editData.subtitle || ''}
-                       onChange={e => setEditData({...editData, subtitle: e.target.value})}
-                       className="w-full bg-slate-100/50 border-none p-7 rounded-[38px] outline-none font-medium text-gray-500 focus:ring-4 focus:ring-secondary-color/10 transition-all leading-relaxed"
-                    ></textarea>
+                    {selectedSlug === 'faq' ? (
+                       <div className="space-y-6">
+                          <header className="flex justify-between items-center bg-white p-6 rounded-[28px] border border-gray-100 shadow-sm">
+                             <h3 className="text-[10px] font-black text-primary-color uppercase tracking-widest">Preguntas Configuradas</h3>
+                             <button 
+                                onClick={() => {
+                                   const currentContent = editData.content || {};
+                                   const currentItems = currentContent.items || [];
+                                   setEditData({
+                                      ...editData, 
+                                      content: { 
+                                         ...currentContent, 
+                                         items: [...currentItems, { q: 'Nueva Pregunta', a: 'Nueva Respuesta' }] 
+                                      } 
+                                   });
+                                }}
+                                className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
+                             >+ Añadir</button>
+                          </header>
+                          <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                             {(editData.content?.items || []).map((item, idx) => (
+                                <div key={idx} className="bg-slate-50 p-6 rounded-[28px] border border-gray-100 space-y-4 relative group">
+                                   <button 
+                                      onClick={() => {
+                                         const filtered = editData.content.items.filter((_, i) => i !== idx);
+                                         setEditData({ ...editData, content: { ...editData.content, items: filtered } });
+                                      }}
+                                      className="absolute top-4 right-4 w-6 h-6 rounded-full bg-red-50 text-red-400 flex items-center justify-center text-[10px] hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                   >✕</button>
+                                   <div className="space-y-2">
+                                      <label className="text-[9px] font-black text-gray-300 uppercase tracking-widest pl-2">Pregunta</label>
+                                      <input 
+                                         value={item.q}
+                                         onChange={e => {
+                                            const currentItems = [...(editData.content?.items || [])];
+                                            currentItems[idx] = { ...currentItems[idx], q: e.target.value };
+                                            setEditData({ 
+                                               ...editData, 
+                                               content: { ...(editData.content || {}), items: currentItems } 
+                                            });
+                                         }}
+                                         className="w-full bg-white border border-gray-100 p-4 rounded-[18px] outline-none font-bold text-primary-color text-xs focus:ring-2 focus:ring-secondary-color/20"
+                                         placeholder="Escribe la pregunta aquí..."
+                                      />
+                                   </div>
+                                   <div className="space-y-2">
+                                      <label className="text-[9px] font-black text-gray-300 uppercase tracking-widest pl-2">Respuesta</label>
+                                      <textarea 
+                                         value={item.a}
+                                         onChange={e => {
+                                            const currentItems = [...(editData.content?.items || [])];
+                                            currentItems[idx] = { ...currentItems[idx], a: e.target.value };
+                                            setEditData({ 
+                                               ...editData, 
+                                               content: { ...(editData.content || {}), items: currentItems } 
+                                            });
+                                         }}
+                                         className="w-full bg-white border border-gray-100 p-4 rounded-[18px] outline-none font-medium text-gray-500 text-xs focus:ring-2 focus:ring-secondary-color/20 leading-relaxed"
+                                         placeholder="Escribe la respuesta detallada..."
+                                         rows="2"
+                                      ></textarea>
+                                   </div>
+                                </div>
+                             ))}
+                             {(editData.content?.items || []).length === 0 && (
+                                <div className="p-10 text-center border-2 border-dashed border-gray-100 rounded-[32px]">
+                                   <p className="text-gray-300 font-bold text-xs uppercase tracking-widest">No hay preguntas registradas</p>
+                                </div>
+                             )}
+                          </div>
+                       </div>
+                    ) : (
+                       <RichTextEditor 
+                           value={editData.subtitle || ''}
+                           onChange={val => setEditData({...editData, subtitle: val})}
+                           placeholder="Escribe la descripción de la sección..."
+                        />
+                    )}
                  </div>
 
                  {/* CAMPOS DINÁMICOS DEL JSON */}
-                 <div className="bg-slate-50 p-10 rounded-[48px] border border-gray-100 space-y-8">
-                    <header className="flex items-center gap-2 mb-4">
-                       <span className="text-lg">⚙️</span>
-                       <h3 className="text-xs font-black text-primary-color uppercase tracking-widest">Ajustes del Bloque</h3>
-                    </header>
-                    <div className="grid grid-cols-1 gap-6">
-                       {(() => {
-                          const content = editData.content || {};
-                          let keys = Object.keys(content);
-                          
-                          if (editData.slug === 'institucional') {
-                             // Asegurar que las claves esenciales existan
-                             const essential = ['academy_name', 'copyright_text', 'footer_description', 'certification_text', 'facebook_link', 'instagram_link', 'whatsapp_link'];
-                             essential.forEach(k => { if (!keys.includes(k)) keys.push(k); });
+                 {selectedSlug !== 'faq' && (
+                    <div className="bg-slate-50 p-10 rounded-[48px] border border-gray-100 space-y-8">
+                       <header className="flex items-center gap-2 mb-4">
+                          <span className="text-lg">⚙️</span>
+                          <h3 className="text-xs font-black text-primary-color uppercase tracking-widest">Ajustes del Bloque</h3>
+                       </header>
+                       <div className="grid grid-cols-1 gap-6">
+                          {(() => {
+                             const content = editData.content || {};
+                             let keys = Object.keys(content);
                              
-                             // Filtrar duplicados: Si existe _link, ignorar _url o cualquier duplicado lógico
-                             keys = keys.filter(k => {
-                                if (k.endsWith('_url')) {
-                                   const base = k.replace('_url', '');
-                                   if (keys.includes(`${base}_link`)) return false;
-                                }
-                                return true;
-                             });
-                          }
+                             if (editData.slug === 'institucional') {
+                                const essential = ['academy_name', 'copyright_text', 'footer_description', 'certification_text', 'facebook_link', 'instagram_link', 'whatsapp_link'];
+                                essential.forEach(k => { if (!keys.includes(k)) keys.push(k); });
+                                keys = keys.filter(k => {
+                                   if (k.endsWith('_url')) {
+                                      const base = k.replace('_url', '');
+                                      if (keys.includes(`${base}_link`)) return false;
+                                   }
+                                   return true;
+                                });
+                             }
 
-                          if (editData.slug === 'stats') {
-                             ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => {
-                                if (!keys.includes(`${s}_val`)) keys.push(`${s}_val`);
-                                if (!keys.includes(`${s}_label`)) keys.push(`${s}_label`);
-                             });
-                          }
+                             if (editData.slug === 'stats') {
+                                ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => {
+                                   if (!keys.includes(`${s}_val`)) keys.push(`${s}_val`);
+                                   if (!keys.includes(`${s}_label`)) keys.push(`${s}_label`);
+                                });
+                             }
 
-                          return keys.map(key => {
-                             const val = content[key] || '';
-                             const isImage = /(image|img|logo|banner|thumbnail)/i.test(key);
-                             if (isImage) return null;
-                             
-                             const isLong = typeof val === 'string' && (val.length > 50 || key === 'mision' || key === 'vision');
-                             
-                             return (
-                                <div key={key} className="space-y-2">
-                                   <label className="text-[9px] font-black text-gray-400 uppercase tracking-tighter pl-2">
-                                      {key.includes('_link') || key.includes('_url') 
-                                         ? `🔗 ENLACE DE REDES SOCIALES (${key.split('_')[0]})` 
-                                         : key.replace(/_/g, ' ')}
-                                   </label>
-                                   {isLong ? (
-                                     <textarea 
-                                       rows="4"
-                                       value={val}
-                                       onChange={e => setEditData({
-                                          ...editData,
-                                          content: { ...editData.content, [key]: e.target.value }
-                                       })}
-                                       className="w-full bg-white border border-gray-100 p-5 rounded-[24px] outline-none font-medium text-primary-color text-xs focus:ring-2 focus:ring-secondary-color/20 leading-relaxed"
-                                     ></textarea>
-                                   ) : (
-                                     <input 
-                                        type="text"
-                                        value={val}
-                                        onChange={e => setEditData({
-                                           ...editData,
-                                           content: { ...editData.content, [key]: e.target.value }
-                                        })}
-                                        className="w-full bg-white border border-gray-100 p-4 rounded-[18px] outline-none font-bold text-primary-color text-xs focus:ring-2 focus:ring-secondary-color/20"
-                                     />
-                                   )}
-                                </div>
-                             );
-                          });
-                       })()}
+                             return keys.map(key => {
+                                const val = content[key] || '';
+                                if (/(image|img|logo|banner|thumbnail)/i.test(key)) return null;
+                                
+                                const isLong = typeof val === 'string' && (val.length > 50 || key === 'mision' || key === 'vision');
+                                
+                                return (
+                                   <div key={key} className="space-y-2">
+                                      <label className="text-[9px] font-black text-gray-400 uppercase tracking-tighter pl-2">
+                                         {key.replace(/_/g, ' ')}
+                                      </label>
+                                      {isLong ? (
+                                        <textarea 
+                                          rows="4"
+                                          value={val}
+                                          onChange={e => setEditData({
+                                             ...editData,
+                                             content: { ...editData.content, [key]: e.target.value }
+                                          })}
+                                          className="w-full bg-white border border-gray-100 p-5 rounded-[24px] outline-none font-medium text-primary-color text-xs focus:ring-2 focus:ring-secondary-color/20 leading-relaxed"
+                                        ></textarea>
+                                      ) : (
+                                        <input 
+                                           type="text"
+                                           value={val}
+                                           onChange={e => setEditData({
+                                              ...editData,
+                                              content: { ...editData.content, [key]: e.target.value }
+                                           })}
+                                           className="w-full bg-white border border-gray-100 p-4 rounded-[18px] outline-none font-bold text-primary-color text-xs focus:ring-2 focus:ring-secondary-color/20"
+                                        />
+                                      )}
+                                   </div>
+                                );
+                             });
+                          })()}
+                       </div>
                     </div>
-                 </div>
+                 )}
               </div>
 
               {/* GESTIÓN DE RECURSOS VISUALES */}
@@ -272,7 +357,6 @@ export default function AdminLandingPage() {
 
                  {/* PREVISUALIZADOR Y CARGADOR */}
                  <div className="space-y-8">
-                    {/* Solo campos de imagen */}
                     {Object.keys(editData.content || {}).filter(k => {
                        const val = editData.content[k];
                        const looksLikeImage = typeof val === 'string' && (val.includes('supabase') || val.match(/\.(jpg|jpeg|png|webp|svg|gif)/i));
@@ -294,7 +378,6 @@ export default function AdminLandingPage() {
                                    Cambiar Imagen Principal
                                    <input type="file" className="hidden" accept="image/*" onChange={e => handleFileUpload(e.target.files[0], imgKey)} />
                                 </label>
-                                <p className="text-white text-[9px] font-medium mt-4 italic opacity-80">Recomendado: 1920x1080px</p>
                              </div>
                           </div>
                           <div className="p-8 pb-4 flex justify-between items-center">
@@ -308,31 +391,17 @@ export default function AdminLandingPage() {
                        </div>
                     ))}
                     
-                    {/* Mensaje si no hay imágenes */}
                     {Object.keys(editData.content || {}).filter(k => /(image|img|logo|banner|thumbnail)/i.test(k)).length === 0 && (
                        <div className="bg-slate-50 border-4 border-dashed border-gray-100 p-20 rounded-[56px] text-center">
                           <p className="text-gray-300 font-black uppercase tracking-widest text-[10px]">Esta sección no utiliza assets visuales dinámicos.</p>
                        </div>
                     )}
                  </div>
-                 
-                 <div className="bg-amber-50 p-8 rounded-[38px] border border-amber-100 border-l-8 border-l-amber-400">
-                    <p className="text-xs font-medium text-amber-700 leading-relaxed italic">
-                       Nota: Asegúrate de guardar los cambios después de subir una imagen para que la nueva URL se vincule permanentemente a la sección.
-                    </p>
-                 </div>
               </div>
            </div>
         </div>
       </div>
 
-      <style jsx global>{`
-        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pop { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-        .animate-fade-in { animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-pop { animation: pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .admin-landing-container { font-family: 'Outfit', sans-serif; }
-      `}</style>
     </div>
   );
 }

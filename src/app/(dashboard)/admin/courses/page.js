@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useNotification } from '@/context/NotificationContext';
+import { optimizeImage } from '@/utils/imageOptimizer';
+import RichTextEditor from '@/components/ui/RichTextEditor';
+
+const DEFAULT_COURSE_IMAGE = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800";
 
 export default function AdminCoursesPage() {
   const { showNotification } = useNotification();
@@ -53,6 +57,36 @@ export default function AdminCoursesPage() {
     }
     setLoading(false);
   };
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    setLoading(true);
+    try {
+      const optimizedFile = await optimizeImage(file);
+      const fileExt = optimizedFile.name.split('.').pop();
+      const fileName = `course_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `course_thumbnails/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('site_assets')
+        .upload(filePath, optimizedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('site_assets')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, thumbnail_url: publicUrl }));
+      showNotification('Portada cargada con éxito.', 'success');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      showNotification('Error al subir imagen: ' + error.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleOpenModal = (course = null) => {
     if (course) {
@@ -145,9 +179,9 @@ export default function AdminCoursesPage() {
           </div>
           <button 
             onClick={() => handleOpenModal()} 
-            className="flex-1 lg:flex-none px-10 py-5 bg-primary-color text-white rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color/10 flex items-center justify-center gap-3"
+            className="flex-1 lg:flex-none px-10 py-5 bg-primary-color text-white rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color flex items-center justify-center gap-3"
           >
-            🚀 Lanzar Nuevo Curso
+            Lanzar Nuevo Curso
           </button>
         </div>
       </header>
@@ -161,7 +195,7 @@ export default function AdminCoursesPage() {
             placeholder="Buscar por nombre de curso..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-gray-100 p-5 pl-16 rounded-[32px] outline-none shadow-sm focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color transition-all"
+            className="w-full bg-white border border-gray-100 p-5 pl-16 rounded-[32px] outline-none shadow-sm focus:ring-4 focus:ring-secondary-color transition-all font-bold text-primary-color"
           />
         </div>
         <div className="flex p-2 bg-white border border-gray-100 rounded-[32px] shadow-sm">
@@ -174,7 +208,7 @@ export default function AdminCoursesPage() {
               key={f.id}
               onClick={() => setStatusFilter(f.id)}
               className={`px-8 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-2 ${
-                statusFilter === f.id ? 'bg-primary-color text-white shadow-lg shadow-primary-color/20' : 'text-gray-400 hover:bg-slate-50'
+                statusFilter === f.id ? 'bg-primary-color text-white shadow-lg' : 'text-gray-400 hover:bg-slate-50'
               }`}
             >
               <span>{f.icon}</span> {f.label}
@@ -195,29 +229,29 @@ export default function AdminCoursesPage() {
              <span className="text-5xl">📂</span>
              <h3 className="text-xl font-black text-primary-color font-display">Sin resultados</h3>
              <p className="text-gray-400 max-w-xs mx-auto text-sm">No encontramos coincidencias para tu búsqueda en la oferta académica.</p>
-             <button onClick={() => { setSearchTerm(''); setStatusFilter('all'); }} className="text-secondary-color font-black text-[10px] uppercase tracking-widest border-b-2 border-secondary-color/20">Limpiar Filtros</button>
+             <button onClick={() => { setSearchTerm(''); setStatusFilter('all'); }} className="text-secondary-color font-black text-[10px] uppercase tracking-widest border-b-2 border-secondary-color">Limpiar Filtros</button>
           </div>
         ) : (
           <div className="flex flex-col gap-6">
             {filteredCourses.map(course => {
               const isPopular = course.studentCount > 5;
               return (
-                <div key={course.id} className="group bg-white p-6 md:p-8 rounded-[48px] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-primary-color/5 transition-all duration-500 overflow-hidden relative">
+                <div key={course.id} className="group bg-white p-6 md:p-8 rounded-[48px] border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden relative">
                   {/* Destacado Badge */}
                   {isPopular && (
                     <div className="absolute top-0 right-10 bg-secondary-color text-primary-color px-6 py-2 rounded-b-2xl text-[9px] font-black uppercase tracking-widest shadow-lg z-10">
-                      🔥 Top Ventas / Destacado
+                      Top Ventas / Destacado
                     </div>
                   )}
 
                   <div className="flex flex-col lg:flex-row items-center gap-8 relative z-10">
                     <div className="w-full lg:w-48 h-48 lg:h-32 rounded-3xl overflow-hidden bg-slate-100 relative shadow-inner flex-shrink-0">
-                      {course.thumbnail_url ? (
-                        <img src={course.thumbnail_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={course.title} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-4xl">📚</div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      <img 
+                        src={course.thumbnail_url || DEFAULT_COURSE_IMAGE} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                        alt={course.title} 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-10"></div>
                     </div>
 
                     <div className="flex-1 space-y-3 min-w-0 w-full text-center lg:text-left">
@@ -273,107 +307,118 @@ export default function AdminCoursesPage() {
         )}
       </section>
 
-      {/* MODAL REDISEÑADO */}
+      {/* MODAL REDISEÑADO PREMIUM CON CENTRADO ABSOLUTO Y FIX DE OVERFLOW */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-primary-color/60 backdrop-blur-xl animate-fade-in" onClick={() => setIsModalOpen(false)}></div>
+        <div className="fixed inset-0 z-[2000]">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl animate-fade-in" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative w-full max-w-2xl bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop">
-             <header className="p-10 pb-0 flex justify-between items-start">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop max-h-[92vh] flex flex-col">
+             <header className="p-10 pb-4 flex justify-between items-start flex-shrink-0">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black text-secondary-color uppercase tracking-[0.3em]">
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">
                     {editingCourse ? 'Módulo de Edición' : 'Fundetec Academy Builder'}
                   </span>
-                  <h2 className="text-3xl font-black text-primary-color font-display tracking-tight">
+                  <h2 className="text-4xl font-black text-primary-color font-display tracking-tighter">
                     {editingCourse ? 'Ajustar Programa' : 'Crear Nueva Oferta'}
                   </h2>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all">✕</button>
+                <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm">✕</button>
              </header>
 
-             <form onSubmit={handleSubmit} className="p-10 pt-8 space-y-8">
+             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 pt-4 space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Título Institucional</label>
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Título Institucional de la Oferta</label>
                     <input 
                       type="text" required 
                       value={formData.title} 
                       onChange={e => setFormData({...formData, title: e.target.value})} 
-                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color transition-all text-lg"
-                      placeholder="Ej: Diplomado en Salud Pública"
+                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color transition-all font-bold text-primary-color text-xl shadow-inner placeholder:text-gray-300"
+                      placeholder="Ej: Validación Bachillerato"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Inversión (COP)</label>
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Inversión Educativa (COP)</label>
                     <input 
                       type="number" required 
                       value={formData.price} 
                       onChange={e => setFormData({...formData, price: e.target.value})} 
-                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color"
+                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color font-black text-xl text-primary-color shadow-inner"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Estado en Plataforma</label>
-                    <select 
-                      value={formData.is_published} 
-                      onChange={e => setFormData({...formData, is_published: e.target.value === 'true'})}
-                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-[10px] uppercase tracking-widest text-primary-color cursor-pointer appearance-none"
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Estado en Plataforma</label>
+                    <div 
+                      onClick={() => setFormData({...formData, is_published: !formData.is_published})}
+                      className={`w-full p-5 rounded-3xl border-none cursor-pointer transition-all flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] shadow-inner ${
+                        formData.is_published ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-gray-400'
+                      }`}
                     >
-                      <option value="false">❌ Borrador Técnico</option>
-                      <option value="true">✅ Lanzar en Vivo</option>
-                    </select>
+                      <div className={`w-5 h-5 rounded-lg flex items-center justify-center transition-all ${
+                        formData.is_published ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-transparent'
+                      }`}>✓</div>
+                      {formData.is_published ? 'Lanzar en Vivo' : 'Borrador Técnico'}
+                    </div>
                   </div>
 
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Portada Curada (URL)</label>
-                    <div className="flex gap-4">
-                      <input 
-                        type="url" 
-                        value={formData.thumbnail_url} 
-                        onChange={e => setFormData({...formData, thumbnail_url: e.target.value})} 
-                        className="flex-1 bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-medium text-sm text-gray-500"
-                        placeholder="https://assets..."
-                      />
-                      {formData.thumbnail_url && (
-                        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 flex-shrink-0">
-                          <img src={formData.thumbnail_url} className="w-full h-full object-cover" alt="Preview" />
+                  <div className="md:col-span-2 space-y-4">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Imagen de Portada</label>
+                    <div className="flex flex-col md:flex-row gap-6 items-center bg-slate-50 p-6 rounded-[32px] border border-dashed border-gray-200">
+                      <div className="w-32 h-32 rounded-2xl overflow-hidden bg-white shadow-lg flex-shrink-0 group relative">
+                        <img 
+                          src={formData.thumbnail_url || DEFAULT_COURSE_IMAGE} 
+                          className="w-full h-full object-cover" 
+                          alt="Preview" 
+                        />
+                        {loading && (
+                          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                            <div className="w-6 h-6 border-2 border-primary-color border-t-transparent animate-spin rounded-full"></div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-4 w-full">
+                        <p className="text-[10px] text-gray-400 font-medium">Sube una imagen representativa para el curso (Recomendado: 800x600px, WebP/JPG/PNG).</p>
+                        <div className="flex gap-3">
+                          <label className="flex-1 bg-primary-color text-white px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest text-center cursor-pointer hover:bg-secondary-color hover:text-primary-color transition-all shadow-md">
+                            {formData.thumbnail_url ? 'Cambiar Imagen' : 'Subir Imagen'}
+                            <input type="file" className="hidden" accept="image/*" onChange={e => handleFileUpload(e.target.files[0])} />
+                          </label>
+                          {formData.thumbnail_url && (
+                            <button 
+                              type="button"
+                              onClick={() => setFormData({...formData, thumbnail_url: ''})}
+                              className="px-6 py-3 bg-white text-red-500 rounded-xl font-black text-[9px] uppercase tracking-widest border border-red-100 hover:bg-red-50"
+                            >
+                              Eliminar
+                            </button>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
 
                   <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Descripción Académica</label>
-                    <textarea 
-                      rows="3" 
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Descripción Académica Ampliada</label>
+                    <RichTextEditor 
                       value={formData.description} 
-                      onChange={e => setFormData({...formData, description: e.target.value})}
-                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-medium text-gray-600 transition-all text-sm leading-relaxed"
+                      onChange={val => setFormData({...formData, description: val})}
                       placeholder="Detalla los objetivos del programa..."
-                    ></textarea>
+                    />
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                   <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-slate-50 text-gray-400 py-5 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all">Descartar</button>
-                   <button type="submit" disabled={loading} className="flex-2 bg-primary-color text-white py-5 px-12 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color/10">
-                     {loading ? 'Procesando...' : (editingCourse ? 'Actualizar Programa' : 'Lanzar Oferta 🚀')}
+                <div className="flex gap-4 pt-4 pb-4 flex-shrink-0 bg-white">
+                   <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-slate-50 text-gray-400 py-6 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-100 hover:text-gray-500 transition-all">Descartar</button>
+                   <button type="submit" disabled={loading} className="flex-2 bg-primary-color text-white py-6 px-12 rounded-[32px] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl">
+                     {loading ? 'Sincronizando...' : (editingCourse ? 'Actualizar Programa' : 'Lanzar Oferta')}
                    </button>
                 </div>
              </form>
           </div>
         </div>
       )}
-
-      <style jsx global>{`
-        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .animate-fade-in { animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-pop { animation: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .font-display { font-family: 'Outfit', sans-serif; }
-      `}</style>
     </div>
   );
 }

@@ -61,13 +61,13 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }) {
     admin: [
       { name: 'Dashboard', href: '/admin', icon: <Icons.Dashboard /> },
       { name: 'Cursos', href: '/admin/courses', icon: <Icons.Cursos /> },
-      { name: 'Usuarios', href: '/admin/users', icon: <Icons.Users /> },
+      { name: 'Comunidad', href: '/admin/users', icon: <Icons.Users /> },
       { name: 'Prospectos', href: '/admin/leads', icon: <Icons.Leads /> },
       { name: 'Notificaciones', href: '/admin/notifications', icon: <Icons.Notifications /> },
     ],
     coordinator: [
       { name: 'Dashboard', href: '/coordinador', icon: <Icons.Dashboard /> },
-      { name: 'Estudiantes', href: '/coordinador/students', icon: <Icons.Users /> },
+      { name: 'Mis Estudiantes', href: '/coordinador/students', icon: <Icons.Users /> },
       { name: 'Pagos', href: '/coordinador/pagos', icon: <Icons.Examenes /> },
       { name: 'Notificaciones', href: '/coordinador/notifications', icon: <Icons.Notifications /> },
     ],

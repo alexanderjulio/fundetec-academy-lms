@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { checkAndNotifyCourseCompletion } from '@/app/actions/student_actions';
 
 export default function LessonPlayerPage() {
   const { courseId, lessonId } = useParams();
@@ -102,7 +103,11 @@ export default function LessonPlayerPage() {
 
       if (error) throw error;
       setIsCompleted(newStatus);
-      if (newStatus) setCompletedLessons([...completedLessons, lessonId]);
+      if (newStatus) {
+        setCompletedLessons([...completedLessons, lessonId]);
+        // Verificar si completó el curso y notificar
+        checkAndNotifyCourseCompletion(session.user.id, courseId);
+      }
       else setCompletedLessons(completedLessons.filter(id => id !== lessonId));
     } catch (error) {
       console.error('Error updating progress:', error);
