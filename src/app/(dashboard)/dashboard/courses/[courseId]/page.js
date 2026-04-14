@@ -44,7 +44,8 @@ export default function CourseDetailPage() {
             )
           `)
           .eq('course_id', courseId)
-          .order('order_index', { ascending: true });
+          .order('order_index', { ascending: true })
+          .order('order_index', { referencedTable: 'lessons', ascending: true });
 
         // Fetch student progress
         const { data: progressData } = await supabase

@@ -119,19 +119,51 @@ export default function StudentDashboardHome() {
         ) : enrollments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10">
             {enrollments.map((enr) => (
-              <div key={enr.id} className="small-course-card glass-card-pure p-6 rounded-[40px] border border-white shadow-xl hover:-translate-y-2 transition-transform duration-500 flex flex-col">
-                <div className="thumb relative h-48 rounded-[30px] overflow-hidden mb-6">
-                   <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${enr.courses?.thumbnail_url || 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=600'})` }}></div>
-                   <div className="absolute top-3 right-3">
-                      <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[9px] font-black uppercase text-primary-color tracking-widest shadow-lg">
-                        {enr.progress}% Completado
-                      </span>
-                   </div>
+              <div key={enr.id} className="group relative bg-white rounded-[2.5rem] overflow-hidden shadow-2xl hover:shadow-primary-color/20 transition-all duration-700 hover:-translate-y-3">
+                {/* Contenedor de Imagen con Efecto Zoom */}
+                <div className="relative h-64 overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110" 
+                    style={{ backgroundImage: `url(${enr.courses?.thumbnail_url || 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=600'})` }}
+                  ></div>
+                  
+                  {/* Gradiente de Legibilidad */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary-color via-primary-color/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                  
+                  {/* Etiquetas Dinámicas */}
+                  <div className="absolute top-6 left-6 flex flex-col gap-2">
+                    <span className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-[9px] font-black uppercase text-white tracking-[0.2em] shadow-xl">
+                       {enr.courses?.title?.toLowerCase().includes('validación') ? 'Validación Ofic.' : 
+                        enr.courses?.title?.toLowerCase().includes('diplomado') ? 'Diplomado Superior' : 'Curso Técnico'}
+                    </span>
+                  </div>
+
+                  {/* Progreso Flotante (Glassmorphism) */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <h3 className="text-xl font-black text-white mb-3 tracking-tight leading-tight group-hover:text-secondary-color transition-colors">
+                      {enr.courses?.title}
+                    </h3>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
+                         <div className="h-full bg-secondary-color shadow-[0_0_15px_#facc15]" style={{ width: `${enr.progress}%` }}></div>
+                      </div>
+                      <span className="text-[10px] font-black text-white/80">{enr.progress}%</span>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-black text-primary-color mb-4 leading-tight flex-1">{enr.courses?.title}</h3>
-                <Link href={`/dashboard/courses/${enr.course_id}`} className="bg-gray-100/50 text-primary-color text-center py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all">
-                  Abrir Malla Curricular
-                </Link>
+
+                {/* Acciones e Info */}
+                <div className="p-6 bg-white flex flex-col gap-4">
+                  <p className="text-gray-400 text-xs line-clamp-2 font-medium leading-relaxed">
+                    Continúa tu formación y descarga tu certificación al finalizar todos los módulos.
+                  </p>
+                  <Link 
+                    href={`/dashboard/courses/${enr.course_id}`} 
+                    className="w-full bg-primary-color text-white text-center py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-lg active:scale-95"
+                  >
+                    Entrar al Aula Virtual
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

@@ -189,16 +189,14 @@ export default function AdminUsersPage() {
 
   const assignCoordinator = async (userId, coordinatorId) => {
     setUpdatingId(userId);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ coordinator_id: coordinatorId || null })
-      .eq('id', userId);
+    const res = await updateProfileMetadata(userId, { coordinator_id: coordinatorId || null });
 
-    if (error) {
-      showNotification('Error: ' + error.message, 'error');
+    if (!res.success) {
+      showNotification('Error: ' + res.error, 'error');
     } else {
       const coordName = coordinators.find(c => c.id === coordinatorId)?.full_name || null;
       setUsers(users.map(u => u.id === userId ? { ...u, coordinator_id: coordinatorId, coordinator: { full_name: coordName } } : u));
+      showNotification('Mentor asignado correctamente.', 'success');
     }
     setUpdatingId(null);
   };
