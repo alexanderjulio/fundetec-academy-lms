@@ -65,15 +65,23 @@ export default function CoordinatorDashboard() {
       const { data: payments } = await payQuery;
       const totalCollected = payments?.reduce((acc, p) => acc + parseFloat(p.amount || 0), 0) || 0;
 
-      // 4. Cartera Pendiente (Histórica)
-      // Forzamos el vínculo con el estudiante para evitar contar registros huérfanos o de otros grupos
+      // 4. Cartera Pendiente (Histórica y Dinámica)
       const { data: enrollments } = await supabase
         .from('enrollments')
-        .select('remaining_balance, status, student:student_id!inner(coordinator_id)')
+        .select(`
+          total_price, 
+          status, 
+          student:student_id!inner(coordinator_id),
+          payments(amount)
+        `)
         .eq('student.coordinator_id', userId)
         .eq('status', 'active');
       
-      const portfolioBalance = enrollments?.reduce((acc, e) => acc + parseFloat(e.remaining_balance || 0), 0) || 0;
+      const portfolioBalance = enrollments?.reduce((acc, e) => {
+        const total_price = parseFloat(e.total_price || 0);
+        const totalPaid = e.payments?.reduce((pAcc, p) => pAcc + parseFloat(p.amount || 0), 0) || 0;
+        return acc + (total_price - totalPaid);
+      }, 0) || 0;
 
       // 5. Estudiantes Recientes
       const { data: recent } = await supabase
