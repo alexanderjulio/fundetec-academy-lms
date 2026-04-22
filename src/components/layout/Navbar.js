@@ -101,8 +101,9 @@ export default function Navbar() {
           </div>
 
           <button 
-            className="lg:hidden w-10 h-10 flex flex-col justify-center gap-1.5 items-end group z-[1100]"
+            className="lg:hidden w-10 h-10 flex flex-col justify-center gap-1.5 items-end group z-[1600]"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Menú"
           >
             <div className={`h-1 bg-primary-color rounded-full transition-all duration-300 ${isOpen ? 'w-10 rotate-45 translate-y-2.5' : 'w-8 group-hover:w-10'}`}></div>
             <div className={`w-10 h-1 bg-primary-color rounded-full transition-all duration-300 ${isOpen ? 'opacity-0' : 'opacity-100'}`}></div>
@@ -111,21 +112,23 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu Overlay */}
-        <div className={`lg:hidden fixed inset-0 top-[80px] bg-white z-[900] transition-all duration-500 flex flex-col p-8 gap-6 ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}>
-          {navLinks.map((link) => (
-            <a 
-              key={link.name} 
-              href={link.href} 
-              onClick={() => setIsOpen(false)}
-              className="text-2xl font-black text-primary-color uppercase tracking-tighter border-b border-gray-100 pb-4"
-            >
-              {link.name}
-            </a>
-          ))}
+        <div className={`lg:hidden fixed inset-0 h-screen bg-white z-[1500] transition-all duration-500 flex flex-col p-10 pt-32 gap-8 shadow-2xl ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}>
+          <div className="flex flex-col gap-6">
+            {navLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                onClick={() => setIsOpen(false)}
+                className="text-4xl font-black text-primary-color uppercase tracking-tighter border-b border-gray-50 pb-6 hover:text-secondary-color transition-colors"
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
           <Link 
             href="/dashboard/courses" 
             onClick={() => setIsOpen(false)}
-            className="mt-4 px-10 py-6 bg-secondary-color text-primary-color rounded-[32px] text-center font-black uppercase tracking-widest shadow-2xl"
+            className="mt-4 px-10 py-8 bg-secondary-color text-primary-color rounded-[32px] text-center text-lg font-black uppercase tracking-widest shadow-2xl shadow-secondary-color/30 active:scale-95 transition-transform"
           >
             Aula Virtual 🚀
           </Link>
