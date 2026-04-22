@@ -43,6 +43,7 @@ export default function ProfilePage() {
         if (profileData.role_id === 1) fetchAdminStats(session.user.id);
       }
     } catch (error) {
+      console.error('Profile fetch error:', error);
       showNotification('Error al cargar perfil.', 'error');
     } finally {
       setLoading(false);
@@ -50,11 +51,15 @@ export default function ProfilePage() {
   };
 
   const fetchAdminStats = async (userId) => {
-    const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-    const { count: coursesCount } = await supabase.from('courses').select('*', { count: 'exact', head: true });
-    const { count: msgsCount } = await supabase.from('global_notifications').select('*', { count: 'exact', head: true }).eq('sender_id', userId);
-    
-    setStats({ users: usersCount || 0, courses: coursesCount || 0, messages: msgsCount || 0 });
+    try {
+      const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+      const { count: coursesCount } = await supabase.from('courses').select('*', { count: 'exact', head: true });
+      const { count: msgsCount } = await supabase.from('global_notifications').select('*', { count: 'exact', head: true }).eq('sender_id', userId);
+      
+      setStats({ users: usersCount || 0, courses: coursesCount || 0, messages: msgsCount || 0 });
+    } catch (e) {
+      console.error('Error fetching admin stats:', e);
+    }
   };
 
   const handleUpdateProfile = async (e) => {

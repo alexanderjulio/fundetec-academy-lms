@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [branding, setBranding] = useState({ site_name: 'FUNDETEC ACADEMY', logo_url: '' });
   const pathname = usePathname();
   const isHome = pathname === '/';
@@ -99,11 +100,35 @@ export default function Navbar() {
             </div>
           </div>
 
-          <button className="lg:hidden w-10 h-10 flex flex-col justify-center gap-1.5 items-end group">
-            <div className="w-8 h-1 bg-primary-color rounded-full transition-all group-hover:w-10"></div>
-            <div className="w-10 h-1 bg-primary-color rounded-full"></div>
-            <div className="w-6 h-1 bg-primary-color rounded-full transition-all group-hover:w-10"></div>
+          <button 
+            className="lg:hidden w-10 h-10 flex flex-col justify-center gap-1.5 items-end group z-[1100]"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <div className={`h-1 bg-primary-color rounded-full transition-all duration-300 ${isOpen ? 'w-10 rotate-45 translate-y-2.5' : 'w-8 group-hover:w-10'}`}></div>
+            <div className={`w-10 h-1 bg-primary-color rounded-full transition-all duration-300 ${isOpen ? 'opacity-0' : 'opacity-100'}`}></div>
+            <div className={`h-1 bg-primary-color rounded-full transition-all duration-300 ${isOpen ? 'w-10 -rotate-45 -translate-y-2.5' : 'w-6 group-hover:w-10'}`}></div>
           </button>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        <div className={`lg:hidden fixed inset-0 top-[80px] bg-white z-[900] transition-all duration-500 flex flex-col p-8 gap-6 ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'}`}>
+          {navLinks.map((link) => (
+            <a 
+              key={link.name} 
+              href={link.href} 
+              onClick={() => setIsOpen(false)}
+              className="text-2xl font-black text-primary-color uppercase tracking-tighter border-b border-gray-100 pb-4"
+            >
+              {link.name}
+            </a>
+          ))}
+          <Link 
+            href="/dashboard/courses" 
+            onClick={() => setIsOpen(false)}
+            className="mt-4 px-10 py-6 bg-secondary-color text-primary-color rounded-[32px] text-center font-black uppercase tracking-widest shadow-2xl"
+          >
+            Aula Virtual 🚀
+          </Link>
         </div>
       </nav>
     </>

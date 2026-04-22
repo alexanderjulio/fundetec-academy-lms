@@ -17,6 +17,7 @@ export default function LessonPlayerPage() {
   const [allLessons, setAllLessons] = useState([]);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [selectedImg, setSelectedImg] = useState(null);
+  const [expandedModules, setExpandedModules] = useState(new Set());
 
   const progressPercent = allLessons.length > 0 ? Math.round((completedLessons.length / allLessons.length) * 100) : 0;
 
@@ -27,7 +28,7 @@ export default function LessonPlayerPage() {
     const mp4Regex = /<iframe[^>]*src="([^"]+\.mp4[^"]*)"[^>]*>.*?<\/iframe>/gi;
     let formatted = html.replace(mp4Regex, (match, url) => {
       return `
-        <div class="video-native-wrap my-10 shadow-2xl rounded-[30px] overflow-hidden border-4 border-white bg-black aspect-video">
+        <div class="video-native-wrap my-10 shadow-2xl rounded-[30px] overflow-hidden border-4 border-white bg-black aspect-video max-w-full mx-auto">
           <video controls preload="metadata" class="w-full h-full object-cover">
             <source src="${url}" type="video/mp4">
             Tu navegador no soporta el video nativo.
@@ -93,6 +94,10 @@ export default function LessonPlayerPage() {
 
         const currentCompleted = progressData?.some(p => p.lesson_id === lessonId);
         const completedIds = progressData?.map(p => p.lesson_id) || [];
+        
+        // Auto-expand module that contains current lesson
+        const currentModule = modulesData?.find(m => m.lessons.some(l => l.id === lessonId));
+        if (currentModule) setExpandedModules(new Set([currentModule.id]));
 
         setLesson(lessonData);
         setCourse(courseData);
@@ -168,33 +173,32 @@ export default function LessonPlayerPage() {
   if (!lesson) return <div className="p-10 text-center">Contenido no disponible.</div>;
 
   return (
-    <div className="virtual-classroom bg-[#f0f4f8] min-h-screen">
+    <div className="virtual-classroom bg-[#f0f4f8] min-h-screen overflow-x-hidden">
       <header className="classroom-header h-20 bg-primary-color flex items-center justify-between px-8 shadow-xl sticky top-0 z-50 border-b border-white/10">
-        <Link href={`/dashboard/courses/${courseId}`} className="classroom-back group flex items-center gap-3 text-white no-underline">
-          <div className="back-icon bg-white/10 w-10 h-10 rounded-xl flex items-center justify-center group-hover:bg-white/20 transition-all">
+        <Link href={`/dashboard/courses/${courseId}`} className="classroom-back group flex items-center gap-3 text-white no-underline min-w-0 flex-1">
+          <div className="back-icon bg-white/10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-white/20 transition-all">
             <span className="text-xl">←</span>
           </div>
-          <div className="back-labels">
-            <span className="text-[10px] uppercase font-black tracking-widest opacity-60">
-              {course?.title?.toLowerCase().includes('validación') ? 'Volver a la Validación' : 
-               course?.title?.toLowerCase().includes('diplomado') ? 'Volver al Diplomado' : 'Volver al Curso'}
+          <div className="back-labels min-w-0">
+            <span className="text-[10px] uppercase font-black tracking-widest opacity-60 block">
+              {course?.title?.toLowerCase().includes('validación') ? 'Volver a la Validación' : 'Volver al Diplomado'}
             </span>
             <p className="font-bold text-sm tracking-tight line-clamp-1">{course?.title}</p>
           </div>
         </Link>
-        <div className="classroom-progress hidden md:flex items-center gap-4">
+        <div className="classroom-progress hidden lg:flex items-center gap-4 flex-shrink-0">
           <div className="text-right">
-            <span className="text-[10px] uppercase font-black text-white/40 block leading-none mb-1">Tu Progreso</span>
+            <span className="text-[10px] uppercase font-black text-white/40 block leading-none mb-1">Progreso</span>
             <span className="text-white font-black">{progressPercent}%</span>
           </div>
-          <div className="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
+          <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div className="h-full bg-secondary-color" style={{ width: `${progressPercent}%` }}></div>
           </div>
         </div>
       </header>
 
-      <div className="classroom-body flex flex-col lg:flex-row gap-8 p-6 lg:p-10 max-w-[1800px] mx-auto">
-        <main className="classroom-content flex-1 max-w-full">
+      <div className="classroom-body flex flex-col lg:flex-row gap-8 p-4 md:p-6 lg:p-10 max-w-[1800px] mx-auto overflow-hidden">
+        <main className="classroom-content flex-1 min-w-0 max-w-full">
           <div className="content-stage mb-10">
             {/* 1. Medios Principales (Video o Archivo) */}
             {(lesson.content_type === 'video' || (lesson.content_type !== 'reading' && lesson.content_url)) && (
@@ -250,7 +254,7 @@ export default function LessonPlayerPage() {
 
             {/* 2. Contenido Enriquecido (Lectura / Texto / Imágenes) */}
             {lesson.content && (
-              <article className={`premium-reading-stage glass-card-pure p-8 md:p-16 rounded-[40px] shadow-xl animate-fade-in mx-auto border border-white ${lesson.content_type === 'reading' ? 'max-w-[960px]' : 'max-w-full'}`}>
+              <article className={`premium-reading-stage glass-card-pure p-6 md:p-16 rounded-[30px] md:rounded-[40px] shadow-xl animate-fade-in mx-auto border border-white overflow-hidden ${lesson.content_type === 'reading' ? 'max-w-[960px]' : 'max-w-full'}`}>
                 {lesson.content_type === 'reading' && (
                   <header className="reading-meta mb-12 text-center">
                     <span className="inline-block py-1 px-4 bg-secondary-color/10 text-secondary-color text-xs font-black uppercase tracking-[0.3em] rounded-full mb-4">
@@ -275,22 +279,22 @@ export default function LessonPlayerPage() {
             )}
           </div>
 
-          <section className="classroom-footer glass-card-pure p-8 md:p-10 rounded-[40px] border border-white flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="lesson-info-footer">
-              <span className="text-xs font-black uppercase tracking-widest text-primary-color/40 block mb-2">Estás estudiando:</span>
-              <h2 className="text-2xl font-black text-primary-color tracking-tight line-clamp-1">{lesson.title}</h2>
+          <section className="classroom-footer glass-card-pure p-6 md:p-10 rounded-[30px] md:rounded-[40px] border border-white flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="lesson-info-footer text-center md:text-left">
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary-color/40 block mb-1">Estás estudiando:</span>
+              <h2 className="text-xl md:text-2xl font-black text-primary-color tracking-tight line-clamp-2">{lesson.title}</h2>
             </div>
-            <div className="lesson-actions flex items-center gap-4">
+            <div className="lesson-actions w-full md:w-auto">
               <button
                 onClick={handleToggleComplete}
-                className={`px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${isCompleted ? 'bg-success text-white shadow-success/40' : 'bg-primary-color text-white shadow-primary-color/20'} shadow-lg hover:-translate-y-1 active:scale-95`}
+                className={`w-full md:w-auto px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${isCompleted ? 'bg-success text-white shadow-success/40' : 'bg-primary-color text-white shadow-primary-color/20'} shadow-lg hover:-translate-y-1 active:scale-95`}
               >
                 {isCompleted ? '✓ Completada' : 'Finalizar Lección'}
               </button>
             </div>
           </section>
 
-          <nav className="classroom-navigation mt-10 grid grid-cols-2 gap-6">
+          <nav className="classroom-navigation mt-8 flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-6">
             {prevLesson ? (
               <Link href={`/dashboard/lessons/${courseId}/${prevLesson.id}`} className="nav-card glass-card-pure p-6 rounded-3xl group border border-white hover:border-gray-200 transition-all flex items-center gap-4">
                 <div className="nav-dir-icon w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center group-hover:bg-primary-color group-hover:text-white transition-all">←</div>
@@ -318,10 +322,12 @@ export default function LessonPlayerPage() {
           </nav>
         </main>
 
-        <aside className="classroom-sidebar w-full lg:w-[420px] shrink-0">
-          <div className="sidebar-container glass-card-pure rounded-[40px] border border-white overflow-hidden sticky top-32 flex flex-col max-h-[calc(100vh-160px)] shadow-2xl">
+        <aside className="classroom-sidebar w-full lg:w-[420px] shrink-0 min-w-0">
+          <div className="sidebar-container glass-card-pure rounded-[30px] md:rounded-[40px] border border-white overflow-hidden lg:sticky lg:top-32 flex flex-col max-h-none lg:max-h-[calc(100vh-160px)] shadow-2xl">
             <header className="sidebar-head p-8 border-b border-gray-100 bg-gray-50/50">
-              <h3 className="font-black text-primary-color uppercase text-sm tracking-[0.2em] mb-4">Contenido del Diplomado</h3>
+              <h3 className="font-black text-primary-color uppercase text-sm tracking-[0.2em] mb-4">
+                {course?.title?.toLowerCase().includes('validación') ? 'Contenido de la Validación' : 'Contenido del Diplomado'}
+              </h3>
               <div className="sidebar-progress-full">
                 <div className="flex justify-between items-end text-[10px] font-black uppercase text-gray-400 mb-2">
                   <span>Tu Avance</span>
@@ -334,32 +340,47 @@ export default function LessonPlayerPage() {
             </header>
 
             <div className="sidebar-body overflow-y-auto p-4 custom-scrollbar">
-              {modules.map((mod, mIdx) => (
-                <div key={mod.id} className="module-group mb-6">
-                  <h4 className="px-4 text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="text-primary-color opacity-30">#0{mIdx + 1}</span> {mod.title}
-                  </h4>
-                  <div className="lesson-items-stack space-y-1">
-                    {mod.lessons.sort((a, b) => a.order_index - b.order_index).map((l) => (
-                      <Link
-                        key={l.id}
-                        href={`/dashboard/lessons/${courseId}/${l.id}`}
-                        className={`lesson-item-sidebar flex items-center gap-4 p-4 rounded-2xl transition-all ${l.id === lessonId ? 'bg-primary-color text-white shadow-lg shadow-primary-color/20' : 'hover:bg-gray-100 text-gray-600'}`}
-                      >
-                        <div className={`l-status w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold ${l.id === lessonId ? 'border-secondary-color text-secondary-color bg-white/10' : (completedLessons.includes(l.id) ? 'bg-success border-success text-white' : 'border-gray-200 text-transparent')}`}>
-                          {completedLessons.includes(l.id) && '✓'}
-                        </div>
-                        <div className="l-content flex-1 max-w-[200px]">
-                          <p className="text-xs font-bold leading-tight line-clamp-2">{l.title}</p>
-                          <span className={`text-[9px] uppercase font-black tracking-tighter mt-1 block opacity-60 ${l.id === lessonId ? 'text-secondary-color' : ''}`}>
-                            {l.content_type === 'video' ? 'Película Instruccional' : l.content_type === 'reading' ? 'Módulo de Lectura' : 'Documento Técnico'}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
+              {modules.map((mod, mIdx) => {
+                const isExpanded = expandedModules.has(mod.id);
+                return (
+                  <div key={mod.id} className="module-group mb-4 border-b border-gray-50 pb-4 last:border-0">
+                    <button 
+                      onClick={() => {
+                        const newExpanded = new Set(expandedModules);
+                        if (isExpanded) newExpanded.delete(mod.id);
+                        else newExpanded.add(mod.id);
+                        setExpandedModules(newExpanded);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 rounded-xl transition-all"
+                    >
+                      <h4 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 text-left">
+                        <span className="text-primary-color opacity-30">#0{mIdx + 1}</span> {mod.title}
+                      </h4>
+                      <span className={`text-xs transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+                    </button>
+                    
+                    <div className={`lesson-items-stack space-y-1 mt-2 overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                      {mod.lessons.sort((a, b) => a.order_index - b.order_index).map((l) => (
+                        <Link
+                          key={l.id}
+                          href={`/dashboard/lessons/${courseId}/${l.id}`}
+                          className={`lesson-item-sidebar flex items-center gap-4 p-4 rounded-2xl transition-all ${l.id === lessonId ? 'bg-primary-color text-white shadow-lg shadow-primary-color/20' : 'hover:bg-gray-100 text-gray-600'}`}
+                        >
+                          <div className={`l-status w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold ${l.id === lessonId ? 'border-secondary-color text-secondary-color bg-white/10' : (completedLessons.includes(l.id) ? 'bg-success border-success text-white' : 'border-gray-200 text-transparent')}`}>
+                            {completedLessons.includes(l.id) && '✓'}
+                          </div>
+                          <div className="l-content flex-1">
+                            <p className="text-xs font-bold leading-tight line-clamp-2">{l.title}</p>
+                            <span className={`text-[9px] uppercase font-black tracking-tighter mt-1 block opacity-60 ${l.id === lessonId ? 'text-secondary-color' : ''}`}>
+                              {l.content_type === 'video' ? 'Película Instruccional' : l.content_type === 'reading' ? 'Módulo de Lectura' : 'Documento Técnico'}
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </aside>
@@ -445,9 +466,22 @@ export default function LessonPlayerPage() {
           to { opacity: 1; transform: scale(1); }
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
+
+        :global(html), :global(body) {
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+          position: relative;
+        }
+
+        @media (max-width: 768px) {
+          .classroom-header {
+            padding: 0 1rem;
+          }
+          .back-labels p {
+            max-width: 150px;
+          }
+        }
 
         :global(.bg-primary-color) { background-color: var(--primary-color) !important; }
         :global(.bg-secondary-color) { background-color: var(--secondary-color) !important; }

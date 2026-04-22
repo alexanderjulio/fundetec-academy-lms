@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { supabase } from '@/lib/supabase';
 import { exportToPDF, exportToExcel, exportToCSV } from '@/utils/export_finance';
 
@@ -194,9 +194,9 @@ export default function StudentLedgerPage() {
                       {loading ? (
                           <tr><td colSpan="6" className="p-40 text-center animate-pulse"><p className="text-gray-300 font-black uppercase tracking-[0.5em] text-[10px]">Cargando Libro Mayor...</p></td></tr>
                       ) : filteredLedger.length > 0 ? (
-                          filteredLedger.map(enr => (
-                              <>
-                                <tr key={enr.id} className={`group hover:bg-slate-50/50 transition-all cursor-pointer ${expandedRow === enr.id ? 'bg-slate-50' : ''}`} onClick={() => setExpandedRow(expandedRow === enr.id ? null : enr.id)}>
+                        filteredLedger.map(enr => (
+                              <Fragment key={enr.id}>
+                                <tr className={`group hover:bg-slate-50/50 transition-all cursor-pointer ${expandedRow === enr.id ? 'bg-slate-50' : ''}`} onClick={() => setExpandedRow(expandedRow === enr.id ? null : enr.id)}>
                                     <td className="p-8 border-b border-gray-50">
                                         <div className="space-y-1">
                                             <p className="text-sm font-black text-primary-color">{enr.student?.full_name}</p>
@@ -245,7 +245,7 @@ export default function StudentLedgerPage() {
                                         </td>
                                     </tr>
                                 )}
-                              </>
+                              </Fragment>
                           ))
                       ) : (
                           <tr><td colSpan="6" className="p-20 text-center italic text-gray-400">No se encontraron registros que coincidan con los filtros.</td></tr>

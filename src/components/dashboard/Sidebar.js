@@ -41,7 +41,7 @@ const Icons = {
   )
 };
 
-export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }) {
+export default function Sidebar({ userRole, isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
   const pathname = usePathname();
   const [profile, setProfile] = useState(null);
 
@@ -64,12 +64,14 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }) {
       { name: 'Comunidad', href: '/admin/users', icon: <Icons.Users /> },
       { name: 'Prospectos', href: '/admin/leads', icon: <Icons.Leads /> },
       { name: 'Notificaciones', href: '/admin/notifications', icon: <Icons.Notifications /> },
+      { name: 'Mi Perfil', href: '/admin/profile', icon: <Icons.Settings /> },
     ],
     coordinator: [
       { name: 'Dashboard', href: '/coordinador', icon: <Icons.Dashboard /> },
       { name: 'Mis Estudiantes', href: '/coordinador/students', icon: <Icons.Users /> },
       { name: 'Pagos', href: '/coordinador/pagos', icon: <Icons.Examenes /> },
       { name: 'Notificaciones', href: '/coordinador/notifications', icon: <Icons.Notifications /> },
+      { name: 'Mi Perfil', href: '/coordinador/profile', icon: <Icons.Settings /> },
     ],
     student: [
       { name: 'Mis Cursos', href: '/dashboard/courses', icon: <Icons.Cursos /> },
@@ -88,9 +90,21 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }) {
   };
 
   return (
-    <aside 
-      className={`fixed left-0 top-0 h-screen bg-[#0F172A] text-white transition-all duration-300 z-[200] flex flex-col shadow-2xl ${isCollapsed ? 'w-[80px]' : 'w-[280px]'}`}
-    >
+    <>
+      {/* Overlay for mobile */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[190] lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      <aside 
+        className={`fixed left-0 top-0 h-screen bg-[#0F172A] text-white transition-all duration-300 z-[200] flex flex-col shadow-2xl 
+          ${isCollapsed ? 'w-[80px]' : 'w-[280px]'}
+          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
       {/* Header / Logo */}
       <div className={`p-8 mb-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
         {!isCollapsed ? (
@@ -107,12 +121,20 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }) {
             F
           </Link>
         )}
+
+        {/* Close button for mobile */}
+        <button 
+          className="lg:hidden w-10 h-10 flex items-center justify-center bg-white/10 rounded-full text-white"
+          onClick={() => setIsMobileOpen(false)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+        </button>
       </div>
 
-      {/* Collapse Toggle Button */}
+      {/* Collapse Toggle Button - Only visible on Desktop */}
       <button 
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className={`absolute -right-3 top-24 w-6 h-6 bg-secondary-color text-primary-color rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 z-[210]`}
+        className={`absolute -right-3 top-24 w-6 h-6 bg-secondary-color text-primary-color rounded-full hidden lg:flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-95 z-[210]`}
       >
         {isCollapsed ? <Icons.Expand /> : <Icons.Collapse />}
       </button>
@@ -126,6 +148,7 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }) {
               <li key={item.href}>
                 <Link 
                   href={item.href}
+                  onClick={() => setIsMobileOpen(false)}
                   className={`flex items-center gap-4 p-4 rounded-2xl transition-all relative overflow-hidden group ${
                     isActive 
                       ? 'bg-secondary-color text-primary-color shadow-lg shadow-secondary-color/10' 
@@ -177,5 +200,6 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }) {
         </button>
       </div>
     </aside>
+    </>
   );
 }

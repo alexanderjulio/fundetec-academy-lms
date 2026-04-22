@@ -12,6 +12,7 @@ export default function CourseDetailPage() {
   const [modules, setModules] = useState([]);
   const [completedLessons, setCompletedLessons] = useState(new Set());
   const [completedExams, setCompletedExams] = useState(new Set());
+  const [expandedModules, setExpandedModules] = useState(new Set());
 
   useEffect(() => {
     async function fetchCourseData() {
@@ -64,6 +65,11 @@ export default function CourseDetailPage() {
         setModules(modulesData || []);
         setCompletedLessons(new Set(progressData?.map(p => p.lesson_id) || []));
         setCompletedExams(new Set(submissionsData?.filter(s => s.passed).map(s => s.exam_id) || []));
+        
+        // Expand first module by default
+        if (modulesData && modulesData.length > 0) {
+          setExpandedModules(new Set([modulesData[0].id]));
+        }
       } catch (error) {
         console.error('Error fetching course detail:', error);
       } finally {
@@ -80,12 +86,25 @@ export default function CourseDetailPage() {
   const totalLessons = modules.reduce((acc, m) => acc + m.lessons.length, 0);
   const progressPercent = totalLessons > 0 ? Math.round((completedLessons.size / totalLessons) * 100) : 0;
 
+  const toggleModule = (moduleId) => {
+    const next = new Set(expandedModules);
+    if (next.has(moduleId)) {
+      next.delete(moduleId);
+    } else {
+      next.add(moduleId);
+    }
+    setExpandedModules(next);
+  };
+
   return (
     <div className="course-detail-container px-4 py-8 max-w-7xl mx-auto">
       <nav className="breadcrumb mb-8">
-        <Link href="/dashboard/courses" className="back-link group">
-          <span className="icon group-hover:-translate-x-1 transition-transform inline-block mr-2">←</span>
-          Volver a Mis Cursos
+        <Link 
+          href="/dashboard/courses" 
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-100 rounded-2xl text-primary-color font-bold text-sm shadow-sm hover:shadow-md hover:border-secondary-color/30 hover:-translate-x-1 transition-all group"
+        >
+          <span className="text-lg transition-transform group-hover:-translate-x-1">←</span>
+          <span>Volver a Mis Cursos</span>
         </Link>
       </nav>
 
@@ -94,7 +113,7 @@ export default function CourseDetailPage() {
         <div className="hero-content relative z-10 p-8 md:p-12 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="info-side max-w-2xl">
             <span className="course-badge text-xs font-black uppercase tracking-[0.2em] px-3 py-1 bg-white/20 rounded-full mb-4 inline-block">
-              Diplomado Certificado
+              {course.title?.toLowerCase().includes('validación') ? 'Validación Académica' : 'Diplomado Certificado'}
             </span>
             <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight tracking-tight text-white drop-shadow-sm">
               {course.title}
@@ -106,7 +125,9 @@ export default function CourseDetailPage() {
 
             <div className="overall-progress-container w-full max-w-md">
               <div className="flex justify-between items-end mb-2">
-                <span className="text-sm font-bold text-white/80 uppercase tracking-wider">Avance del Curso </span>
+                <span className="text-sm font-bold text-white/80 uppercase tracking-wider">
+                  {course.title?.toLowerCase().includes('validación') ? 'Avance de la Validación' : 'Avance del Diplomado'}
+                </span>
                 <span className="text-2xl font-black text-white">{progressPercent}%</span>
               </div>
               <div className="h-3 w-full bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
@@ -138,72 +159,85 @@ export default function CourseDetailPage() {
         </div>
 
         <div className="modules-stack space-y-8">
-          {modules.map((module, mIdx) => (
-            <div key={module.id} className="module-card glass-card-premium overflow-hidden border border-white/40">
-              <div className="module-header flex items-center justify-between p-6 bg-gray-50/50 border-bottom border-gray-100">
-                <div className="flex items-center gap-4">
-                  <div className="mod-number bg-primary-color text-white w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm">
-                    {mIdx + 1}
+          {modules.map((module, mIdx) => {
+            const isExpanded = expandedModules.has(module.id);
+            return (
+              <div key={module.id} className="module-card glass-card-premium overflow-hidden border border-white/40">
+                <div 
+                  className="module-header flex items-center justify-between p-6 bg-gray-50/50 border-bottom border-gray-100 cursor-pointer hover:bg-gray-100/50 transition-colors"
+                  onClick={() => toggleModule(module.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="mod-number bg-primary-color text-white w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm">
+                      {mIdx + 1}
+                    </div>
+                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
+                       <h3 className="text-lg md:text-xl font-bold text-primary-color">{module.title}</h3>
+                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-100 px-2 py-0.5 rounded-full w-fit">
+                          {module.lessons.length} LECCIONES · {module.exams?.length || 0} EXAMEN
+                       </span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-primary-color">{module.title}</h3>
+                  <div className="flex items-center gap-4">
+                    <span className={`transition-transform duration-300 text-primary-color ${isExpanded ? 'rotate-180' : ''}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-gray-400">
-                  {module.lessons.length} LECCIONES · {module.exams?.length || 0} EXAMEN
-                </span>
-              </div>
 
-              <div className="lessons-list">
-                {module.lessons.map((lesson) => (
-                  <Link
-                    key={lesson.id}
-                    href={`/dashboard/lessons/${courseId}/${lesson.id}`}
-                    className="lesson-interactive-row group flex items-center justify-between p-5 transition-all hover:bg-white/60 active:scale-[0.99]"
-                  >
-                    <div className="flex items-center gap-5">
-                      <div className={`status-indicator w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${completedLessons.has(lesson.id) ? 'bg-success border-success text-white' : 'border-gray-200 text-transparent group-hover:border-primary-color/30'}`}>
-                        {completedLessons.has(lesson.id) && <span className="text-xs font-bold">✓</span>}
-                      </div>
-                      <div className="l-main text-left">
-                        <p className="text-base font-bold text-gray-800 group-hover:text-primary-color transition-colors line-clamp-1">{lesson.title}</p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[10px] font-black uppercase tracking-tighter text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                            {lesson.content_type === 'video' ? 'Video-Clase' : lesson.content_type === 'reading' ? 'Lectura Enriquecida' : 'Material Descargable'}
-                          </span>
+                <div className={`lessons-list transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  {module.lessons.map((lesson) => (
+                    <Link
+                      key={lesson.id}
+                      href={`/dashboard/lessons/${courseId}/${lesson.id}`}
+                      className="lesson-interactive-row group flex items-center justify-between p-5 transition-all hover:bg-white/60 active:scale-[0.99]"
+                    >
+                      <div className="flex items-center gap-5">
+                        <div className={`status-indicator w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${completedLessons.has(lesson.id) ? 'bg-success border-success text-white' : 'border-gray-200 text-transparent group-hover:border-primary-color/30'}`}>
+                          {completedLessons.has(lesson.id) && <span className="text-xs font-bold">✓</span>}
+                        </div>
+                        <div className="l-main text-left">
+                          <p className="text-base font-bold text-gray-800 group-hover:text-primary-color transition-colors line-clamp-1">{lesson.title}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-[10px] font-black uppercase tracking-tighter text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                              {lesson.content_type === 'video' ? 'Video-Clase' : lesson.content_type === 'reading' ? 'Lectura Enriquecida' : 'Material Descargable'}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="l-action opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-secondary-color font-black text-sm uppercase">
-                      <span>Comenzar</span>
-                      <span className="text-xl">→</span>
-                    </div>
-                  </Link>
-                ))}
+                      <div className="l-action opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-secondary-color font-black text-sm uppercase">
+                        <span>Comenzar</span>
+                        <span className="text-xl">→</span>
+                      </div>
+                    </Link>
+                  ))}
 
-                {/* Exámenes */}
-                {module.exams && module.exams.map((exam) => (
-                  <Link
-                    key={exam.id}
-                    href={`/dashboard/exams/${exam.id}`}
-                    className="exam-interactive-row group flex items-center justify-between p-6 bg-secondary-color/5 hover:bg-secondary-color/10 border-t border-secondary-color/10 transition-all font-bold"
-                  >
-                    <div className="flex items-center gap-5">
-                      <div className="exam-status-icon w-8 h-8 rounded-lg bg-secondary-color text-primary-color flex items-center justify-center shadow-lg">
-                        {completedExams.has(exam.id) ? '🏆' : '📝'}
+                  {/* Exámenes */}
+                  {module.exams && module.exams.map((exam) => (
+                    <Link
+                      key={exam.id}
+                      href={`/dashboard/exams/${exam.id}`}
+                      className="exam-interactive-row group flex items-center justify-between p-6 bg-secondary-color/5 hover:bg-secondary-color/10 border-t border-secondary-color/10 transition-all font-bold"
+                    >
+                      <div className="flex items-center gap-5">
+                        <div className="exam-status-icon w-8 h-8 rounded-lg bg-secondary-color text-primary-color flex items-center justify-center shadow-lg">
+                          {completedExams.has(exam.id) ? '🏆' : '📝'}
+                        </div>
+                        <div className="e-main">
+                          <p className="text-primary-color">EVALUACIÓN: {exam.title}</p>
+                          <p className="text-[10px] text-secondary-color uppercase tracking-widest font-black">Certificación de Módulo</p>
+                        </div>
                       </div>
-                      <div className="e-main">
-                        <p className="text-primary-color">EVALUACIÓN: {exam.title}</p>
-                        <p className="text-[10px] text-secondary-color uppercase tracking-widest font-black">Certificación de Módulo</p>
+                      <div className="e-action flex items-center gap-2 text-primary-color text-sm uppercase font-black">
+                        <span>Iniciar Examen</span>
+                        <span className="animate-pulse">🚀</span>
                       </div>
-                    </div>
-                    <div className="e-action flex items-center gap-2 text-primary-color text-sm uppercase font-black">
-                      <span>Iniciar Examen</span>
-                      <span className="animate-pulse">🚀</span>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

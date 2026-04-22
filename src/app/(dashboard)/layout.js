@@ -5,9 +5,12 @@ import { supabase } from '@/lib/supabase';
 import Sidebar from '@/components/dashboard/Sidebar';
 import CoordinatorChat from '@/components/dashboard/CoordinatorChat';
 import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import '@/app/dashboard.css';
 
 export default function DashboardLayout({ children }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [displayName, setDisplayName] = useState('Usuario Fundetec');
@@ -15,6 +18,7 @@ export default function DashboardLayout({ children }) {
   const [showNotifs, setShowNotifs] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userRole = profile?.role_id === 1 ? 'admin' : (profile?.role_id === 2 ? 'coordinator' : 'student');
 
@@ -39,18 +43,6 @@ export default function DashboardLayout({ children }) {
             setProfile(profileData);
             setDisplayName(profileData.full_name || session.user.user_metadata?.full_name || 'Usuario Fundetec');
             fetchNotifications(session.user.id, profileData);
-
-            // SEGURIDAD ESTRICTA: Redirigir al panel correcto si está en la ruta equivocada
-            const roleId = profileData.role_id;
-            const pathname = window.location.pathname;
-
-            if (roleId === 1 && !pathname.startsWith('/admin')) {
-              window.location.href = '/admin';
-            } else if (roleId === 2 && !pathname.startsWith('/coordinador')) {
-              window.location.href = '/coordinador';
-            } else if ((roleId === 3 || !roleId) && !pathname.startsWith('/dashboard')) {
-              window.location.href = '/dashboard';
-            }
           } else {
             // Fallback al nombre de la sesión si no hay perfil
             setDisplayName(session.user.user_metadata?.full_name || 'Usuario Fundetec');
@@ -74,6 +66,21 @@ export default function DashboardLayout({ children }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const isAdmin = profile?.role_id === 1;
+  const isCoordinator = profile?.role_id === 2;
+
+  // Redirect if accessing a route they don't have permission for
+  useEffect(() => {
+    if (!loading && profile) {
+      if (pathname.includes('/profile')) return;
+
+      if (pathname.startsWith('/admin') && !isAdmin) router.push('/dashboard');
+      if (pathname.startsWith('/coordinador') && !isAdmin && !isCoordinator) router.push('/dashboard');
+      if (pathname === '/dashboard' && isAdmin) router.push('/admin');
+      if (pathname === '/dashboard' && isCoordinator) router.push('/coordinador');
+    }
+  }, [profile, loading, isAdmin, isCoordinator, router, pathname]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -151,11 +158,38 @@ export default function DashboardLayout({ children }) {
         userRole={userRole} 
         isCollapsed={isSidebarCollapsed} 
         setIsCollapsed={setIsSidebarCollapsed} 
+        isMobileOpen={isMobileMenuOpen}
+        setIsMobileOpen={setIsMobileMenuOpen}
       />
-      <main className={`dashboard-content transition-all duration-300 ${isSidebarCollapsed ? 'ml-[80px]' : 'ml-[280px]'}`}>
+      <main className={`dashboard-content transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-[80px]' : 'lg:ml-[280px]'} ml-0`}>
         <header className="dashboard-header">
-          <div className="search-bar">
-            <span>🔍 Buscar cursos o materiales...</span>
+          <div className="flex items-center gap-4">
+            <button 
+              className="lg:hidden p-3 bg-primary-color text-white rounded-xl shadow-lg shadow-primary-color/20 z-[110]"
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Abrir menú"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            </button>
+            <div className="flex items-center gap-2 mr-2">
+              <button 
+                onClick={() => router.back()} 
+                className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-primary-color hover:border-primary-color/20 hover:shadow-lg transition-all active:scale-90"
+                title="Atrás"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button 
+                onClick={() => router.forward()} 
+                className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-primary-color hover:border-primary-color/20 hover:shadow-lg transition-all active:scale-90"
+                title="Adelante"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div className="search-bar">
+              <span>🔍 Buscar cursos o materiales...</span>
+            </div>
           </div>
 
           <div className="header-right">
@@ -207,13 +241,20 @@ export default function DashboardLayout({ children }) {
                       <span className="role-tag">{userRole === 'admin' ? 'Administrador' : (userRole === 'coordinator' ? 'Coordinador' : 'Estudiante')}</span>
                    </div>
                    <div className="dropdown-links">
-                      <Link href="/dashboard/profile" className="dropdown-link" onClick={() => setShowUserMenu(false)}>
+                      <button 
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          const p = isAdmin ? '/admin/profile' : (isCoordinator ? '/coordinador/profile' : '/dashboard/profile');
+                          router.push(p);
+                        }} 
+                        className="dropdown-link w-full text-left border-none bg-transparent cursor-pointer"
+                      >
                         <span className="icon text-primary-color">👤</span> 
                         <div className="link-text">
                            <span className="title">Mi Perfil</span>
                            <span className="sub">Ajustes y cuenta</span>
                         </div>
-                      </Link>
+                      </button>
                       <button className="dropdown-link logout" onClick={handleLogout}>
                         <span className="icon text-red-500">🚪</span> 
                         <div className="link-text text-left">
