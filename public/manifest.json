@@ -2,7 +2,7 @@
   "name": "Fundetec Academy",
   "short_name": "Fundetec",
   "description": "Plataforma de Educación Virtual Premium - Fundetec Academy",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0F172A",
   "theme_color": "#0F172A",
