@@ -57,7 +57,12 @@ function LoginContent() {
         const { error } = await supabase.auth.signUp({ 
           email, 
           password,
-          options: { data: { full_name: fullName } }
+          options: { 
+            data: { 
+              full_name: fullName,
+              coordinator_id: referralId
+            } 
+          }
         });
         if (error) throw error;
         setStatus({ type: 'info', msg: '✨ Registro exitoso. Revisa tu correo para confirmar cuenta.' });
@@ -133,11 +138,6 @@ function LoginContent() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center px-1">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Contraseña</label>
-                    {isLogin && (
-                      <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-secondary-color uppercase tracking-widest hover:underline">
-                        ¿Olvidaste tu contraseña?
-                      </button>
-                    )}
                   </div>
                   <input 
                     type="password" 
@@ -147,6 +147,13 @@ function LoginContent() {
                     placeholder="••••••••" 
                     className="w-full bg-white border border-gray-100 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-secondary-color/10 focus:border-secondary-color transition-all font-bold text-primary-color placeholder:text-gray-300 font-mono"
                   />
+                  {isLogin && (
+                    <div className="flex justify-end px-1">
+                      <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-secondary-color uppercase tracking-widest hover:underline">
+                        ¿Olvidaste tu contraseña?
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -180,7 +187,7 @@ function LoginContent() {
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary-color">
           <div className="absolute inset-0 z-0">
              <img 
-               src="/brain/43d88fae-33c5-4427-8889-c0b2dce102fd/hero_fundetec_academy_1775917173246.png" 
+               src="/hero.png" 
                className="w-full h-full object-cover opacity-30 grayscale saturate-0 animate-scale-slow"
                alt="Fundetec Academy"
              />

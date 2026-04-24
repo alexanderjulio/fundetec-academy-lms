@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useNotification } from '@/context/NotificationContext';
+import { QRCodeSVG } from 'qrcode.react';
 
 const Icons = {
   Personal: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
@@ -186,7 +187,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {!isAdmin && (
+          {!isAdmin && isStudent && (
              <div className="p-8 bg-emerald-50 rounded-[40px] border border-emerald-100 text-center space-y-4">
                 <span className="text-2xl">📱</span>
                 <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-relaxed">
@@ -194,6 +195,40 @@ export default function ProfilePage() {
                 </p>
                 <button className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all">Contactar Soporte</button>
              </div>
+          )}
+
+          {(isAdmin || isCoordinator) && (
+            <div className="p-8 bg-indigo-50 rounded-[40px] border border-indigo-100 space-y-6">
+              <div className="text-center space-y-2">
+                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Célula de Captación</span>
+                <h4 className="text-xl font-black text-primary-color tracking-tight">Referido Elite</h4>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl flex justify-center shadow-inner">
+                <QRCodeSVG 
+                  value={`${typeof window !== 'undefined' ? window.location.origin : ''}/login?ref=${profile?.id}`}
+                  size={150}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <button 
+                  onClick={() => {
+                    const link = `${window.location.origin}/login?ref=${profile.id}`;
+                    navigator.clipboard.writeText(link);
+                    showNotification('Enlace copiado al portapapeles', 'success');
+                  }}
+                  className="w-full py-4 bg-primary-color text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all flex items-center justify-center gap-2"
+                >
+                  <span>🔗</span> Copiar Enlace
+                </button>
+                <p className="text-[9px] text-gray-400 text-center font-medium italic">
+                  Usa este enlace o QR para registrar nuevos prospectos directamente en tu red.
+                </p>
+              </div>
+            </div>
           )}
         </aside>
 

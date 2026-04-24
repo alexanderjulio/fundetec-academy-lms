@@ -21,9 +21,14 @@ export default function Home() {
   }, []);
 
   const initLanding = async () => {
-    setLoading(true);
-    await Promise.all([fetchSections(), fetchCourses()]);
-    setLoading(false);
+    try {
+      setLoading(true);
+      await Promise.all([fetchSections(), fetchCourses()]);
+    } catch (error) {
+      console.error('Error in initLanding:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchSections = async () => {
