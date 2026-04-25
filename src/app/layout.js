@@ -26,6 +26,9 @@ export async function generateMetadata() {
     return {
       title: "Fundetec Academy | Excelencia en Educación Virtual",
       description: "Plataforma líder en educación virtual.",
+      icons: {
+        icon: "/favicon.ico",
+      },
       manifest: "/manifest.json",
     };
   }
