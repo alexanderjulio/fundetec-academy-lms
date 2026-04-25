@@ -1,0 +1,53 @@
+name: Deploy Fundetec to cPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Platform
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Agrega otras variables necesarias para el build aquí
+
+      - name: Prepare Deployment Folder
+        run: |
+          mkdir deploy
+          # Copiar el servidor standalone y sus dependencias
+          cp -r .next/standalone/. deploy/
+          # Copiar archivos estáticos (Next.js no los incluye en standalone por defecto)
+          mkdir -p deploy/.next/static
+          cp -r .next/static/. deploy/.next/static/
+          cp -r public/. deploy/public/
+          # Nota: cPanel buscará 'server.js' en la raíz de la aplicación.
+          # Next.js ya genera uno en .next/standalone/server.js que ahora está en deploy/server.js
+
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./deploy/
+          server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
+          delete-removed: true # Cuidado: esto borra archivos en el servidor que no estén en el repo
