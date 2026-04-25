@@ -49,6 +49,6 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
           local-dir: ./deploy/
           server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
-          delete-removed: true # Cuidado: esto borra archivos en el servidor que no estén en el repo
