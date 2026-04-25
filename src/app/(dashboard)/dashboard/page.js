@@ -77,7 +77,7 @@ export default function StudentDashboardHome() {
             ¡Hola, {user?.user_metadata?.full_name?.split(' ')[0] || 'de nuevo'}! 👋
           </h1>
           <p className="text-lg text-white/70 font-medium">
-            Tienes {enrollments.length} {enrollments.length === 1 ? 'diplomado activo' : 'diplomados activos'}. Es un excelente momento para avanzar en tu carrera profesional.
+            Tienes {enrollments.length} {enrollments.length === 1 ? 'programa activo' : 'programas activos'}. Es un excelente momento para avanzar en tu formación académica.
           </p>
           <div className="pt-4 flex gap-4">
             <Link href="/dashboard/courses" className="bg-secondary-color text-primary-color px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-secondary-color/20">
@@ -108,7 +108,11 @@ export default function StudentDashboardHome() {
 
       <section className="active-learning space-y-8">
         <div className="flex items-center justify-between px-4">
-           <h2 className="text-3xl font-black text-primary-color tracking-tight">Tus Diplomados</h2>
+           <h2 className="text-3xl font-black text-primary-color tracking-tight">
+             {enrollments.length === 1 
+               ? (enrollments[0].courses?.title?.toLowerCase().includes('validación') ? 'Tu Validación Académica' : `Tu ${enrollments[0].courses?.title}`)
+               : 'Mis Programas Académicos'}
+           </h2>
            <Link href="/dashboard/courses" className="text-sm font-black text-secondary-color hover:underline">Ver todos los cursos →</Link>
         </div>
         

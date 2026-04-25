@@ -97,7 +97,10 @@ export default function DashboardLayout({ children }) {
         { event: 'INSERT', schema: 'public', table: 'global_notifications' },
         (payload) => {
           const n = payload.new;
-          const isTargeted = n.target_type === 'all' || n.coordinator_id === profile.coordinator_id || n.coordinator_id === profile.id;
+          const isTargeted = 
+            n.target_type === 'all' || 
+            (n.target_type === 'coordinator_group' && n.coordinator_id === profile.coordinator_id) ||
+            (n.target_type === 'individual' && n.coordinator_id === profile.id);
           
           if (isTargeted) {
             setNotifications(prev => [n, ...prev].slice(0, 10));
@@ -116,7 +119,7 @@ export default function DashboardLayout({ children }) {
     const { data: notifs } = await supabase
       .from('global_notifications')
       .select('*')
-      .or(`target_type.eq.all,coordinator_id.eq.${userProfile.coordinator_id || userId}`)
+      .or(`target_type.eq.all,and(target_type.eq.coordinator_group,coordinator_id.eq.${userProfile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${userId})`)
       .order('created_at', { ascending: false })
       .limit(10);
 

@@ -69,7 +69,15 @@ export default function Navbar() {
         <div className="container mx-auto px-6 flex justify-between items-center">
           <Link href="/" className="group">
             {branding.logo_url ? (
-              <img src={branding.logo_url} alt={branding.site_name} className="h-10 w-auto" />
+              <img 
+                src={branding.logo_url} 
+                alt={branding.site_name} 
+                className="h-10 w-auto" 
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  setBranding(prev => ({ ...prev, logo_url: '' }));
+                }}
+              />
             ) : (
               <div className="flex flex-col">
                 <span className={`text-2xl font-black font-display tracking-tighter leading-none transition-colors duration-300 ${scrolled || !isHome ? 'text-primary-color' : 'text-primary-color'}`}>

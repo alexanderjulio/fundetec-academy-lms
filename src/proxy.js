@@ -64,8 +64,8 @@ export async function proxy(request) {
 
     // BLOQUEO ESTRICTO:
     
-    // Si es ADMIN (role 1), solo puede estar en /admin
-    if (role === 1 && (path.startsWith('/dashboard') || path.startsWith('/coordinador'))) {
+    // Si es ADMIN (role 1), solo puede estar en /admin o /coordinador (para matricular)
+    if (role === 1 && path.startsWith('/dashboard')) {
       url.pathname = '/admin';
       return NextResponse.redirect(url);
     }

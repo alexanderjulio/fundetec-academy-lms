@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useNotification } from '@/context/NotificationContext';
 import { 
@@ -477,11 +478,19 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="p-10 border-b border-gray-50 text-right">
                     <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
-                      <button 
-                         onClick={() => handleOpenPasswordModal(user)}
-                         className="w-12 h-12 bg-white border border-gray-100 rounded-2xl flex items-center justify-center text-lg hover:shadow-xl hover:bg-slate-50 transition-all"
-                         title="Seguridad"
-                      >🔑</button>
+                       <button 
+                          onClick={() => handleOpenPasswordModal(user)}
+                          className="w-12 h-12 bg-white border border-gray-100 rounded-2xl flex items-center justify-center text-lg hover:shadow-xl hover:bg-slate-50 transition-all"
+                          title="Seguridad"
+                       >🔑</button>
+
+                       {user.role_id === 3 && (
+                         <Link 
+                           href={`/coordinador/students/enroll?id=${user.id}`} 
+                           className="w-12 h-12 bg-white border border-gray-100 rounded-2xl flex items-center justify-center text-lg hover:shadow-xl hover:bg-slate-50 transition-all" 
+                           title="Matricular"
+                         >📘</Link>
+                       )}
                       
                       <button 
                          onClick={() => handleManualActivate(user.id)}

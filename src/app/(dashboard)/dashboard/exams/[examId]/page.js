@@ -140,7 +140,12 @@ export default function ExamSessionPage() {
         }
       });
 
-      const finalScore = Math.round((correctPoints / questions.length) * 100);
+      if (questions.length === 0) {
+        throw new Error('Esta evaluación no tiene preguntas registradas.');
+      }
+
+      const rawScore = Math.round((correctPoints / questions.length) * 100);
+      const finalScore = isNaN(rawScore) ? 0 : rawScore;
       const passed = finalScore >= (exam?.min_pass_score || 70);
 
       const { error } = await supabase
@@ -243,12 +248,27 @@ export default function ExamSessionPage() {
       </header>
 
       <div className="questions-list">
-        {questions.map((q, idx) => (
-          <div key={q.id} className="question-card glass-card">
-            <div className="q-header">
-               <span className="q-number">Pregunta {idx + 1}</span>
+        {questions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-32 bg-gray-50/50 rounded-[48px] border border-dashed border-gray-200 space-y-8 animate-fade-in">
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl shadow-sm">🧩</div>
+            <div className="text-center space-y-2">
+              <h3 className="text-2xl font-black text-primary-color">Contenido en preparación</h3>
+              <p className="text-gray-400 font-medium max-w-sm mx-auto text-balance">Esta evaluación aún no cuenta con preguntas cargadas. Vuelve más tarde o continúa con otro módulo.</p>
             </div>
-            <h3>{q.question_text}</h3>
+            <Link 
+              href="/dashboard/exams" 
+              className="px-8 py-4 bg-primary-color text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-primary-color/20"
+            >
+              Volver al listado
+            </Link>
+          </div>
+        ) : (
+          questions.map((q, idx) => (
+            <div key={q.id} className="question-card glass-card">
+              <div className="q-header">
+                 <span className="q-number">Pregunta {idx + 1}</span>
+              </div>
+              <h3>{q.question_text}</h3>
             
             <div className="options-container">
               {q.question_type === 'text_answer' ? (
@@ -292,15 +312,18 @@ export default function ExamSessionPage() {
                   ))}
                 </div>
               )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
 
-        <div className="submit-area">
-          <button onClick={handleSubmit} className="btn btn-primary btn-xl submit-btn" disabled={loading}>
-            {loading ? 'Procesando Calificación...' : 'Entregar y Finalizar Evaluación'}
-          </button>
-        </div>
+        {questions.length > 0 && (
+          <div className="submit-area">
+            <button onClick={handleSubmit} className="btn btn-primary btn-xl submit-btn" disabled={loading}>
+              {loading ? 'Procesando Calificación...' : 'Entregar y Finalizar Evaluación'}
+            </button>
+          </div>
+        )}
       </div>
 
       <style jsx>{`
@@ -336,8 +359,19 @@ export default function ExamSessionPage() {
         .text-answer-input input { width: 100%; padding: 1.2rem; border-radius: 12px; border: 2px solid var(--gray-200); font-size: 1.1rem; outline: none; }
         .text-answer-input input:focus { border-color: var(--primary-color); }
 
-        .submit-area { margin-top: 4rem; text-align: center; }
-        .btn-xl { padding: 1.2rem 3rem; font-size: 1.1rem; font-weight: 800; }
+        .btn { 
+          display: inline-flex; align-items: center; gap: 0.8rem; padding: 1.2rem 2.4rem; 
+          border-radius: 20px; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; 
+          letter-spacing: 0.05em; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+          cursor: pointer; text-decoration: none; border: none;
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 15px 30px rgba(12, 30, 69, 0.2); }
+        .btn-outline { background: white; border: 2.5px solid var(--primary-color); color: var(--primary-color); }
+        .btn-outline:hover { background: var(--primary-color); color: white; transform: translateY(-3px); }
+        .btn-secondary { background: var(--secondary-color); color: var(--primary-color); }
+
+        .btn-xl { padding: 1.5rem 4rem; font-size: 1.1rem; }
 
         .exam-feedback { max-width: 600px; margin: 4rem auto; }
         .big-icon { font-size: 5rem; display: block; margin-bottom: 1rem; }

@@ -27,7 +27,7 @@ export default function StudentNotificationsPage() {
       const { data: notifs } = await supabase
         .from('global_notifications')
         .select('*, sender:sender_id(full_name)')
-        .or(`target_type.eq.all,coordinator_id.eq.${profile.coordinator_id || session.user.id}`)
+        .or(`target_type.eq.all,and(target_type.eq.coordinator_group,coordinator_id.eq.${profile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${session.user.id})`)
         .order('created_at', { ascending: false });
 
       // Fetch which ones are read

@@ -38,20 +38,22 @@ export default function StudentExamsListPage() {
       const courseIds = enrollments.map(e => e.course_id);
 
       // 2. Fetch exams with max_attempts
-      const { data: exams } = await supabase
+      const { data: exams, error: examsError } = await supabase
         .from('exams')
         .select(`
           id,
           title,
           min_pass_score,
           max_attempts,
-          modules (
+          modules!inner (
             id,
             title,
             course_id
           )
         `)
         .in('modules.course_id', courseIds);
+
+      if (examsError) throw examsError;
 
       // 3. Fetch submissions for status and attempt counting
       const { data: submissions } = await supabase
@@ -61,7 +63,10 @@ export default function StudentExamsListPage() {
 
       // Group exams by course
       const grouped = enrollments.map(enr => {
-        const courseExams = exams?.filter(ex => ex.modules.course_id === enr.course_id) || [];
+        const courseExams = exams?.filter(ex => {
+          const mod = Array.isArray(ex.modules) ? ex.modules[0] : ex.modules;
+          return mod?.course_id === enr.course_id;
+        }) || [];
         return {
           courseTitle: enr.courses.title,
           exams: courseExams.map(ex => {
@@ -143,7 +148,9 @@ export default function StudentExamsListPage() {
                     <div className="space-y-6">
                       <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">{exam.modules.title}</span>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                            {Array.isArray(exam.modules) ? exam.modules[0]?.title : exam.modules?.title}
+                          </span>
                           <h3 className="text-2xl font-black text-primary-color leading-tight font-display">{exam.title}</h3>
                         </div>
                         <div className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${

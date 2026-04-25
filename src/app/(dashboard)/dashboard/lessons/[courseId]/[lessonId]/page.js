@@ -37,10 +37,13 @@ export default function LessonPlayerPage() {
       `;
     });
 
-    // 2. Bloqueo agresivo de cualquier instrucción de autoplay residual en otros iframes
-    return formatted
+    // 3. Bloqueo agresivo de cualquier instrucción de autoplay residual en otros iframes
+    let cleaned = formatted
       .replace(/allow="[^"]*autoplay[^"]*"/gi, (match) => match.replace(/autoplay;?\s?/gi, ''))
       .replace(/src="([^"]+)"/gi, (match, src) => src.includes('autoplay=1') ? `src="${src.replace('autoplay=1', 'autoplay=0')}"` : match);
+
+    // 4. Eliminar imágenes de klicus (migración obsoleta que causa recuadros vacíos)
+    return cleaned.replace(/<img[^>]*klicus\.com\.co[^>]*>/gi, '');
   };
 
   useEffect(() => {
@@ -156,8 +159,20 @@ export default function LessonPlayerPage() {
       }
     };
 
+    const handleImageError = (e) => {
+      if (e.target.tagName === 'IMG' && e.target.closest('.prose-premium')) {
+        e.target.style.display = 'none';
+        e.target.style.margin = '0';
+        e.target.style.padding = '0';
+      }
+    };
+
     document.addEventListener('click', handleImageClick);
-    return () => document.removeEventListener('click', handleImageClick);
+    document.addEventListener('error', handleImageError, true);
+    return () => {
+      document.removeEventListener('click', handleImageClick);
+      document.removeEventListener('error', handleImageError, true);
+    };
   }, []);
 
   // Helper to format YouTube URLs

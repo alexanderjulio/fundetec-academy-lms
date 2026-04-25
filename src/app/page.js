@@ -8,6 +8,12 @@ import { supabase } from '@/lib/supabase';
 // Imágenes dinámicas gestionadas desde /admin/landing
 const DEFAULT_COURSE_IMAGE = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800";
 
+const cleanHtml = (html) => {
+  if (!html) return '';
+  // Eliminar imágenes rotas de klicus (migración de WordPress)
+  return html.replace(/<img[^>]*klicus\.com\.co[^>]*>/gi, '');
+};
+
 export default function Home() {
   const [sections, setSections] = useState({});
   const [courses, setCourses] = useState([]);
@@ -123,12 +129,12 @@ export default function Home() {
                       className="text-7xl md:text-9xl font-black tracking-tighter leading-[0.85] font-display text-primary-color"
                       style={{ letterSpacing: '-0.04em' }}
                     >
-                      <span className="block text-premium-gradient" dangerouslySetInnerHTML={{ __html: hero.title || "Tu Título Académico Más Cerca de Ti" }} />
+                      <span className="block text-premium-gradient" dangerouslySetInnerHTML={{ __html: cleanHtml(hero.title) || "Tu Título Académico Más Cerca de Ti" }} />
                     </h1>
 
                     <p 
                       className="text-xl text-gray-500 font-medium max-w-xl leading-relaxed text-balance"
-                      dangerouslySetInnerHTML={{ __html: hero.subtitle || "Educación 100% Virtual con validez oficial. Estudia a tu ritmo, obtén tu título CLEI o certifícate en los Técnicos Laborales de mayor demanda." }}
+                      dangerouslySetInnerHTML={{ __html: cleanHtml(hero.subtitle) || "Educación 100% Virtual con validez oficial. Estudia a tu ritmo, obtén tu título CLEI o certifícate en los Técnicos Laborales de mayor demanda." }}
                     />
                   </div>
 
@@ -234,11 +240,11 @@ export default function Home() {
                   </span>
                   <h2 
                     className="text-5xl md:text-6xl font-black text-primary-color tracking-tighter leading-none font-display"
-                    dangerouslySetInnerHTML={{ __html: bachillerato.title || "Termina tu Bachillerato" }}
+                    dangerouslySetInnerHTML={{ __html: cleanHtml(bachillerato.title) || "Termina tu Bachillerato" }}
                   />
                   <p 
                     className="text-lg text-gray-500 font-medium leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: bachillerato.subtitle || "Diseñado para jóvenes y adultos que desean certificar sus estudios de forma rápida y legal." }}
+                    dangerouslySetInnerHTML={{ __html: cleanHtml(bachillerato.subtitle) || "Diseñado para jóvenes y adultos que desean certificar sus estudios de forma rápida y legal." }}
                   />
 
                   <ul className="space-y-4">
@@ -421,7 +427,11 @@ export default function Home() {
                         if (!link) return null;
 
                         const customImg = institucional.content[`${platform}_img`];
-                        const fallbackImg = `https://cdn-icons-png.flaticon.com/512/${platform === 'facebook' ? '124/124010' : platform === 'instagram' ? '174/174855' : '733/733585'}.png`;
+                        const fallbackImg = platform === 'facebook' 
+                          ? 'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg'
+                          : platform === 'instagram'
+                            ? 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg'
+                            : 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg';
 
 
                         return (

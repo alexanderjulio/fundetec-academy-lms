@@ -27,6 +27,7 @@ function EnrollmentForm() {
   const [negotiatedPrice, setNegotiatedPrice] = useState('');
   const [initialPayment, setInitialPayment] = useState('0');
   const [submitting, setSubmitting] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -42,6 +43,16 @@ function EnrollmentForm() {
         .from('courses')
         .select('*')
         .eq('is_published', true);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: myProfile } = await supabase
+          .from('profiles')
+          .select('role_id')
+          .eq('id', session.user.id)
+          .single();
+        setIsAdmin(myProfile?.role_id === 1);
+      }
 
       setStudent(studentData);
       setCourses(coursesData || []);
@@ -91,7 +102,7 @@ function EnrollmentForm() {
       }
 
       showNotification('🚀 Matrícula procesada y confirmada.', 'success');
-      router.push('/coordinador/students');
+      router.push(isAdmin ? '/admin/users' : '/coordinador/students');
     } catch (err) {
       console.error(err);
       showNotification('Error en matrícula: ' + err.message, 'error');
@@ -112,7 +123,7 @@ function EnrollmentForm() {
   return (
     <div className="enroll-page p-4 md:p-10 max-w-[1400px] mx-auto space-y-10 animate-fade-in font-display">
       <nav>
-        <Link href="/coordinador/students" className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary-color hover:text-secondary-color transition-all">
+        <Link href={isAdmin ? "/admin/users" : "/coordinador/students"} className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary-color hover:text-secondary-color transition-all">
           <div className="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
             <Icons.Back />
           </div>
