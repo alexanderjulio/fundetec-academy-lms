@@ -27,14 +27,7 @@ export default function LessonPlayerPage() {
     // 1. Reemplazar iframes que apuntan a .mp4 por etiquetas <video> con controles
     const mp4Regex = /<iframe[^>]*src="([^"]+\.mp4[^"]*)"[^>]*>.*?<\/iframe>/gi;
     let formatted = html.replace(mp4Regex, (match, url) => {
-      return `
-        <div class="video-native-wrap my-10 shadow-2xl rounded-[30px] overflow-hidden border-4 border-white bg-black aspect-video max-w-full mx-auto">
-          <video controls preload="metadata" class="w-full h-full object-cover">
-            <source src="${url}" type="video/mp4">
-            Tu navegador no soporta el video nativo.
-          </video>
-        </div>
-      `;
+      return `<div class="video-native-wrap shadow-xl rounded-[24px] overflow-hidden border-2 border-white bg-black aspect-video max-w-full mx-auto"><video controls preload="metadata" class="w-full h-full object-cover"><source src="${url}" type="video/mp4">Tu navegador no soporta el video nativo.</video></div>`;
     });
 
     // 3. Bloqueo agresivo de cualquier instrucción de autoplay residual en otros iframes
@@ -43,7 +36,45 @@ export default function LessonPlayerPage() {
       .replace(/src="([^"]+)"/gi, (match, src) => src.includes('autoplay=1') ? `src="${src.replace('autoplay=1', 'autoplay=0')}"` : match);
 
     // 4. Eliminar imágenes de klicus (migración obsoleta que causa recuadros vacíos)
-    return cleaned.replace(/<img[^>]*klicus\.com\.co[^>]*>/gi, '');
+    cleaned = cleaned.replace(/<img[^>]*klicus\.com\.co[^>]*>/gi, '');
+
+    // 4c. Agregar onerror a todas las imágenes para ocultar las rotas (imagen y su párrafo padre)
+    cleaned = cleaned.replace(/<img([^>]*?)>/gi, (match, attrs) => {
+      if (attrs.includes('onerror')) return match;
+      return `<img${attrs} onerror="this.style.display='none';var p=this.closest('p,figure,div.wp-content-block');if(p&&p.children.length<=1)p.style.display='none';">`;
+    });
+
+    // 4b. Eliminar párrafos vacíos de WordPress (solo <br>, &nbsp; o espacios)
+    cleaned = cleaned.replace(/<p[^>]*>(\s|<br\s*\/?>|&nbsp;)*<\/p>/gi, '');
+
+    // 5. Convertir tablas de layout de WordPress (ancho fijo >400px) en bloques de texto
+    cleaned = cleaned.replace(/<table[^>]*width=["']?(\d+)["']?[^>]*>[\s\S]*?<\/table>/gi, (match, width) => {
+      if (parseInt(width) > 400) {
+        const cells = [];
+        const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+        let tdMatch;
+        while ((tdMatch = tdRegex.exec(match)) !== null) {
+          const content = tdMatch[1].replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '').trim();
+          if (content) cells.push(`<div class="wp-content-block">${content}</div>`);
+        }
+        return cells.join('\n');
+      }
+      return match;
+    });
+
+    // 6. Preservar líneas en blanco del editor como espacio visual
+    cleaned = cleaned.replace(/\n{2,}/g, '<br>');
+
+    // 7. Punto y aparte: agregar espacio visual entre párrafos detectando ". Mayúscula"
+    cleaned = cleaned.replace(/([.!?])\s+([A-ZÁÉÍÓÚÑ])/g, '$1<br><br>$2');
+
+    // 8. Limpiar <br> alrededor del video y reducir exceso de <br> consecutivos
+    cleaned = cleaned.replace(/(<br\s*\/?>\s*)+(<div class="video-native-wrap)/gi, '$2');
+    cleaned = cleaned.replace(/(<div class="video-native-wrap[^>]*>[\s\S]*?<\/div>)(\s*<br\s*\/?>)+/gi, '$1');
+    cleaned = cleaned.replace(/(<br\s*\/?>(\s*)){3,}/gi, '<br><br>');
+
+    // 7. Envolver tablas reales (datos) en contenedor scrollable para móvil
+    return cleaned.replace(/<table/gi, '<div class="table-scroll-wrapper"><table').replace(/<\/table>/gi, '</table></div>');
   };
 
   useEffect(() => {
@@ -212,7 +243,7 @@ export default function LessonPlayerPage() {
         </div>
       </header>
 
-      <div className="classroom-body flex flex-col lg:flex-row gap-8 p-4 md:p-6 lg:p-10 max-w-[1800px] mx-auto overflow-hidden">
+      <div className="classroom-body flex flex-col lg:flex-row gap-8 p-4 md:p-6 lg:p-10 max-w-[1800px] mx-auto">
         <main className="classroom-content flex-1 min-w-0 max-w-full">
           <div className="content-stage mb-10">
             {/* 1. Medios Principales (Video o Archivo) */}
@@ -269,13 +300,13 @@ export default function LessonPlayerPage() {
 
             {/* 2. Contenido Enriquecido (Lectura / Texto / Imágenes) */}
             {lesson.content && (
-              <article className={`premium-reading-stage glass-card-pure p-6 md:p-16 rounded-[30px] md:rounded-[40px] shadow-xl animate-fade-in mx-auto border border-white overflow-hidden ${lesson.content_type === 'reading' ? 'max-w-[960px]' : 'max-w-full'}`}>
+              <article className={`premium-reading-stage glass-card-pure px-5 py-8 md:p-16 rounded-[24px] md:rounded-[40px] shadow-xl animate-fade-in mx-auto border border-white ${lesson.content_type === 'reading' ? 'max-w-[960px]' : 'max-w-full'}`}>
                 {lesson.content_type === 'reading' && (
                   <header className="reading-meta mb-12 text-center">
                     <span className="inline-block py-1 px-4 bg-secondary-color/10 text-secondary-color text-xs font-black uppercase tracking-[0.3em] rounded-full mb-4">
                       Módulo de Lectura
                     </span>
-                    <h1 className="text-4xl md:text-5xl font-black text-primary-color tracking-tight leading-tight">
+                    <h1 className="text-2xl md:text-5xl font-black text-primary-color tracking-tight leading-tight">
                       {lesson.title}
                     </h1>
                   </header>
@@ -432,22 +463,29 @@ export default function LessonPlayerPage() {
            backdrop-filter: blur(20px);
            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
         }
-        .prose-premium :global(p) { margin-bottom: 2rem; color: var(--gray-700); font-size: 1.15rem; line-height: 1.9; }
-        .prose-premium :global(h2) { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 900; color: var(--primary-color); margin: 3rem 0 1.5rem; letter-spacing: -0.02em; }
-        .prose-premium :global(img) { 
-          border-radius: 32px; 
-          margin: 3.5rem auto; 
+        .prose-premium { max-width: 100%; overflow-x: hidden; word-break: break-word; overflow-wrap: break-word; }
+        .prose-premium :global(*) { max-width: 100% !important; box-sizing: border-box !important; }
+        .prose-premium :global(h1), .prose-premium :global(h2), .prose-premium :global(h3), .prose-premium :global(h4) { white-space: normal !important; word-break: break-word !important; overflow-wrap: break-word !important; font-size: revert !important; }
+        .prose-premium :global(h2) { font-family: 'Outfit', sans-serif !important; font-size: clamp(1.3rem, 4vw, 2rem) !important; font-weight: 900 !important; color: var(--primary-color) !important; margin: 2.5rem 0 1.5rem !important; }
+        .prose-premium :global(h3) { font-family: 'Outfit', sans-serif !important; font-size: clamp(1.1rem, 3.5vw, 1.5rem) !important; font-weight: 800 !important; color: var(--primary-color) !important; margin: 2rem 0 1rem !important; }
+        .prose-premium :global(.wp-content-block) { margin: 0.25rem 0; word-break: break-word; line-height: 1.4; }
+        .prose-premium :global(br) { line-height: 1.2; }
+        .prose-premium :global(.video-native-wrap) { margin: 1.5rem 0; }
+        .prose-premium :global(.table-scroll-wrapper) { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 3rem 0; border-radius: 24px; }
+        .prose-premium :global(.table-scroll-wrapper table) { margin: 0 !important; min-width: 480px; }
+        .prose-premium :global(p) { margin-bottom: 2rem; color: var(--gray-700); font-size: 1.15rem; line-height: 1.9; word-break: break-word; overflow-wrap: break-word; }
+        .prose-premium :global(img) {
+          border-radius: 20px;
+          margin: 2rem auto;
           display: block;
-          box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.1); 
+          box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.1);
           border: 1px solid rgba(0,0,0,0.05);
           cursor: zoom-in;
           transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
           max-width: 100%;
-          width: auto !important;
+          width: 100% !important;
           height: auto !important;
           object-fit: contain;
-          background-color: #fff;
-          padding: 1.5rem;
           image-rendering: -webkit-optimize-contrast;
         }
         .prose-premium :global(img:hover) {
@@ -456,7 +494,7 @@ export default function LessonPlayerPage() {
         }
         .prose-premium :global(table) {
           width: 100% !important;
-          margin: 3rem 0;
+          margin: 0;
           border-collapse: separate;
           border-spacing: 0;
           border-radius: 24px;
@@ -491,7 +529,9 @@ export default function LessonPlayerPage() {
         .prose-premium :global(tr:nth-child(even) td) {
           background-color: #fafafa;
         }
-        .prose-premium :global(blockquote) { border-left: 6px solid var(--secondary-color); padding: 2rem; background: var(--gray-50); border-radius: 12px 24px 24px 12px; font-style: italic; color: var(--primary-color); font-weight: 500; font-size: 1.25rem; }
+        .prose-premium :global(blockquote) { border-left: 6px solid var(--secondary-color); padding: 1.5rem 2rem; background: var(--gray-50); border-radius: 12px 24px 24px 12px; font-style: italic; color: var(--primary-color); font-weight: 500; font-size: 1.1rem; word-break: break-word; overflow-wrap: break-word; max-width: 100%; box-sizing: border-box; }
+        .prose-premium :global(ul), .prose-premium :global(ol) { padding-left: 1.5rem; max-width: 100%; word-break: break-word; overflow-wrap: break-word; }
+        .prose-premium :global(li) { margin-bottom: 0.75rem; color: var(--gray-700); font-size: 1.05rem; line-height: 1.8; }
 
         .animate-zoom-in {
           animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
