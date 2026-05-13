@@ -111,134 +111,152 @@ export default function StudentLedgerPage() {
     balance: filteredLedger.reduce((acc, curr) => acc + curr.calculatedBalance, 0)
   };
 
+  const collectionPct = totals.cost > 0 ? Math.min(100, Math.round((totals.paid / totals.cost) * 100)) : 0;
+
   return (
-    <div className="ledger-page max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 animate-fade-in font-display">
-      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm overflow-hidden relative">
-        <div className="space-y-1 z-10">
-          <h1 className="text-4xl md:text-5xl font-black text-primary-color tracking-tighter leading-none">
-            Libro Mayor <span className="text-secondary-color">Estudiantes</span>
-          </h1>
-          <p className="text-gray-400 font-medium italic">Estado de cartera, abonos y auditoría individual.</p>
+    <div className="ledger-page max-w-[1400px] mx-auto p-4 md:p-10 space-y-6 animate-fade-in font-display">
+      <header className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+        <div className="p-8 md:p-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+          <div className="space-y-1">
+            <h1 className="text-4xl md:text-5xl font-black text-primary-color tracking-tighter leading-none">
+              Libro Mayor <span className="text-secondary-color">Estudiantes</span>
+            </h1>
+            <p className="text-gray-400 font-medium italic">Estado de cartera, abonos y auditoría individual.</p>
+          </div>
+          <div className="flex items-center gap-3 bg-slate-50 px-5 py-3 rounded-2xl">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{filteredLedger.length} registros</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full lg:w-auto z-10">
-            <div className="bg-slate-50 p-6 rounded-[32px] border border-gray-100">
-               <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest block mb-1">Total Contratado</span>
-               <span className="text-xl font-black text-primary-color">${(totals.cost || 0).toLocaleString()}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-gray-100">
+          <div className="p-8 md:p-10 flex flex-col gap-2 border-b sm:border-b-0 sm:border-r border-gray-100">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Contratado</span>
+            <span className="text-3xl font-black text-primary-color">${(totals.cost || 0).toLocaleString('es-CO')}</span>
+            <span className="text-[10px] text-gray-300 font-medium">{filteredLedger.length} matrículas</span>
+          </div>
+          <div className="p-8 md:p-10 flex flex-col gap-2 border-b sm:border-b-0 sm:border-r border-gray-100">
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Total Recaudado</span>
+            <span className="text-3xl font-black text-emerald-600">${(totals.paid || 0).toLocaleString('es-CO')}</span>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{width: `${collectionPct}%`}}></div>
+              </div>
+              <span className="text-[10px] font-black text-emerald-500">{collectionPct}%</span>
             </div>
-            <div className="bg-emerald-50 p-6 rounded-[32px] border border-emerald-100">
-               <span className="text-[9px] font-black uppercase text-emerald-500 tracking-widest block mb-1">Total Recaudado</span>
-               <span className="text-xl font-black text-emerald-600">${(totals.paid || 0).toLocaleString()}</span>
-            </div>
-            <div className="bg-amber-50 p-6 rounded-[32px] border border-amber-100 col-span-2 md:col-span-1">
-               <span className="text-[9px] font-black uppercase text-amber-500 tracking-widest block mb-1">Cartera Pendiente</span>
-               <span className="text-xl font-black text-amber-600">${(totals.balance || 0).toLocaleString()}</span>
-            </div>
+          </div>
+          <div className="p-8 md:p-10 flex flex-col gap-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-amber-500">Cartera Pendiente</span>
+            <span className="text-3xl font-black text-amber-600">${(totals.balance || 0).toLocaleString('es-CO')}</span>
+            <span className="text-[10px] text-gray-300 font-medium">
+              {filteredLedger.filter(e => e.calculatedBalance > 0).length} con saldo
+            </span>
+          </div>
         </div>
       </header>
 
-      <section className="bg-white rounded-[48px] border border-gray-100 shadow-xl overflow-hidden flex flex-col">
-          <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row gap-6 items-center">
-              <div className="relative flex-1 group">
-                  <span className="absolute left-6 top-1/2 -translate-y-1/2 opacity-20"><Icons.Search /></span>
-                  <input 
-                    type="text" 
+      <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="p-6 md:p-8 border-b border-gray-50 flex flex-col gap-4">
+              <div className="relative">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300"><Icons.Search /></span>
+                  <input
+                    type="text"
                     placeholder="Buscar estudiante..."
                     value={filters.search}
                     onChange={(e) => setFilters({...filters, search: e.target.value})}
-                    className="w-full bg-slate-50 border-none p-4 pl-14 rounded-2xl outline-none font-bold text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all font-display"
+                    className="w-full bg-slate-50 border-none p-4 pl-14 rounded-2xl outline-none font-bold text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all font-display text-sm"
                   />
               </div>
 
-              <div className="flex flex-wrap gap-4 items-center">
-                  <select 
+              <div className="flex flex-wrap gap-3 items-center">
+                  <select
                     value={filters.coordinator}
                     onChange={(e) => setFilters({...filters, coordinator: e.target.value})}
-                    className="bg-slate-50 border-none p-4 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest text-primary-color outline-none focus:ring-4 focus:ring-secondary-color/10 cursor-pointer shadow-sm"
+                    className="flex-1 min-w-[140px] bg-slate-50 border-none p-3 px-5 rounded-xl font-black text-[10px] uppercase tracking-widest text-primary-color outline-none cursor-pointer"
                   >
                     <option value="all">Todos los Mentores</option>
                     <option value="admin">Administración</option>
                     {coordinators.map(c => <option key={c.id} value={c.id}>{c.full_name}</option>)}
                   </select>
 
-                  <select 
+                  <select
                     value={filters.status}
                     onChange={(e) => setFilters({...filters, status: e.target.value})}
-                    className="bg-slate-50 border-none p-4 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest text-primary-color outline-none focus:ring-4 focus:ring-secondary-color/10 cursor-pointer shadow-sm"
+                    className="flex-1 min-w-[120px] bg-slate-50 border-none p-3 px-5 rounded-xl font-black text-[10px] uppercase tracking-widest text-primary-color outline-none cursor-pointer"
                   >
                     <option value="all">Cualquier Estado</option>
                     <option value="paid">Saldados</option>
                     <option value="outstanding">Con Deuda</option>
                   </select>
 
-                  <div className="flex gap-2">
-                    <button onClick={() => handleExport('pdf')} className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm font-black text-[9px] uppercase tracking-widest">PDF</button>
-                    <button onClick={() => handleExport('excel')} className="p-4 bg-emerald-50 text-emerald-500 rounded-2xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm font-black text-[9px] uppercase tracking-widest">EXCEL</button>
+                  <div className="flex gap-2 ml-auto">
+                    <button onClick={() => handleExport('pdf')} className="px-4 py-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest">PDF</button>
+                    <button onClick={() => handleExport('excel')} className="px-4 py-3 bg-emerald-50 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest">Excel</button>
                   </div>
               </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Tabla desktop */}
+          <div className="hidden md:block overflow-x-auto">
               <table className="w-full border-separate border-spacing-0">
                   <thead>
                       <tr className="bg-slate-50/50">
-                          <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Estudiante / Programa</th>
-                          <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Responsable</th>
-                          <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 text-center">Inversión Total</th>
-                          <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 text-center">Total Pagado</th>
-                          <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 text-center">Saldo Restante</th>
-                          <th className="p-8 text-right text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100"></th>
+                          <th className="p-6 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Estudiante / Programa</th>
+                          <th className="p-6 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Responsable</th>
+                          <th className="p-6 text-center text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Inversión</th>
+                          <th className="p-6 text-center text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Pagado</th>
+                          <th className="p-6 text-center text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Saldo</th>
+                          <th className="p-6 border-b border-gray-100"></th>
                       </tr>
                   </thead>
                   <tbody>
                       {loading ? (
-                          <tr><td colSpan="6" className="p-40 text-center animate-pulse"><p className="text-gray-300 font-black uppercase tracking-[0.5em] text-[10px]">Cargando Libro Mayor...</p></td></tr>
+                          <tr><td colSpan="6" className="p-32 text-center animate-pulse"><p className="text-gray-300 font-black uppercase tracking-[0.5em] text-[10px]">Cargando...</p></td></tr>
                       ) : filteredLedger.length > 0 ? (
                         filteredLedger.map(enr => (
                               <Fragment key={enr.id}>
-                                <tr className={`group hover:bg-slate-50/50 transition-all cursor-pointer ${expandedRow === enr.id ? 'bg-slate-50' : ''}`} onClick={() => setExpandedRow(expandedRow === enr.id ? null : enr.id)}>
-                                    <td className="p-8 border-b border-gray-50">
+                                <tr className={`group hover:bg-slate-50/30 transition-all cursor-pointer ${expandedRow === enr.id ? 'bg-slate-50/50' : ''}`} onClick={() => setExpandedRow(expandedRow === enr.id ? null : enr.id)}>
+                                    <td className="p-6 border-b border-gray-50">
                                         <div className="space-y-1">
                                             <p className="text-sm font-black text-primary-color">{enr.student?.full_name}</p>
                                             <p className="text-[10px] font-black uppercase text-secondary-color tracking-widest">{enr.courses?.title}</p>
                                         </div>
                                     </td>
-                                    <td className="p-8 border-b border-gray-50">
+                                    <td className="p-6 border-b border-gray-50">
                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{enr.student?.coordinator?.full_name || 'Admin Central'}</span>
                                     </td>
-                                    <td className="p-8 border-b border-gray-50 text-center font-display font-black text-gray-400">${(enr.total_price || 0).toLocaleString()}</td>
-                                    <td className="p-8 border-b border-gray-50 text-center font-display font-black text-emerald-500">${(enr.totalPaid || 0).toLocaleString()}</td>
-                                    <td className="p-8 border-b border-gray-50 text-center">
-                                        <span className={`px-4 py-2 rounded-full text-[10px] font-black font-display ${enr.calculatedBalance <= 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
-                                            ${(enr.calculatedBalance || 0).toLocaleString()}
+                                    <td className="p-6 border-b border-gray-50 text-center font-black text-gray-500">${(enr.total_price || 0).toLocaleString('es-CO')}</td>
+                                    <td className="p-6 border-b border-gray-50 text-center font-black text-emerald-500">${(enr.totalPaid || 0).toLocaleString('es-CO')}</td>
+                                    <td className="p-6 border-b border-gray-50 text-center">
+                                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black ${enr.calculatedBalance <= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
+                                            ${(enr.calculatedBalance || 0).toLocaleString('es-CO')}
                                         </span>
                                     </td>
-                                    <td className="p-8 border-b border-gray-50 text-right">
-                                        <span className={`transition-transform duration-300 inline-block ${expandedRow === enr.id ? 'rotate-180' : ''}`}><Icons.ArrowDown /></span>
+                                    <td className="p-6 border-b border-gray-50 text-right">
+                                        <span className={`transition-transform duration-300 inline-block text-gray-300 ${expandedRow === enr.id ? 'rotate-180' : ''}`}><Icons.ArrowDown /></span>
                                     </td>
                                 </tr>
                                 {expandedRow === enr.id && (
                                     <tr>
                                         <td colSpan="6" className="bg-slate-50/50 p-0 border-b border-gray-100">
-                                            <div className="p-10 space-y-6 animate-fade-in">
-                                                <div className="flex items-center gap-4 border-b border-gray-100 pb-4">
+                                            <div className="p-8 space-y-5 animate-fade-in">
+                                                <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
                                                     <Icons.Wallet />
                                                     <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary-color">Desglose de Movimientos</h4>
                                                 </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                                     {enr.payments?.length > 0 ? (
                                                         enr.payments.map(p => (
-                                                            <div key={p.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-3">
+                                                            <div key={p.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-2">
                                                                 <div className="flex justify-between items-start">
-                                                                    <span className="text-xl font-black text-emerald-600">${(p.amount || 0).toLocaleString()}</span>
-                                                                    <span className="text-[9px] font-black uppercase text-gray-300">{new Date(p.payment_date).toLocaleDateString()}</span>
+                                                                    <span className="text-lg font-black text-emerald-600">${(p.amount || 0).toLocaleString('es-CO')}</span>
+                                                                    <span className="text-[9px] font-black uppercase text-gray-300">{new Date(p.payment_date).toLocaleDateString('es-CO')}</span>
                                                                 </div>
-                                                                <p className="text-[10px] font-bold text-gray-400 leading-tight uppercase tracking-wider">{p.payment_method}</p>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{p.payment_method}</p>
                                                                 {p.notes && <p className="text-[10px] italic text-gray-300 border-t border-gray-50 pt-2">{p.notes}</p>}
                                                             </div>
                                                         ))
                                                     ) : (
-                                                        <p className="col-span-full text-center py-10 text-gray-400 italic text-sm">No se han registrado abonos para esta matrícula.</p>
+                                                        <p className="col-span-full text-center py-8 text-gray-400 italic text-sm">Sin abonos registrados.</p>
                                                     )}
                                                 </div>
                                             </div>
@@ -248,10 +266,75 @@ export default function StudentLedgerPage() {
                               </Fragment>
                           ))
                       ) : (
-                          <tr><td colSpan="6" className="p-20 text-center italic text-gray-400">No se encontraron registros que coincidan con los filtros.</td></tr>
+                          <tr><td colSpan="6" className="p-16 text-center italic text-gray-400 text-sm">No se encontraron registros.</td></tr>
                       )}
                   </tbody>
               </table>
+          </div>
+
+          {/* Lista móvil */}
+          <div className="md:hidden divide-y divide-gray-50">
+              {loading ? (
+                  <div className="p-16 text-center animate-pulse">
+                      <p className="text-gray-300 font-black uppercase tracking-[0.5em] text-[10px]">Cargando...</p>
+                  </div>
+              ) : filteredLedger.length > 0 ? (
+                  filteredLedger.map(enr => {
+                      const pct = enr.total_price > 0 ? Math.min(100, Math.round((enr.totalPaid / enr.total_price) * 100)) : 0;
+                      return (
+                          <Fragment key={enr.id}>
+                              <div className={`p-5 cursor-pointer transition-all ${expandedRow === enr.id ? 'bg-slate-50' : ''}`} onClick={() => setExpandedRow(expandedRow === enr.id ? null : enr.id)}>
+                                  <div className="flex justify-between items-start mb-3">
+                                      <div className="flex-1 pr-4">
+                                          <p className="font-black text-primary-color text-sm leading-tight">{enr.student?.full_name}</p>
+                                          <p className="text-[10px] font-black uppercase text-secondary-color tracking-widest mt-0.5">{enr.courses?.title}</p>
+                                      </div>
+                                      <span className={`px-3 py-1.5 rounded-full text-[10px] font-black flex-shrink-0 ${enr.calculatedBalance <= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
+                                          {enr.calculatedBalance <= 0 ? 'Saldado' : `$${(enr.calculatedBalance || 0).toLocaleString('es-CO')}`}
+                                      </span>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-3 mb-3">
+                                      <div>
+                                          <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 block">Inversión</span>
+                                          <span className="text-sm font-black text-gray-600">${(enr.total_price || 0).toLocaleString('es-CO')}</span>
+                                      </div>
+                                      <div>
+                                          <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 block">Pagado</span>
+                                          <span className="text-sm font-black text-emerald-600">${(enr.totalPaid || 0).toLocaleString('es-CO')}</span>
+                                      </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                                          <div className="bg-emerald-500 h-1.5 rounded-full" style={{width: `${pct}%`}}></div>
+                                      </div>
+                                      <span className="text-[10px] font-black text-gray-400">{pct}%</span>
+                                      <span className={`transition-transform duration-300 inline-block text-gray-300 ml-1 ${expandedRow === enr.id ? 'rotate-180' : ''}`}><Icons.ArrowDown /></span>
+                                  </div>
+                              </div>
+                              {expandedRow === enr.id && (
+                                  <div className="bg-slate-50/80 px-5 pb-5 animate-fade-in">
+                                      <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-3 pt-4">Movimientos</p>
+                                      <div className="space-y-3">
+                                          {enr.payments?.length > 0 ? enr.payments.map(p => (
+                                              <div key={p.id} className="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
+                                                  <div>
+                                                      <span className="font-black text-emerald-600">${(p.amount || 0).toLocaleString('es-CO')}</span>
+                                                      <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">{p.payment_method}</p>
+                                                  </div>
+                                                  <span className="text-[9px] font-black text-gray-300">{new Date(p.payment_date).toLocaleDateString('es-CO')}</span>
+                                              </div>
+                                          )) : (
+                                              <p className="text-center py-4 text-gray-400 italic text-sm">Sin abonos.</p>
+                                          )}
+                                      </div>
+                                  </div>
+                              )}
+                          </Fragment>
+                      );
+                  })
+              ) : (
+                  <p className="p-12 text-center italic text-gray-400 text-sm">No se encontraron registros.</p>
+              )}
           </div>
       </section>
 
