@@ -30,7 +30,7 @@ export default function ModuleContentPage() {
   // Exam Modal State
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [editingExam, setEditingExam] = useState(null);
-  const [examForm, setExamForm] = useState({ title: '', min_pass_score: '70' });
+  const [examForm, setExamForm] = useState({ title: '', min_pass_score: '70', max_attempts: '10' });
 
   const [confirmDeleteLessonId, setConfirmDeleteLessonId] = useState(null);
   const [confirmDeleteExamId, setConfirmDeleteExamId] = useState(null);
@@ -124,10 +124,14 @@ export default function ModuleContentPage() {
   const handleOpenExamModal = (exam = null) => {
     if (exam) {
       setEditingExam(exam);
-      setExamForm({ title: exam.title, min_pass_score: exam.min_pass_score.toString() });
+      setExamForm({ 
+        title: exam.title, 
+        min_pass_score: exam.min_pass_score.toString(),
+        max_attempts: (exam.max_attempts || 10).toString() 
+      });
     } else {
       setEditingExam(null);
-      setExamForm({ title: '', min_pass_score: '70' });
+      setExamForm({ title: '', min_pass_score: '70', max_attempts: '10' });
     }
     setIsExamModalOpen(true);
   };
@@ -135,7 +139,12 @@ export default function ModuleContentPage() {
   const handleSaveExam = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const payload = { ...examForm, module_id: moduleId, min_pass_score: parseInt(examForm.min_pass_score) };
+    const payload = { 
+      ...examForm, 
+      module_id: moduleId, 
+      min_pass_score: parseInt(examForm.min_pass_score),
+      max_attempts: parseInt(examForm.max_attempts)
+    };
     
     let error;
     if (editingExam) {
@@ -447,6 +456,17 @@ export default function ModuleContentPage() {
                       value={examForm.min_pass_score} 
                       onChange={e => setExamForm({...examForm, min_pass_score: e.target.value})} 
                       min="1" max="100" 
+                      className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-xl text-primary-color shadow-inner"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Intentos Permitidos por Estudiante</label>
+                    <input 
+                      type="number" required 
+                      value={examForm.max_attempts} 
+                      onChange={e => setExamForm({...examForm, max_attempts: e.target.value})} 
+                      min="1" max="999" 
                       className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-xl text-primary-color shadow-inner"
                     />
                   </div>

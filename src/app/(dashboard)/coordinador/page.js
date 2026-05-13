@@ -287,8 +287,8 @@ export default function CoordinatorDashboard() {
                     <div className="w-12 h-12 md:w-16 md:h-16 rounded-[16px] md:rounded-[24px] bg-primary-color text-white flex items-center justify-center font-black text-sm md:text-lg shadow-lg shadow-primary-color/10 group-hover:scale-105 transition-transform duration-500 flex-shrink-0">
                       {s.full_name?.substring(0,2).toUpperCase()}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm md:text-md font-black text-primary-color truncate uppercase leading-tight">{s.full_name}</p>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <p className="text-sm md:text-md font-black text-primary-color line-clamp-2 uppercase leading-tight">{s.full_name}</p>
                       <div className="flex items-center gap-2 mt-1 md:mt-2">
                         <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-emerald-400 rounded-full flex-shrink-0"></span>
                         <p className="text-[8px] md:text-[9px] font-black text-gray-400 tracking-widest uppercase truncate">INS: {new Date(s.created_at).toLocaleDateString()}</p>

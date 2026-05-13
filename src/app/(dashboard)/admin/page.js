@@ -331,22 +331,22 @@ export default function AdminDashboardHome() {
           <h3 className="text-2xl font-black text-primary-color tracking-tight font-display mb-8">Historial de Actividad</h3>
           <div className="space-y-6">
             {loading ? (
-              [1,2,3].map(i => <div key={i} className="h-16 bg-gray-50 rounded-3xl animate-pulse"></div>)
+              [1,2,3].map(i => <div key={i} className="h-20 bg-gray-50 rounded-3xl animate-pulse"></div>)
             ) : activity.length > 0 ? (
               activity.map((ev, i) => (
-                <div key={i} className="flex items-center gap-4 group">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg ${
+                <div key={i} className="flex items-center gap-3 md:gap-4 group p-3 md:p-4 rounded-[24px] md:rounded-[32px] hover:bg-slate-50 transition-all border border-transparent hover:border-gray-100 cursor-pointer">
+                  <div className={`w-12 h-12 md:w-14 md:h-14 rounded-[16px] md:rounded-[20px] flex items-center justify-center text-xl md:text-2xl shadow-inner shrink-0 group-hover:scale-110 transition-transform duration-300 ${
                     ev.type === 'student' ? 'bg-blue-50 text-blue-500' : 
                     ev.type === 'payment' ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500'
                   }`}>
                     {ev.type === 'student' ? '👤' : ev.type === 'payment' ? '💵' : '📩'}
                   </div>
-                  <div className="flex-1">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{ev.action}</p>
-                    <h4 className="text-sm font-bold text-primary-color truncate">{ev.full_name || 'Alguien'}</h4>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">{ev.action}</p>
+                    <h4 className="text-sm md:text-base font-bold text-primary-color line-clamp-2 leading-tight pr-2">{ev.full_name || 'Alguien'}</h4>
                   </div>
-                  <span className="text-[10px] font-black text-gray-300 uppercase shrink-0">
-                    {new Date(ev.created_at).toLocaleDateString([], { day: '2-digit', month: 'short' })}
+                  <span className="text-[9px] md:text-[10px] font-black text-gray-300 uppercase shrink-0 bg-white px-2 py-1 md:px-3 md:py-1.5 rounded-xl border border-gray-100 group-hover:bg-primary-color group-hover:text-white group-hover:border-primary-color transition-colors">
+                    {new Date(ev.created_at).toLocaleDateString([], { day: '2-digit', month: 'short' }).replace('.', '')}
                   </span>
                 </div>
               ))

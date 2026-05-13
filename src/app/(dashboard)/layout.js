@@ -6,6 +6,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import CoordinatorChat from '@/components/dashboard/CoordinatorChat';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { useNotification } from '@/context/NotificationContext';
 import '@/app/dashboard.css';
 
 export default function DashboardLayout({ children }) {
@@ -20,6 +21,7 @@ export default function DashboardLayout({ children }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const { showNotification } = useNotification();
   const userRole = profile?.role_id === 1 ? 'admin' : (profile?.role_id === 2 ? 'coordinator' : 'student');
 
   useEffect(() => {
@@ -103,6 +105,7 @@ export default function DashboardLayout({ children }) {
             (n.target_type === 'individual' && n.coordinator_id === profile.id);
           
           if (isTargeted) {
+            showNotification(n.title, 'success');
             setNotifications(prev => [n, ...prev].slice(0, 10));
             setUnreadCount(prev => prev + 1);
           }
@@ -110,10 +113,36 @@ export default function DashboardLayout({ children }) {
       )
       .subscribe();
 
+    let leadsChannel;
+    if (isAdmin || isCoordinator) {
+      leadsChannel = supabase
+        .channel(`global-leads-${profile.id}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'leads' },
+          (payload) => {
+            const lead = payload.new;
+            showNotification(`¡Nuevo prospecto recibido! ${lead.full_name || lead.email}`, 'success');
+            
+            const newNotif = {
+              id: `lead-${lead.id}`,
+              title: 'Nuevo Prospecto',
+              message: `Interesado en información: ${lead.full_name || lead.email}`,
+              created_at: lead.created_at || new Date().toISOString(),
+              target_type: 'all'
+            };
+            setNotifications(prev => [newNotif, ...prev].slice(0, 10));
+            setUnreadCount(prev => prev + 1);
+          }
+        )
+        .subscribe();
+    }
+
     return () => {
       supabase.removeChannel(channel);
+      if (leadsChannel) supabase.removeChannel(leadsChannel);
     };
-  }, [profile]);
+  }, [profile, isAdmin, isCoordinator, showNotification]);
 
   const fetchNotifications = async (userId, userProfile) => {
     const { data: notifs } = await supabase

@@ -457,18 +457,39 @@ export default function LessonPlayerPage() {
         .prose-premium :global(table) {
           width: 100% !important;
           margin: 3rem 0;
-          border-collapse: collapse;
-          display: block;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
+          border-collapse: separate;
+          border-spacing: 0;
           border-radius: 24px;
-          border: 1px solid rgba(0,0,0,0.05);
+          overflow: hidden;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.03);
           background: #fff;
+          border: 1px solid rgba(0,0,0,0.05);
         }
-        .prose-premium :global(td), .prose-premium :global(th) {
-          padding: 1.25rem !important;
-          border: 1px solid #f0f0f0;
-          min-width: 140px;
+        .prose-premium :global(th) {
+          background: var(--primary-color);
+          color: white;
+          font-weight: 800;
+          text-transform: uppercase;
+          font-size: 0.8rem;
+          letter-spacing: 0.1em;
+          padding: 1.5rem !important;
+          border: none;
+        }
+        .prose-premium :global(td) {
+          padding: 1.5rem !important;
+          border-bottom: 1px solid #f0f0f0;
+          color: var(--gray-700);
+          font-weight: 500;
+          border-left: 1px solid #f9f9f9;
+        }
+        .prose-premium :global(td:first-child) {
+          border-left: none;
+        }
+        .prose-premium :global(tr:last-child td) {
+          border-bottom: none;
+        }
+        .prose-premium :global(tr:nth-child(even) td) {
+          background-color: #fafafa;
         }
         .prose-premium :global(blockquote) { border-left: 6px solid var(--secondary-color); padding: 2rem; background: var(--gray-50); border-radius: 12px 24px 24px 12px; font-style: italic; color: var(--primary-color); font-weight: 500; font-size: 1.25rem; }
 

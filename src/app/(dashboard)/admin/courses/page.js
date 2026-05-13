@@ -276,27 +276,29 @@ export default function AdminCoursesPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 w-full lg:w-auto">
+                    <div className="grid grid-cols-[1fr_1fr_auto] gap-2 md:gap-3 w-full lg:w-auto mt-4 lg:mt-0">
                       <button 
                         onClick={() => handleOpenModal(course)}
-                        className="flex-1 lg:flex-none p-5 bg-slate-50 text-primary-color rounded-3xl hover:bg-primary-color hover:text-white transition-all text-sm font-bold flex items-center justify-center gap-2"
+                        className="p-3 md:p-5 bg-slate-50 text-primary-color rounded-2xl md:rounded-3xl hover:bg-primary-color hover:text-white transition-all font-bold flex items-center justify-center gap-2 shadow-sm"
                         title="Configuración"
                       >
-                        ⚙️ <span className="lg:hidden">Configuración</span>
+                        <span className="text-lg md:text-base">⚙️</span> 
+                        <span className="text-[10px] md:text-sm uppercase md:capitalize tracking-widest md:tracking-normal truncate">Ajustes</span>
                       </button>
                       <Link 
                         href={`/admin/courses/${course.id}`} 
-                        className="flex-1 lg:flex-none p-5 bg-slate-50 text-primary-color rounded-3xl hover:bg-secondary-color transition-all text-sm font-bold flex items-center justify-center gap-2"
+                        className="p-3 md:p-5 bg-slate-50 text-primary-color rounded-2xl md:rounded-3xl hover:bg-secondary-color transition-all font-bold flex items-center justify-center gap-2 shadow-sm"
                         title="Estructura Educativa"
                       >
-                        📖 <span className="lg:hidden">Contenido</span>
+                        <span className="text-lg md:text-base">📖</span> 
+                        <span className="text-[10px] md:text-sm uppercase md:capitalize tracking-widest md:tracking-normal truncate">Temario</span>
                       </Link>
                       <button 
                         onClick={() => handleDelete(course.id)}
-                        className="flex-1 lg:flex-none p-5 bg-slate-50 text-red-500 rounded-3xl hover:bg-red-500 hover:text-white transition-all"
+                        className="p-3 md:p-5 bg-red-50 text-red-500 rounded-2xl md:rounded-3xl hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center"
                         title="Dar de Baja"
                       >
-                        🗑️
+                        <span className="text-lg md:text-base">🗑️</span>
                       </button>
                     </div>
                   </div>

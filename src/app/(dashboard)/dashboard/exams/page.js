@@ -71,13 +71,15 @@ export default function StudentExamsListPage() {
           courseTitle: enr.courses.title,
           exams: courseExams.map(ex => {
             const mySubmissions = submissions?.filter(s => s.exam_id === ex.id) || [];
+            const attemptsLimit = ex.max_attempts || 10; // Fallback a 10 para exámenes antiguos
             return {
               ...ex,
+              max_attempts: attemptsLimit,
               status: mySubmissions.some(s => s.passed) ? 'passed' : 
                      (mySubmissions.length > 0 ? 'failed' : 'pending'),
               bestScore: Math.max(0, ...(mySubmissions.map(s => s.score) || [0])),
               attemptsUsed: mySubmissions.length,
-              remainingAttempts: ex.max_attempts ? Math.max(0, ex.max_attempts - mySubmissions.length) : null
+              remainingAttempts: Math.max(0, attemptsLimit - mySubmissions.length)
             };
           })
         };

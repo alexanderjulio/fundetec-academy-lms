@@ -150,8 +150,8 @@ export default function AdminLeadsPage() {
           <p className="text-gray-400 font-medium italic">Monitoriza y convierte interesados en estudiantes de élite.</p>
         </div>
         
-        <div className="flex flex-wrap gap-4">
-          <div className="relative group">
+        <div className="flex flex-wrap gap-4 w-full md:w-auto mt-4 md:mt-0">
+          <div className="relative group w-full md:w-auto">
             <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary-color transition-colors">
               <Icons.Search />
             </div>
@@ -160,7 +160,7 @@ export default function AdminLeadsPage() {
               placeholder="Buscar por nombre o email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-14 pr-8 py-4 bg-slate-50 border-none rounded-[24px] text-xs font-bold text-primary-color outline-none focus:ring-4 focus:ring-secondary-color/10 transition-all w-[300px]"
+              className="pl-14 pr-8 py-4 bg-slate-50 border-none rounded-[24px] text-xs font-bold text-primary-color outline-none focus:ring-4 focus:ring-secondary-color/10 transition-all w-full md:w-[300px] shadow-inner placeholder:text-gray-400"
             />
           </div>
         </div>
@@ -183,23 +183,25 @@ export default function AdminLeadsPage() {
 
       {/* FILTER BAR */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm">
-        <div className="flex p-1.5 bg-slate-50 rounded-[24px]">
-          {[
-            { id: 'all', label: 'Todos' },
-            { id: 'new', label: 'Nuevos' },
-            { id: 'contacted', label: 'Contactados' },
-            { id: 'archived', label: 'Archivados' },
-          ].map(opt => (
-            <button
-              key={opt.id}
-              onClick={() => setFilter(opt.id)}
-              className={`px-8 py-3 rounded-[20px] text-[10px] font-black uppercase tracking-widest transition-all ${filter === opt.id ? 'bg-primary-color text-white shadow-xl' : 'text-gray-400 hover:text-primary-color'}`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="flex p-1.5 bg-slate-50 rounded-[24px] w-full md:w-auto overflow-x-auto custom-scrollbar">
+          <div className="flex flex-nowrap min-w-max">
+            {[
+              { id: 'all', label: 'Todos' },
+              { id: 'new', label: 'Nuevos' },
+              { id: 'contacted', label: 'Contactados' },
+              { id: 'archived', label: 'Archivados' },
+            ].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => setFilter(opt.id)}
+                className={`px-6 md:px-8 py-3 rounded-[20px] text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${filter === opt.id ? 'bg-primary-color text-white shadow-xl' : 'text-gray-400 hover:text-primary-color'}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest pr-4">Mostrando: <span className="text-primary-color">{filteredLeads.length}</span> resultados</p>
+        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest px-4 pb-2 md:pb-0 md:pr-4 shrink-0 text-center md:text-right">Mostrando: <span className="text-primary-color">{filteredLeads.length}</span> resultados</p>
       </div>
 
       {/* MAIN CONTENT TABLE */}

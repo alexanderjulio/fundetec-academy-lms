@@ -15,7 +15,7 @@ export default function ExamSessionPage() {
   const [exam, setExam] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
-  const [attemptsInfo, setAttemptsInfo] = useState({ used: 0, allowed: 1 });
+  const [attemptsInfo, setAttemptsInfo] = useState({ used: 0, allowed: 10 });
   const [submissionResult, setSubmissionResult] = useState(null);
   const [hasPassedPrev, setHasPassedPrev] = useState(false);
   const [forceStart, setForceStart] = useState(false);
@@ -41,7 +41,7 @@ export default function ExamSessionPage() {
           .eq('student_id', session.user.id);
 
         const usedAttempts = prevSubmissions?.length || 0;
-        const allowedAttempts = examData?.max_attempts || 1;
+        const allowedAttempts = examData?.max_attempts || 10;
         const hasPassed = prevSubmissions?.some(s => s.passed);
 
         setAttemptsInfo({ used: usedAttempts, allowed: allowedAttempts });
@@ -229,20 +229,23 @@ export default function ExamSessionPage() {
   // Active Exam Session
   return (
     <div className="exam-session">
-      <header className="exam-header glass-card">
-        <div className="header-main">
-          <span className="exam-type">Evaluación de Módulo</span>
-          <h1>{exam?.title}</h1>
+      <header className="glass-card p-6 md:p-12 mb-8 md:mb-12 border-l-8 border-secondary-color flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl relative overflow-hidden">
+        <div className="relative z-10 space-y-1">
+          <span className="text-[10px] md:text-[11px] font-black text-secondary-color uppercase tracking-[0.2em] block">Evaluación de Módulo</span>
+          <h1 className="text-3xl md:text-5xl font-black text-primary-color font-display tracking-tighter leading-tight mt-1">{exam?.title}</h1>
         </div>
-        <div className="exam-meta">
-          <div className="meta-item">
-            <span className="meta-label">Aprobación</span>
-            <span className="meta-value">{exam?.min_pass_score}%</span>
+        
+        <div className="relative z-10 flex flex-row gap-4 w-full md:w-auto bg-slate-50/80 md:bg-transparent p-5 md:p-0 rounded-2xl md:rounded-none border md:border-none border-gray-100">
+          <div className="flex flex-col flex-1">
+            <span className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest">Aprobación</span>
+            <span className="text-xl md:text-2xl font-black text-primary-color">{exam?.min_pass_score}%</span>
           </div>
-          <div className="spacer"></div>
-          <div className="meta-item text-right">
-            <span className="meta-label">ID Seguimiento</span>
-            <span className="meta-value">Intento {attemptsInfo.used + 1} de {attemptsInfo.allowed}</span>
+          <div className="w-px bg-gray-200"></div>
+          <div className="flex flex-col flex-1 md:text-right">
+            <span className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest">Intento Actual</span>
+            <span className="text-xl md:text-2xl font-black text-secondary-color">
+              {attemptsInfo.used + 1} <span className="text-xs md:text-sm text-gray-400 font-bold">de {attemptsInfo.allowed}</span>
+            </span>
           </div>
         </div>
       </header>
@@ -264,100 +267,90 @@ export default function ExamSessionPage() {
           </div>
         ) : (
           questions.map((q, idx) => (
-            <div key={q.id} className="question-card glass-card">
-              <div className="q-header">
-                 <span className="q-number">Pregunta {idx + 1}</span>
+            <div key={q.id} className="glass-card p-6 md:p-10 mb-8 rounded-[32px] border border-white shadow-xl animate-fade-in relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-secondary-color transition-colors duration-500"></div>
+              
+              <div className="mb-4 flex items-center gap-4">
+                 <span className="text-[10px] md:text-xs font-black text-secondary-color uppercase tracking-[0.2em] bg-secondary-color/10 px-4 py-1.5 rounded-full">
+                   Pregunta {idx + 1}
+                 </span>
               </div>
-              <h3>{q.question_text}</h3>
+              <h3 className="font-display text-xl md:text-2xl font-black text-primary-color leading-snug mb-8">{q.question_text}</h3>
             
-            <div className="options-container">
-              {q.question_type === 'text_answer' ? (
-                <div className="text-answer-input">
-                   <input 
-                     type="text" 
-                     placeholder="Escribe tu respuesta aquí..."
-                     value={answers[q.id] || ''}
-                     onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
-                   />
-                </div>
-              ) : (
-                <div className="options-grid">
-                  {q.exam_options.map((opt) => (
-                    <label 
-                      key={opt.id} 
-                      className={`option-item ${
-                        q.question_type === 'multiple_choice' 
-                          ? (answers[q.id]?.includes(opt.id) ? 'selected' : '')
-                          : (answers[q.id] === opt.id ? 'selected' : '')
-                      }`}
-                    >
-                      <input 
-                        type={q.question_type === 'multiple_choice' ? "checkbox" : "radio"}
-                        name={`q-${q.id}`}
-                        checked={q.question_type === 'multiple_choice' ? answers[q.id]?.includes(opt.id) : answers[q.id] === opt.id}
-                        onChange={() => {
-                          if (q.question_type === 'multiple_choice') handleToggleMultiple(q.id, opt.id);
-                          else setAnswers({...answers, [q.id]: opt.id});
-                        }}
-                      />
-                      <div className="opt-content">
-                        <span className="opt-marker">
-                          {q.question_type === 'multiple_choice' 
-                            ? (answers[q.id]?.includes(opt.id) ? '☑' : '☐') 
-                            : (answers[q.id] === opt.id ? '●' : '○')}
-                        </span>
-                        {opt.option_text}
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-col gap-3 md:gap-4">
+                {q.question_type === 'text_answer' ? (
+                  <div className="relative">
+                     <input 
+                       type="text" 
+                       placeholder="Escribe tu respuesta aquí de forma precisa..."
+                       value={answers[q.id] || ''}
+                       onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
+                       className="w-full bg-slate-50 border-2 border-gray-100 p-5 md:p-6 rounded-2xl outline-none focus:border-primary-color focus:ring-4 focus:ring-primary-color/10 font-medium text-gray-700 transition-all text-sm md:text-base shadow-inner"
+                     />
+                  </div>
+                ) : (
+                  q.exam_options.map((opt) => {
+                    const isSelected = q.question_type === 'multiple_choice' 
+                      ? answers[q.id]?.includes(opt.id) 
+                      : answers[q.id] === opt.id;
+
+                    return (
+                      <label 
+                        key={opt.id} 
+                        className={`group/opt flex items-center gap-4 p-4 md:p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${
+                          isSelected 
+                            ? 'border-primary-color bg-primary-color/5 shadow-md' 
+                            : 'border-gray-100 hover:border-gray-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        <input 
+                          type={q.question_type === 'multiple_choice' ? "checkbox" : "radio"}
+                          name={`q-${q.id}`}
+                          className="hidden"
+                          checked={isSelected}
+                          onChange={() => {
+                            if (q.question_type === 'multiple_choice') handleToggleMultiple(q.id, opt.id);
+                            else setAnswers({...answers, [q.id]: opt.id});
+                          }}
+                        />
+                        <div className="flex items-center gap-4 w-full">
+                          <div className={`w-6 h-6 md:w-7 md:h-7 shrink-0 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                            isSelected 
+                              ? (q.question_type === 'multiple_choice' ? 'border-primary-color bg-primary-color text-white' : 'border-primary-color border-8') 
+                              : 'border-gray-300 group-hover/opt:border-gray-400'
+                          }`}>
+                            {q.question_type === 'multiple_choice' && isSelected && <span className="text-xs font-bold">✓</span>}
+                          </div>
+                          <span className={`text-sm md:text-base font-bold transition-colors duration-300 ${
+                            isSelected ? 'text-primary-color' : 'text-gray-500 group-hover/opt:text-gray-700'
+                          }`}>
+                            {opt.option_text}
+                          </span>
+                        </div>
+                      </label>
+                    );
+                  })
+                )}
               </div>
             </div>
           ))
         )}
 
         {questions.length > 0 && (
-          <div className="submit-area">
-            <button onClick={handleSubmit} className="btn btn-primary btn-xl submit-btn" disabled={loading}>
-              {loading ? 'Procesando Calificación...' : 'Entregar y Finalizar Evaluación'}
+          <div className="mt-12 flex justify-center pb-8">
+            <button 
+              onClick={handleSubmit} 
+              className="px-8 md:px-16 py-5 bg-primary-color text-white rounded-[32px] font-black text-xs md:text-sm uppercase tracking-[0.2em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-2xl shadow-primary-color/30 hover:-translate-y-1 active:scale-95" 
+              disabled={loading}
+            >
+              {loading ? 'Procesando Calificación...' : 'Entregar Evaluación'}
             </button>
           </div>
         )}
       </div>
 
       <style jsx>{`
-        .exam-session { max-width: 900px; margin: 0 auto; padding-bottom: 5rem; }
-        .exam-header { padding: 3rem; margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; border-left: 8px solid var(--secondary-color); }
-        .exam-type { text-transform: uppercase; font-size: 0.75rem; font-weight: 800; color: var(--secondary-color); letter-spacing: 1px; }
-        .header-main h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; color: var(--primary-color); margin-top: 0.3rem; }
-        
-        .exam-meta { display: flex; gap: 2rem; }
-        .meta-item { display: flex; flex-direction: column; }
-        .meta-label { font-size: 0.7rem; color: var(--gray-400); font-weight: 700; text-transform: uppercase; }
-        .meta-value { font-size: 1.1rem; font-weight: 800; color: var(--primary-color); }
-
-        .question-card { padding: 2.5rem; margin-bottom: 2rem; }
-        .q-header { margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
-        .q-number { font-size: 0.8rem; font-weight: 900; color: var(--secondary-color); text-transform: uppercase; }
-        .question-card h3 { font-family: 'Outfit', sans-serif; font-size: 1.4rem; color: var(--gray-800); line-height: 1.5; margin-bottom: 2rem; }
-
-        .options-grid { display: grid; gap: 1rem; }
-        .option-item { 
-          display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem; 
-          border: 2px solid var(--gray-100); border-radius: 12px; cursor: pointer; transition: all 0.2s;
-          position: relative;
-        }
-        .option-item:hover { background: var(--gray-50); border-color: var(--gray-200); }
-        .option-item.selected { border-color: var(--primary-color); background: rgba(var(--primary-color-rgb), 0.05); }
-        .option-item input { display: none; }
-        
-        .opt-content { display: flex; align-items: center; gap: 1rem; font-size: 1.05rem; font-weight: 500; color: var(--gray-700); }
-        .opt-marker { font-size: 1.2rem; color: var(--gray-300); }
-        .option-item.selected .opt-marker { color: var(--primary-color); }
-
-        .text-answer-input input { width: 100%; padding: 1.2rem; border-radius: 12px; border: 2px solid var(--gray-200); font-size: 1.1rem; outline: none; }
-        .text-answer-input input:focus { border-color: var(--primary-color); }
+        .exam-session { max-width: 900px; margin: 0 auto; padding: 1rem; padding-bottom: 5rem; }
 
         .btn { 
           display: inline-flex; align-items: center; gap: 0.8rem; padding: 1.2rem 2.4rem; 

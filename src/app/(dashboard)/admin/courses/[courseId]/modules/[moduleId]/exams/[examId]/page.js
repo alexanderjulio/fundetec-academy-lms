@@ -20,7 +20,7 @@ export default function ExamBuilderPage() {
   const [examConfig, setExamConfig] = useState({
     title: '',
     min_pass_score: 70,
-    max_attempts: 1
+    max_attempts: 10
   });
 
   // Question Modal State
@@ -55,7 +55,7 @@ export default function ExamBuilderPage() {
         setExamConfig({
           title: examData.title,
           min_pass_score: examData.min_pass_score || 70,
-          max_attempts: examData.max_attempts || 1
+          max_attempts: examData.max_attempts || 10
         });
       }
 
@@ -75,20 +75,28 @@ export default function ExamBuilderPage() {
   };
 
   const handleSaveConfig = async () => {
+    const parsedAttempts = parseInt(examConfig.max_attempts);
+    const parsedScore = parseInt(examConfig.min_pass_score);
+    if (isNaN(parsedAttempts) || parsedAttempts < 1) {
+      showNotification('El límite de intentos debe ser un número mayor a 0', 'error');
+      return;
+    }
     setIsSavingConfig(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('exams')
         .update({
           title: examConfig.title,
-          min_pass_score: parseInt(examConfig.min_pass_score),
-          max_attempts: parseInt(examConfig.max_attempts)
+          min_pass_score: parsedScore,
+          max_attempts: parsedAttempts
         })
-        .eq('id', examId);
+        .eq('id', examId)
+        .select('id, title, min_pass_score, max_attempts');
 
       if (error) throw error;
+      if (!data || data.length === 0) throw new Error('No se actualizó el examen. Verifica los permisos en la base de datos.');
       showNotification('Configuración del examen guardada', 'success');
-      setExam({ ...exam, title: examConfig.title });
+      setExam({ ...exam, ...data[0] });
     } catch (e) {
       showNotification('Error: ' + e.message, 'error');
     } finally {
@@ -241,59 +249,64 @@ export default function ExamBuilderPage() {
 
   return (
     <div className="exam-builder-page">
-      <nav className="breadcrumb">
-        <Link href={`/admin/courses/${courseId}/modules/${moduleId}`}>← Volver al Módulo</Link>
+      <nav className="mb-10 animate-fade-in">
+        <Link href={`/admin/courses/${courseId}/modules/${moduleId}`} className="group inline-flex items-center gap-3 bg-slate-50 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:bg-primary-color hover:text-white transition-all shadow-sm">
+          <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span>
+          Volver al Módulo
+        </Link>
       </nav>
 
-      <header className="page-header">
-        <div className="header-info">
-          <h1>Constructor de Examen</h1>
-          <p>Editando: <strong>{exam?.title}</strong></p>
+      <header className="bg-white rounded-[48px] p-10 md:p-14 mb-12 shadow-2xl shadow-slate-100 flex flex-col md:flex-row justify-between items-center md:items-end gap-8 animate-slide-up border border-slate-50">
+        <div className="space-y-3 text-center md:text-left">
+          <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Constructor de Evaluación</span>
+          <h1 className="text-5xl font-black text-primary-color tracking-tighter font-display leading-tight">{exam?.title || 'Cargando...'}</h1>
+          <p className="text-gray-400 font-bold text-sm">Configura las reglas y añade las preguntas de este examen.</p>
         </div>
       </header>
 
-      <section className="config-section glass-card mb-10">
-        <div className="section-title">
-          <h2>Configuración General</h2>
-          <p>Define las reglas de aprobación y re-intentos.</p>
+      <section className="bg-white rounded-[40px] p-8 md:p-12 mb-12 shadow-xl shadow-slate-100 border border-slate-50 animate-slide-up">
+        <div className="mb-8 border-b border-gray-50 pb-6">
+          <h2 className="text-2xl font-black text-primary-color font-display">Configuración General</h2>
+          <p className="text-sm font-bold text-gray-400 mt-2">Define las reglas de aprobación y re-intentos.</p>
         </div>
         
-        <div className="config-grid">
-          <div className="f-group">
-            <label>Título del Examen</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="md:col-span-2 space-y-2">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Título del Examen</label>
             <input 
               type="text" 
               value={examConfig.title} 
               onChange={(e) => setExamConfig({...examConfig, title: e.target.value})}
               placeholder="Ej: Evaluación Final de Módulo"
+              className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color transition-all text-xl shadow-inner placeholder:text-gray-300"
             />
           </div>
-          <div className="f-row">
-            <div className="f-group">
-              <label>Nota Mínima (%)</label>
-              <input 
-                type="number" 
-                value={examConfig.min_pass_score} 
-                onChange={(e) => setExamConfig({...examConfig, min_pass_score: e.target.value})}
-                min="0" max="100"
-              />
-            </div>
-            <div className="f-group">
-              <label>Límite de Intentos</label>
-              <input 
-                type="number" 
-                value={examConfig.max_attempts} 
-                onChange={(e) => setExamConfig({...examConfig, max_attempts: e.target.value})}
-                min="1"
-              />
-              <span className="hint">Mínimo 1 intento</span>
-            </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Nota Mínima (%)</label>
+            <input 
+              type="number" 
+              value={examConfig.min_pass_score} 
+              onChange={(e) => setExamConfig({...examConfig, min_pass_score: e.target.value})}
+              min="0" max="100"
+              className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-xl text-primary-color shadow-inner"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Límite de Intentos</label>
+            <input 
+              type="number" 
+              value={examConfig.max_attempts} 
+              onChange={(e) => setExamConfig({...examConfig, max_attempts: e.target.value})}
+              min="1"
+              className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-xl text-primary-color shadow-inner"
+            />
+            <p className="text-[9px] text-gray-400 font-bold px-3 pt-1">Mínimo 1 intento — por defecto 10</p>
           </div>
         </div>
 
-        <div className="config-footer">
+        <div className="flex justify-end pt-6 border-t border-gray-50">
           <button 
-            className="btn btn-primary" 
+            className="bg-primary-color text-white px-10 py-5 rounded-[28px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color/20"
             onClick={handleSaveConfig}
             disabled={isSavingConfig}
           >
@@ -302,39 +315,46 @@ export default function ExamBuilderPage() {
         </div>
       </section>
 
-      <section className="questions-section">
-        <div className="section-header">
-          <div className="section-title">
-            <h2>Banco de Preguntas</h2>
-            <p>{questions.length} preguntas añadidas</p>
+      <section className="bg-slate-50 rounded-[48px] p-8 md:p-12 mb-12 border border-slate-100">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+          <div>
+            <h2 className="text-3xl font-black text-primary-color font-display">Banco de Preguntas</h2>
+            <p className="text-sm font-bold text-gray-400 mt-2">{questions.length} preguntas añadidas a esta evaluación</p>
           </div>
-          <button className="btn btn-secondary btn-with-icon" onClick={() => handleOpenModal()}>
-            <span className="icon">➕</span> Nueva Pregunta
+          <button 
+            className="flex items-center gap-3 bg-white text-primary-color px-8 py-5 rounded-[28px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary-color hover:text-white transition-all shadow-sm border border-slate-200" 
+            onClick={() => handleOpenModal()}
+          >
+            <span className="text-lg">➕</span> NUEVA PREGUNTA
           </button>
         </div>
 
-        <div className="questions-list mt-6">
+        <div className="questions-list">
           {questions.length === 0 ? (
-            <div className="empty-state glass-card">
-              <span className="icon">📑</span>
-              <h3>No hay preguntas todavía</h3>
-              <p>Empieza a construir tu evaluación añadiendo preguntas de opción múltiple, abierta o falso/verdadero.</p>
+            <div className="p-20 text-center bg-white rounded-[40px] border border-dashed border-gray-200 flex flex-col items-center gap-4">
+              <span className="text-5xl">📑</span>
+              <h3 className="text-xl font-black text-primary-color font-display">No hay preguntas todavía</h3>
+              <p className="text-sm font-bold text-gray-400 max-w-sm">Empieza a construir tu evaluación añadiendo preguntas de opción múltiple, abierta o falso/verdadero.</p>
             </div>
           ) : (
-            <div className="questions-grid">
+            <div className="grid grid-cols-1 gap-6">
               {questions.map((q, idx) => (
-                <div key={q.id} className="question-card glass-card">
-                  <div className="question-header">
-                    <div className="header-labels">
-                      <span className="num">Pregunta {idx + 1}</span>
-                      <span className={`type-badge-mini ${q.question_type}`}>
+                <div key={q.id} className="bg-white p-8 rounded-[32px] border-l-8 border-l-primary-color shadow-sm hover:shadow-xl transition-all relative group">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="flex items-center gap-4">
+                      <span className="bg-slate-50 text-primary-color px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-100">Pregunta {idx + 1}</span>
+                      <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                        q.question_type === 'single_choice' ? 'bg-emerald-50 text-emerald-600' : 
+                        q.question_type === 'multiple_choice' ? 'bg-amber-50 text-amber-600' : 
+                        q.question_type === 'text_answer' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
+                      }`}>
                         {q.question_type === 'single_choice' ? 'Única' : q.question_type === 'multiple_choice' ? 'Múltiple' : q.question_type === 'text_answer' ? 'Abierta' : 'F/V'}
                       </span>
                     </div>
-                    <div className="actions">
-                      <button className="icon-btn" onClick={() => handleOpenModal(q)} title="Editar">✏️</button>
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button className="w-10 h-10 rounded-xl bg-slate-50 text-primary-color hover:bg-primary-color hover:text-white transition-all flex items-center justify-center" onClick={() => handleOpenModal(q)} title="Editar">✏️</button>
                       <button 
-                        className={`icon-btn danger ${confirmDeleteId === q.id ? 'confirming-mini' : ''}`} 
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${confirmDeleteId === q.id ? 'bg-red-500 text-white w-auto px-4 text-xs font-bold' : 'bg-slate-50 text-red-400 hover:bg-red-50'}`} 
                         onClick={() => handleDeleteQuestion(q.id)}
                         title="Eliminar"
                       >
@@ -342,7 +362,7 @@ export default function ExamBuilderPage() {
                       </button>
                     </div>
                   </div>
-                  <h3 className="q-text">{q.question_text}</h3>
+                  <h3 className="text-xl font-bold text-gray-800 leading-relaxed pr-10">{q.question_text}</h3>
                 </div>
               ))}
             </div>
@@ -456,38 +476,16 @@ export default function ExamBuilderPage() {
       )}
 
       <style jsx>{`
-        .exam-builder-page { max-width: 1200px; margin: 0 auto; }
-        .breadcrumb { margin-bottom: 2rem; }
-        .breadcrumb a { color: var(--primary-color); font-weight: 700; text-decoration: none; font-size: 0.9rem; }
-
-        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; }
-        .header-info h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; color: var(--primary-color); margin-bottom: 0.5rem; }
-        .header-info p { color: var(--gray-500); font-size: 1.1rem; }
-
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .section-title h2 { font-family: 'Outfit', sans-serif; color: var(--primary-color); font-size: 1.6rem; }
-        .section-title p { color: var(--gray-400); font-size: 0.9rem; }
-
-        .config-grid { display: grid; gap: 1.5rem; padding: 1rem 0; }
-        .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .f-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .f-group label { font-size: 0.85rem; font-weight: 700; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.5px; }
-        .f-group input { padding: 0.8rem 1.2rem; border-radius: 12px; border: 1.5px solid var(--gray-200); font-size: 1rem; }
-        .hint { font-size: 0.75rem; color: var(--gray-400); margin-top: 0.2rem; }
-        .config-footer { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-100); display: flex; justify-content: flex-end; }
-
-        .questions-grid { display: grid; gap: 1.5rem; }
-        .question-card { padding: 2rem; position: relative; border-left: 5px solid var(--primary-color); }
-        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .header-labels { display: flex; gap: 1rem; align-items: center; }
-        .num { font-weight: 800; color: var(--primary-color); font-size: 0.8rem; text-transform: uppercase; }
-        .type-badge-mini { font-size: 0.65rem; font-weight: 900; padding: 0.2rem 0.6rem; border-radius: 4px; text-transform: uppercase; }
-        .type-badge-mini.single_choice { background: #dcfce7; color: #166534; }
-        .type-badge-mini.multiple_choice { background: #fef9c3; color: #854d0e; }
-        .type-badge-mini.text_answer { background: #dbeafe; color: #1e40af; }
-        .type-badge-mini.true_false { background: #f3e8ff; color: #6b21a8; }
+        .exam-builder-page { max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease-out; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
         
-        .q-text { font-family: 'Outfit', sans-serif; font-size: 1.2rem; color: var(--gray-800); line-height: 1.4; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        .animate-slide-up { animation: slideUp 0.4s ease-out; }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(12, 30, 69, 0.4); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 2rem; }
         .modal-content { width: 100%; max-width: 650px; padding: 0; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; }
