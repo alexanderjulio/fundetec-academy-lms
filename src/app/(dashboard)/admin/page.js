@@ -30,6 +30,7 @@ export default function AdminDashboardHome() {
     const channel = supabase
       .channel('dashboard-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchDashboardData(true))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'global_notifications' }, () => fetchDashboardData(true))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'coordinator_invoices' }, () => fetchDashboardData(true))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => fetchDashboardData(true))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'enrollments' }, () => fetchDashboardData(true))

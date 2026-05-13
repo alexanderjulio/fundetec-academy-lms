@@ -113,34 +113,8 @@ export default function DashboardLayout({ children }) {
       )
       .subscribe();
 
-    let leadsChannel;
-    if (isAdmin || isCoordinator) {
-      leadsChannel = supabase
-        .channel(`global-leads-${profile.id}`)
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'leads' },
-          (payload) => {
-            const lead = payload.new;
-            showNotification(`¡Nuevo prospecto recibido! ${lead.full_name || lead.email}`, 'success');
-            
-            const newNotif = {
-              id: `lead-${lead.id}`,
-              title: 'Nuevo Prospecto',
-              message: `Interesado en información: ${lead.full_name || lead.email}`,
-              created_at: lead.created_at || new Date().toISOString(),
-              target_type: 'all'
-            };
-            setNotifications(prev => [newNotif, ...prev].slice(0, 10));
-            setUnreadCount(prev => prev + 1);
-          }
-        )
-        .subscribe();
-    }
-
     return () => {
       supabase.removeChannel(channel);
-      if (leadsChannel) supabase.removeChannel(leadsChannel);
     };
   }, [profile, isAdmin, isCoordinator, showNotification]);
 
