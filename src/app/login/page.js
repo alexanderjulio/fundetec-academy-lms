@@ -14,6 +14,7 @@ function LoginContent() {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', msg: '' });
+  const [showPassword, setShowPassword] = useState(false);
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -129,7 +130,7 @@ function LoginContent() {
                   required 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
-                  placeholder="alumno@fundetec.edu.co" 
+                  placeholder="alumno@fundetec.co" 
                   className="w-full bg-white border border-gray-100 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-secondary-color/10 focus:border-secondary-color transition-all font-bold text-primary-color placeholder:text-gray-300"
                 />
               </div>
@@ -139,14 +140,27 @@ function LoginContent() {
                   <div className="flex justify-between items-center px-1">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Contraseña</label>
                   </div>
-                  <input 
-                    type="password" 
-                    required={mode === 'auth'} 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    placeholder="••••••••" 
-                    className="w-full bg-white border border-gray-100 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-secondary-color/10 focus:border-secondary-color transition-all font-bold text-primary-color placeholder:text-gray-300 font-mono"
-                  />
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      required={mode === 'auth'} 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)} 
+                      placeholder="••••••••" 
+                      className="w-full bg-white border border-gray-100 p-5 pr-14 rounded-2xl outline-none focus:ring-4 focus:ring-secondary-color/10 focus:border-secondary-color transition-all font-bold text-primary-color placeholder:text-gray-300 font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-secondary-color transition-colors focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                      )}
+                    </button>
+                  </div>
                   {isLogin && (
                     <div className="flex justify-end px-1">
                       <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-secondary-color uppercase tracking-widest hover:underline">
@@ -217,7 +231,7 @@ function LoginContent() {
           </div>
 
           <div className="absolute bottom-10 right-10 text-[8px] font-black uppercase text-white/20 tracking-[0.5em] font-sans">
-            Fundetec Academy • Premium Learning Experience
+            Fundetec Academy • Experiencia de Aprendizaje Premium
           </div>
         </div>
       </main>

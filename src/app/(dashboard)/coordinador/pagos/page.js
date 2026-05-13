@@ -261,13 +261,13 @@ export default function ManualPaymentsPage() {
               <div className="space-y-3 relative">
                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Buscar Alumno</label>
                  <div className="relative group/search">
-                    <span className="absolute left-6 top-1/2 -translate-y-1/2 opacity-20 group-focus-within/search:opacity-100 group-focus-within/search:text-secondary-color transition-all transition-duration-300"><Icons.Search /></span>
+                    <span className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 opacity-20 group-focus-within/search:opacity-100 group-focus-within/search:text-secondary-color transition-all transition-duration-300"><Icons.Search /></span>
                     <input 
                       type="text" 
                       placeholder="Escribe el nombre aquí..."
                       value={searchTerm}
                       onChange={(e) => handleSearch(e.target.value)}
-                      className="w-full bg-slate-100/50 border-none p-6 pl-14 rounded-[32px] outline-none font-bold text-primary-color focus:ring-[6px] focus:ring-secondary-color/20 focus:bg-white transition-all duration-500 shadow-inner"
+                      className="w-full bg-slate-100/50 border-none p-4 md:p-6 pl-12 md:pl-14 rounded-[20px] md:rounded-[32px] outline-none font-bold text-sm md:text-base text-primary-color focus:ring-[6px] focus:ring-secondary-color/20 focus:bg-white transition-all duration-500 shadow-inner"
                     />
                  </div>
                  
@@ -295,14 +295,14 @@ export default function ManualPaymentsPage() {
               </div>
 
               {selectedStudent && (
-                 <div className="space-y-7 animate-fade-in">
-                    <div className="space-y-3 relative">
+                 <div className="space-y-5 md:space-y-7 animate-fade-in">
+                    <div className="space-y-2 md:space-y-3 relative">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Matrícula / Deuda Real</label>
                        <div className="relative group">
                           <select 
                             value={selectedEnrollment}
                             onChange={(e) => setSelectedEnrollment(e.target.value)}
-                            className="w-full appearance-none bg-emerald-500 text-white border-none p-6 pr-14 rounded-[32px] outline-none font-black text-[13px] uppercase tracking-wider cursor-pointer shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all"
+                            className="w-full appearance-none bg-emerald-500 text-white border-none p-4 md:p-6 pr-10 md:pr-14 rounded-[20px] md:rounded-[32px] outline-none font-black text-[10px] md:text-[13px] uppercase tracking-wider cursor-pointer shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all truncate"
                           >
                              {enrollments.map(e => (
                                 <option key={e.id} value={e.id} className="text-primary-color">
@@ -310,39 +310,40 @@ export default function ManualPaymentsPage() {
                                 </option>
                              ))}
                           </select>
-                          <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-white/50"><Icons.Chevron /></div>
+                          <div className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 pointer-events-none text-white/50"><Icons.Chevron /></div>
                        </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Monto del Abono</label>
                        <div className="relative group">
-                          <span className="absolute left-8 top-1/2 -translate-y-1/2 text-3xl font-black text-primary-color/20">$</span>
+                          <span className="absolute left-5 md:left-8 top-1/2 -translate-y-1/2 text-2xl md:text-3xl font-black text-primary-color/20">$</span>
                           <input 
                             type="number" 
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className="w-full bg-slate-100/50 border-none p-10 pl-16 rounded-[40px] outline-none text-5xl font-black text-primary-color focus:ring-[8px] focus:ring-emerald-500/10 focus:bg-white placeholder:text-gray-100 transition-all duration-500 shadow-inner"
+                            className="w-full bg-slate-100/50 border-none p-6 md:p-10 pl-12 md:pl-16 rounded-[24px] md:rounded-[40px] outline-none text-3xl md:text-5xl font-black text-primary-color focus:ring-[8px] focus:ring-emerald-500/10 focus:bg-white placeholder:text-gray-100 transition-all duration-500 shadow-inner"
                           />
                        </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3 md:space-y-4">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Método de Pago</label>
-                       <div className="grid grid-cols-2 gap-4">
+                       <div className="grid grid-cols-2 gap-3 md:gap-4">
                           <button 
                             type="button"
                             onClick={() => setPaymentMethod('transfer')}
-                            className={`p-6 rounded-[32px] flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'transfer' ? 'bg-primary-color text-white shadow-2xl shadow-primary-color/20' : 'bg-slate-100 text-gray-400 hover:bg-slate-200'}`}
+                            className={`p-4 md:p-6 rounded-[20px] md:rounded-[32px] flex items-center justify-center gap-2 md:gap-3 text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'transfer' ? 'bg-primary-color text-white shadow-2xl shadow-primary-color/20' : 'bg-slate-100 text-gray-400 hover:bg-slate-200'}`}
                           >
                              <Icons.Transfer />
-                             <span>Transferencia</span>
+                             <span className="hidden md:inline">Transferencia</span>
+                             <span className="md:hidden">Transf.</span>
                           </button>
                           <button 
                             type="button"
                             onClick={() => setPaymentMethod('cash')}
-                            className={`p-6 rounded-[32px] flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'cash' ? 'bg-secondary-color text-primary-color shadow-2xl shadow-secondary-color/20' : 'bg-slate-100 text-gray-400 hover:bg-slate-200'}`}
+                            className={`p-4 md:p-6 rounded-[20px] md:rounded-[32px] flex items-center justify-center gap-2 md:gap-3 text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'cash' ? 'bg-secondary-color text-primary-color shadow-2xl shadow-secondary-color/20' : 'bg-slate-100 text-gray-400 hover:bg-slate-200'}`}
                           >
                              <Icons.Cash />
                              <span>Efectivo</span>
@@ -350,11 +351,11 @@ export default function ManualPaymentsPage() {
                        </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Comprobante (Archivo)</label>
                        <label className="block w-full cursor-pointer group">
-                          <div className="w-full border-3 border-dashed border-gray-100 p-8 rounded-[40px] text-center group-hover:bg-slate-50 group-hover:border-emerald-500/30 transition-all duration-500">
-                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{file ? file.name : 'Subir Imagen / PDF'}</p>
+                          <div className="w-full border-3 border-dashed border-gray-100 p-6 md:p-8 rounded-[24px] md:rounded-[40px] text-center group-hover:bg-slate-50 group-hover:border-emerald-500/30 transition-all duration-500">
+                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate px-2">{file ? file.name : 'Subir Imagen / PDF'}</p>
                              <p className="text-[8px] text-emerald-500 font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Optimizado automático</p>
                           </div>
                           <input type="file" className="hidden" onChange={e => setFile(e.target.files[0])} />
@@ -364,9 +365,9 @@ export default function ManualPaymentsPage() {
                     <button 
                       type="submit" 
                       disabled={loading}
-                      className="w-full py-8 bg-emerald-500 text-white rounded-[40px] font-black text-[12px] uppercase tracking-[0.2em] shadow-3xl shadow-emerald-500/30 hover:bg-primary-color hover:scale-[1.02] active:scale-[0.98] transition-all duration-500"
+                      className="w-full py-5 md:py-8 bg-emerald-500 text-white rounded-[24px] md:rounded-[40px] font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] shadow-3xl shadow-emerald-500/30 hover:bg-primary-color hover:scale-[1.02] active:scale-[0.98] transition-all duration-500"
                     >
-                       {loading ? 'Sincronizando...' : 'Completar Registro y PDF'}
+                       {loading ? 'Sincronizando...' : 'Completar Registro'}
                     </button>
                  </div>
               )}
@@ -392,70 +393,81 @@ export default function ManualPaymentsPage() {
                  </div>
               </header>
 
-              <div className="flex-1 overflow-x-auto">
-                <table className="w-full border-separate border-spacing-0">
-                  <thead>
-                    <tr className="bg-white">
-                      <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Estudiante / Programa</th>
-                      <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Método</th>
-                      <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Monto</th>
-                      <th className="p-8 text-right text-[9px] font-black uppercase tracking-widest text-gray-300 border-b border-gray-50">Comprobante</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {recentPayments.map(p => (
-                       <tr key={p.id} className="group hover:bg-slate-50/50 transition-all duration-300">
-                          <td className="p-8">
-                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary-color font-black text-xs group-hover:bg-primary-color group-hover:text-white transition-all duration-500">
-                                   {p.enrollment?.student?.full_name?.substring(0,1).toUpperCase()}
-                                </div>
-                                <div className="min-w-0">
-                                   <p className="text-sm font-black text-primary-color truncate group-hover:text-emerald-600 transition-colors uppercase">{p.enrollment?.student?.full_name}</p>
-                                   <p className="text-[9px] font-black text-secondary-color uppercase tracking-wider">{p.enrollment?.courses?.title}</p>
-                                </div>
-                             </div>
-                          </td>
-                          <td className="p-8">
-                             <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit ${p.payment_method === 'transfer' ? 'bg-indigo-50 text-indigo-500 border border-indigo-100' : 'bg-emerald-50 text-emerald-500 border border-emerald-100'}`}>
-                                {p.payment_method === 'transfer' ? <Icons.Transfer /> : <Icons.Cash />}
-                                {p.payment_method === 'transfer' ? 'Transf.' : 'Efectivo'}
-                             </span>
-                          </td>
-                          <td className="p-8">
-                             <div className="space-y-0.5">
-                                <p className="text-lg font-black text-primary-color font-display tracking-tighter">${p.amount.toLocaleString()}</p>
-                                <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{new Date(p.created_at).toLocaleDateString()} · {new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                             </div>
-                          </td>
-                          <td className="p-8 text-right">
-                             <div className="flex justify-end gap-3 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
-                                <button 
-                                  onClick={() => generateReceipt({
-                                    student: p.enrollment?.student?.full_name,
-                                    course: p.enrollment?.courses?.title,
-                                    amount: p.amount,
-                                    payment_method: p.payment_method
-                                  })}
-                                  className="h-10 px-5 bg-white border border-gray-100 text-primary-color rounded-xl flex items-center gap-2 text-[9px] font-black uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all shadow-sm"
-                                >
-                                   <Icons.PDF />
-                                   <span>Recibo</span>
-                                </button>
-                                
-                                {p.receipt_url && (
-                                  <a 
-                                    href={p.receipt_url} 
-                                    target="_blank" 
-                                    className="w-10 h-10 bg-secondary-color text-primary-color rounded-xl flex items-center justify-center hover:scale-110 transition-all shadow-lg shadow-secondary-color/20"
-                                  ><Icons.Link /></a>
-                                )}
-                             </div>
-                          </td>
-                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="flex-1 flex flex-col w-full overflow-hidden">
+                {/* Header Desktop */}
+                <div className="hidden md:grid grid-cols-12 bg-white border-b border-gray-50">
+                  <div className="col-span-5 p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300">Estudiante / Programa</div>
+                  <div className="col-span-2 p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300">Método</div>
+                  <div className="col-span-3 p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-300">Monto</div>
+                  <div className="col-span-2 p-8 text-right text-[9px] font-black uppercase tracking-widest text-gray-300">Comprobante</div>
+                </div>
+
+                {/* Body */}
+                <div className="flex flex-col divide-y divide-gray-50">
+                  {recentPayments.map(p => (
+                    <div key={p.id} className="group flex flex-col md:grid md:grid-cols-12 items-start md:items-center p-6 md:p-8 hover:bg-slate-50/50 transition-all duration-300 gap-4 md:gap-0">
+                      
+                      {/* Estudiante / Programa */}
+                      <div className="col-span-5 flex items-center gap-4 w-full">
+                         <div className="w-12 h-12 md:w-10 md:h-10 rounded-[16px] md:rounded-xl bg-slate-100 flex items-center justify-center text-primary-color font-black text-sm md:text-xs group-hover:bg-primary-color group-hover:text-white transition-all duration-500 flex-shrink-0 shadow-inner">
+                            {p.enrollment?.student?.full_name?.substring(0,1).toUpperCase()}
+                         </div>
+                         <div className="min-w-0 flex-1">
+                            <p className="text-base md:text-sm font-black text-primary-color truncate group-hover:text-emerald-600 transition-colors uppercase leading-tight">{p.enrollment?.student?.full_name}</p>
+                            <p className="text-[9px] font-black text-secondary-color uppercase tracking-wider mt-1 md:mt-0.5 truncate">{p.enrollment?.courses?.title}</p>
+                         </div>
+                      </div>
+
+                      {/* Método y Monto en Móvil se agrupan en una fila */}
+                      <div className="col-span-5 flex items-center justify-between md:contents w-full">
+                         {/* Método */}
+                         <div className="col-span-2 w-auto">
+                            <span className={`px-4 py-2 md:px-4 md:py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit shadow-sm ${p.payment_method === 'transfer' ? 'bg-indigo-50 text-indigo-500 border border-indigo-100' : 'bg-emerald-50 text-emerald-500 border border-emerald-100'}`}>
+                               {p.payment_method === 'transfer' ? <Icons.Transfer /> : <Icons.Cash />}
+                               {p.payment_method === 'transfer' ? 'Transf.' : 'Efectivo'}
+                            </span>
+                         </div>
+                         
+                         {/* Monto */}
+                         <div className="col-span-3 text-right md:text-left">
+                            <div className="space-y-0.5">
+                               <p className="text-xl md:text-lg font-black text-primary-color font-display tracking-tighter">${p.amount.toLocaleString()}</p>
+                               <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest hidden md:block">{new Date(p.created_at).toLocaleDateString()} · {new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                            </div>
+                         </div>
+                      </div>
+                      
+                      {/* Fecha en móvil */}
+                      <div className="md:hidden text-[9px] font-black text-gray-300 uppercase tracking-widest w-full">
+                         Fecha de pago: {new Date(p.created_at).toLocaleDateString()} · {new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </div>
+
+                      {/* Comprobante / Acciones */}
+                      <div className="col-span-2 w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end gap-3 md:translate-x-4 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 pt-4 md:pt-0 border-t border-gray-50 md:border-none">
+                         <button 
+                           onClick={() => generateReceipt({
+                             student: p.enrollment?.student?.full_name,
+                             course: p.enrollment?.courses?.title,
+                             amount: p.amount,
+                             payment_method: p.payment_method
+                           })}
+                           className="flex-1 md:flex-none h-12 md:h-10 px-5 bg-white border border-gray-100 text-primary-color rounded-xl flex items-center justify-center gap-2 text-[10px] md:text-[9px] font-black uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all shadow-sm"
+                         >
+                            <Icons.PDF />
+                            <span>Generar Recibo</span>
+                         </button>
+                         
+                         {p.receipt_url && (
+                           <a 
+                             href={p.receipt_url} 
+                             target="_blank" 
+                             className="w-12 h-12 md:w-10 md:h-10 bg-secondary-color text-primary-color rounded-xl flex items-center justify-center hover:scale-110 transition-all shadow-lg shadow-secondary-color/20 flex-shrink-0"
+                           ><Icons.Link /></a>
+                         )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {recentPayments.length === 0 && (

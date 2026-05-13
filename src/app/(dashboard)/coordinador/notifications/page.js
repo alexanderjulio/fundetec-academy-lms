@@ -108,14 +108,14 @@ export default function CoordinatorNotificationsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* CONSOLA DE REDACCIÓN VIP */}
-        <section className="lg:col-span-5 bg-white p-10 rounded-[64px] border border-gray-100 shadow-xl space-y-10 relative overflow-hidden">
+        <section className="lg:col-span-5 bg-white p-6 md:p-10 rounded-[40px] md:rounded-[64px] border border-gray-100 shadow-xl space-y-8 md:space-y-10 relative overflow-hidden">
            <div className="space-y-2">
               <h2 className="text-2xl font-black text-primary-color tracking-tighter">Enviar Comunicado</h2>
               <div className="h-1 w-12 bg-secondary-color rounded-full"></div>
            </div>
 
-           <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-3">
+           <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+              <div className="space-y-2 md:space-y-3">
                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Asunto del Mensaje</label>
                  <input 
                     type="text" 
@@ -123,11 +123,11 @@ export default function CoordinatorNotificationsPage() {
                     value={formData.title} 
                     onChange={e => setFormData({...formData, title: e.target.value})}
                     placeholder="Ej: Recordatorio de Examen Final"
-                    className="w-full bg-slate-50 border-none p-5 rounded-[28px] outline-none font-bold text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all placeholder:text-gray-200"
+                    className="w-full bg-slate-50 border-none p-4 md:p-5 rounded-[20px] md:rounded-[28px] outline-none font-bold text-sm md:text-base text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all placeholder:text-gray-300"
                  />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Cuerpo del Comunicado</label>
                  <textarea 
                     required 
@@ -135,36 +135,36 @@ export default function CoordinatorNotificationsPage() {
                     value={formData.message} 
                     onChange={e => setFormData({...formData, message: e.target.value})}
                     placeholder="Escribe aquí las instrucciones detalladas para tu grupo..."
-                    className="w-full bg-slate-50 border-none p-7 rounded-[38px] outline-none font-medium text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all placeholder:text-gray-200 leading-relaxed"
+                    className="w-full bg-slate-50 border-none p-5 md:p-7 rounded-[24px] md:rounded-[38px] outline-none font-medium text-sm md:text-base text-primary-color focus:ring-4 focus:ring-secondary-color/10 transition-all placeholder:text-gray-300 leading-relaxed resize-none"
                  ></textarea>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-4">Prioridad del Envío</label>
-                 <div className="grid grid-cols-3 gap-3">
+                 <div className="grid grid-cols-3 gap-2 md:gap-3">
                     <button 
                       type="button"
                       onClick={() => setFormData({...formData, type: 'info'})}
-                      className={`p-4 rounded-[24px] flex flex-col items-center gap-2 transition-all ${formData.type === 'info' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
+                      className={`p-3 md:p-4 rounded-[20px] md:rounded-[24px] flex flex-col items-center gap-2 transition-all ${formData.type === 'info' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
                     >
                        <Icons.Info />
-                       <span className="text-[9px] font-black uppercase tracking-tighter">Informar</span>
+                       <span className="text-[8px] md:text-[9px] font-black uppercase tracking-tighter">Informar</span>
                     </button>
                     <button 
                       type="button"
                       onClick={() => setFormData({...formData, type: 'warning'})}
-                      className={`p-4 rounded-[24px] flex flex-col items-center gap-2 transition-all ${formData.type === 'warning' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
+                      className={`p-3 md:p-4 rounded-[20px] md:rounded-[24px] flex flex-col items-center gap-2 transition-all ${formData.type === 'warning' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
                     >
                        <Icons.Alert />
-                       <span className="text-[9px] font-black uppercase tracking-tighter">Alerta</span>
+                       <span className="text-[8px] md:text-[9px] font-black uppercase tracking-tighter">Alerta</span>
                     </button>
                     <button 
                       type="button"
                       onClick={() => setFormData({...formData, type: 'danger'})}
-                      className={`p-4 rounded-[24px] flex flex-col items-center gap-2 transition-all ${formData.type === 'danger' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
+                      className={`p-3 md:p-4 rounded-[20px] md:rounded-[24px] flex flex-col items-center gap-2 transition-all ${formData.type === 'danger' ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-slate-50 text-gray-400 hover:bg-slate-100'}`}
                     >
                        <Icons.Danger />
-                       <span className="text-[9px] font-black uppercase tracking-tighter">Urgente</span>
+                       <span className="text-[8px] md:text-[9px] font-black uppercase tracking-tighter">Urgente</span>
                     </button>
                  </div>
               </div>
@@ -172,11 +172,11 @@ export default function CoordinatorNotificationsPage() {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full py-7 bg-primary-color text-white rounded-[32px] font-black text-[11px] uppercase tracking-widest shadow-2xl shadow-primary-color/20 hover:bg-secondary-color hover:text-primary-color transition-all flex items-center justify-center gap-3"
+                className="w-full py-5 md:py-7 bg-primary-color text-white rounded-[24px] md:rounded-[32px] font-black text-[10px] md:text-[11px] uppercase tracking-widest shadow-2xl shadow-primary-color/20 hover:bg-secondary-color hover:text-primary-color transition-all flex items-center justify-center gap-3"
               >
                  {loading ? 'Transmitiendo...' : (
                     <>
-                       <Icons.Send /> Emitir Comunicado Oficial
+                       <Icons.Send /> Emitir Comunicado
                     </>
                  )}
               </button>
@@ -187,27 +187,27 @@ export default function CoordinatorNotificationsPage() {
 
         {/* INBOX DE COMUNICADOS ENVIADOS */}
         <div className="lg:col-span-7 space-y-6">
-           <div className="bg-white rounded-[64px] border border-gray-100 shadow-sm overflow-hidden min-h-[600px] flex flex-col">
-              <header className="p-10 border-b border-gray-100 flex justify-between items-center bg-slate-50/50">
+           <div className="bg-white rounded-[40px] md:rounded-[64px] border border-gray-100 shadow-sm overflow-hidden min-h-[400px] md:min-h-[600px] flex flex-col">
+              <header className="p-6 md:p-10 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50/50 gap-2 sm:gap-0">
                  <h2 className="text-xl font-black text-primary-color tracking-tighter">Historial de Envío</h2>
                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Registro Cronológico</span>
               </header>
 
-              <div className="flex-1 p-8 space-y-6 overflow-y-auto">
+              <div className="flex-1 p-6 md:p-8 space-y-4 md:space-y-6 overflow-y-auto">
                  {notifications.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-20 space-y-4">
+                    <div className="h-full flex flex-col items-center justify-center text-center p-10 md:p-20 space-y-4">
                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-3xl opacity-40">📬</div>
                        <p className="text-gray-300 font-black uppercase tracking-widest text-[10px]">Sin anuncios registrados todavía.</p>
                     </div>
                  ) : (
                     notifications.map(n => (
-                       <article key={n.id} className="group bg-white p-8 rounded-[40px] border border-gray-100 hover:border-secondary-color transition-all duration-500 hover:shadow-xl hover:shadow-primary-color/5 animate-pop relative overflow-hidden">
-                          <header className="flex justify-between items-start mb-6">
-                             <div className="space-y-3">
+                       <article key={n.id} className="group bg-white p-6 md:p-8 rounded-[32px] md:rounded-[40px] border border-gray-100 hover:border-secondary-color transition-all duration-500 hover:shadow-xl hover:shadow-primary-color/5 animate-pop relative overflow-hidden">
+                          <header className="flex flex-col sm:flex-row justify-between items-start mb-4 md:mb-6 gap-4 sm:gap-0">
+                             <div className="space-y-2 md:space-y-3">
                                 {getPriorityBadge(n.type)}
-                                <h3 className="text-lg font-black text-primary-color group-hover:text-secondary-color transition-colors leading-tight">{n.title}</h3>
+                                <h3 className="text-base md:text-lg font-black text-primary-color group-hover:text-secondary-color transition-colors leading-tight">{n.title}</h3>
                              </div>
-                             <time className="text-[9px] font-black text-gray-300 uppercase tracking-widest bg-slate-50 p-3 rounded-2xl">{new Date(n.created_at).toLocaleString()}</time>
+                             <time className="text-[8px] md:text-[9px] font-black text-gray-300 uppercase tracking-widest bg-slate-50 p-2 md:p-3 rounded-xl md:rounded-2xl shrink-0">{new Date(n.created_at).toLocaleString()}</time>
                           </header>
                           <p className="text-sm font-medium text-gray-400 leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all duration-700">
                              {n.message}

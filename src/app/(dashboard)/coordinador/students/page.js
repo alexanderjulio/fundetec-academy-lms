@@ -248,62 +248,75 @@ export default function StudentsPage() {
             {loading ? (
               <div className="p-40 text-center animate-pulse text-gray-300 font-black uppercase tracking-widest text-[10px]">Sincronizando Mentoría...</div>
             ) : (
-              <table className="w-full border-separate border-spacing-0">
-                <thead>
-                  <tr className="bg-slate-50/50">
-                    <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Estudiante</th>
-                    <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Modalidad</th>
-                    <th className="p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Estado</th>
-                    <th className="p-8 text-right text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <div className="w-full flex flex-col">
+                {/* Header Desktop */}
+                <div className="hidden md:grid grid-cols-12 bg-slate-50/50 border-b border-gray-100">
+                  <div className="col-span-5 p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400">Estudiante</div>
+                  <div className="col-span-2 p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400">Modalidad</div>
+                  <div className="col-span-2 p-8 text-left text-[9px] font-black uppercase tracking-widest text-gray-400">Estado</div>
+                  <div className="col-span-3 p-8 text-right text-[9px] font-black uppercase tracking-widest text-gray-400">Acciones</div>
+                </div>
+
+                {/* Body */}
+                <div className="flex flex-col">
                   {filteredStudents.length > 0 ? filteredStudents.map(s => (
-                    <tr key={s.id} className="group hover:bg-slate-50/30 transition-all">
-                      <td className="p-8 border-b border-gray-50">
-                        <div className="flex items-center gap-4">
-                           <div className="w-12 h-12 rounded-2xl bg-primary-color text-white flex items-center justify-center font-black text-[10px] group-hover:bg-secondary-color group-hover:text-primary-color transition-all">
-                             {s.full_name?.substring(0,2).toUpperCase()}
-                           </div>
-                           <div className="min-w-0">
-                            <Link href={`/coordinador/students/${s.id}`}>
-                               <h4 className="text-sm font-black text-primary-color truncate group-hover:text-secondary-color transition-colors hover:underline">{s.full_name}</h4>
-                            </Link>
-                            <p className="text-[9px] font-bold text-gray-300 uppercase">Matrícula: {new Date(s.created_at).toLocaleDateString()}</p>
+                    <div key={s.id} className="group flex flex-col md:grid md:grid-cols-12 items-start md:items-center p-6 md:p-8 border-b border-gray-50 hover:bg-slate-50/30 transition-all gap-4 md:gap-0">
+                      
+                      {/* Estudiante Info */}
+                      <div className="col-span-5 flex items-center gap-4 w-full">
+                         <div className="w-12 h-12 md:w-14 md:h-14 rounded-[16px] md:rounded-2xl bg-primary-color text-white flex items-center justify-center font-black text-sm md:text-[12px] shadow-md shadow-primary-color/10 group-hover:bg-secondary-color group-hover:text-primary-color transition-all flex-shrink-0">
+                           {s.full_name?.substring(0,2).toUpperCase()}
                          </div>
+                         <div className="min-w-0 flex-1">
+                          <Link href={`/coordinador/students/${s.id}`}>
+                             <h4 className="text-base md:text-sm font-black text-primary-color truncate group-hover:text-secondary-color transition-colors hover:underline leading-tight">{s.full_name}</h4>
+                          </Link>
+                          <p className="text-[9px] md:text-[10px] font-bold text-gray-300 uppercase mt-1 tracking-wider">Matrícula: {new Date(s.created_at).toLocaleDateString()}</p>
+                       </div>
                       </div>
-                    </td>
-                    <td className="p-8 border-b border-gray-50">
-                      {getTypeBadge(s.student_type)}
-                    </td>
-                    <td className="p-8 border-b border-gray-50">
-                       <button 
-                          onClick={() => toggleStatus(s)}
-                          className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${s.status === 'activo' ? 'bg-emerald-50 text-emerald-500 ring-2 ring-emerald-500/10' : 'bg-red-50 text-red-500 ring-2 ring-red-500/10'}`}
-                       >
-                          {s.status || 'activo'}
-                       </button>
-                    </td>
-                    <td className="p-8 border-b border-gray-50 text-right">
-                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+
+                      {/* Modalidad & Estado */}
+                      <div className="col-span-4 flex flex-col md:flex-row items-start md:items-center gap-3 w-full md:w-auto mt-3 md:mt-0">
+                        <div className="flex items-center gap-2 w-full md:w-auto md:flex-1">
+                           <div className="md:hidden text-[9px] font-black text-gray-300 uppercase tracking-widest w-14">Tipo:</div>
+                           <div className="flex-1">{getTypeBadge(s.student_type)}</div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 w-full md:w-auto md:flex-1">
+                           <div className="md:hidden text-[9px] font-black text-gray-300 uppercase tracking-widest w-14">Estado:</div>
+                           <div className="flex-1">
+                              <button 
+                                 onClick={() => toggleStatus(s)}
+                                 className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shadow-sm ${s.status === 'activo' ? 'bg-emerald-50 text-emerald-500 ring-1 ring-emerald-500/20' : 'bg-red-50 text-red-500 ring-1 ring-red-500/20'}`}
+                              >
+                                 {s.status || 'activo'}
+                              </button>
+                           </div>
+                        </div>
+                      </div>
+
+                      {/* Acciones */}
+                      <div className="col-span-3 w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-all md:translate-x-4 group-hover:translate-x-0 border-t md:border-t-0 border-gray-50 pt-4 md:pt-0">
                           <button 
                             onClick={() => setSelectedStudentDetail(s)}
-                            className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-[14px] hover:bg-slate-50 transition-all shadow-sm" 
+                            className="flex-1 md:flex-none w-auto md:w-10 h-10 md:h-10 px-4 md:px-0 bg-white border border-gray-100 rounded-[12px] md:rounded-xl flex items-center justify-center text-[14px] hover:bg-slate-50 transition-all shadow-sm" 
                             title="Ver Expediente"
-                          >📑</button>
-                          <Link href={`/coordinador/students/enroll?id=${s.id}`} className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-[14px] hover:bg-slate-50 transition-all shadow-sm" title="Matricular">📘</Link>
-                          <button onClick={() => handleOpenPasswordModal(s)} className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center text-[14px] hover:bg-indigo-500 hover:text-white transition-all shadow-sm" title="Rescate">🔑</button>
-                            {s.whatsapp && (
-                              <a href={`https://wa.me/57${s.whatsapp}`} target="_blank" className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center text-[14px] hover:bg-emerald-500 hover:text-white transition-all shadow-sm">📞</a>
-                            )}
-                         </div>
-                      </td>
-                    </tr>
+                          ><span className="md:hidden text-[10px] font-black uppercase text-gray-400 mr-2 tracking-widest">Ficha</span> 📑</button>
+                          
+                          <Link href={`/coordinador/students/enroll?id=${s.id}`} className="flex-1 md:flex-none w-auto md:w-10 h-10 md:h-10 px-4 md:px-0 bg-white border border-gray-100 rounded-[12px] md:rounded-xl flex items-center justify-center text-[14px] hover:bg-slate-50 transition-all shadow-sm" title="Matricular"><span className="md:hidden text-[10px] font-black uppercase text-gray-400 mr-2 tracking-widest">Matricular</span> 📘</Link>
+                          
+                          <button onClick={() => handleOpenPasswordModal(s)} className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-[12px] md:rounded-xl flex items-center justify-center text-[14px] hover:bg-indigo-500 hover:text-white transition-all shadow-sm" title="Rescate">🔑</button>
+                          
+                          {s.whatsapp && (
+                            <a href={`https://wa.me/57${s.whatsapp}`} target="_blank" className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-[12px] md:rounded-xl flex items-center justify-center text-[14px] hover:bg-emerald-500 hover:text-white transition-all shadow-sm">📞</a>
+                          )}
+                      </div>
+                    </div>
                   )) : (
-                    <tr><td colSpan="4" className="p-20 text-center text-gray-300 italic text-[11px] font-medium">No tienes estudiantes registrados en esta categoría.</td></tr>
+                    <div className="p-20 text-center text-gray-300 italic text-[11px] font-medium">No tienes estudiantes registrados en esta categoría.</div>
                   )}
-                </tbody>
-              </table>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -602,15 +615,15 @@ export default function StudentsPage() {
         <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4 md:p-10 animate-fade-in">
            <div className="absolute inset-0 bg-primary-color/40 backdrop-blur-2xl" onClick={() => setPdfPreviewUrl(null)}></div>
            <div className="relative w-full max-w-5xl bg-white rounded-[64px] shadow-2xl overflow-hidden animate-pop flex flex-col h-full max-h-[90vh]">
-              <header className="p-10 flex justify-between items-center border-b border-gray-100 bg-slate-50/50">
-                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary-color text-white flex items-center justify-center text-xl shadow-lg shadow-primary-color/20">👁️</div>
-                    <div className="space-y-1">
-                       <span className="text-[10px] font-black text-secondary-color uppercase tracking-[0.4em]">Vista Previa Institucional</span>
-                       <h2 className="text-2xl font-black text-primary-color font-display uppercase tracking-tight">{pdfPreviewTitle}</h2>
+              <header className="p-6 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 border-b border-gray-100 bg-slate-50/50">
+                 <div className="flex items-center gap-4 w-full md:w-auto">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary-color text-white flex items-center justify-center text-xl shadow-lg shadow-primary-color/20 flex-shrink-0">👁️</div>
+                    <div className="space-y-1 min-w-0 flex-1">
+                       <span className="text-[9px] md:text-[10px] font-black text-secondary-color uppercase tracking-[0.2em] md:tracking-[0.4em] block truncate">Vista Previa Institucional</span>
+                       <h2 className="text-xl md:text-2xl font-black text-primary-color font-display uppercase tracking-tight truncate">{pdfPreviewTitle}</h2>
                     </div>
                  </div>
-                 <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <button 
                       onClick={() => {
                         const link = document.createElement('a');
@@ -618,20 +631,29 @@ export default function StudentsPage() {
                         link.download = `Reporte_${pdfPreviewTitle.replace(/\s+/g, '_')}.pdf`;
                         link.click();
                       }}
-                      className="px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all flex items-center gap-2"
+                      className="flex-1 md:flex-none px-4 md:px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-[10px] md:text-[11px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
                     >
-                       <span>📥</span> Descargar Ahora
+                       <span>📥</span> Descargar
                     </button>
                     <button 
                       onClick={() => setPdfPreviewUrl(null)} 
-                      className="w-14 h-14 rounded-full bg-white border border-gray-100 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                      className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-gray-100 flex items-center justify-center text-primary-color hover:bg-red-500 hover:text-white transition-all shadow-sm flex-shrink-0"
                     >✕</button>
                  </div>
               </header>
-              <div className="flex-1 bg-slate-200 relative">
+              <div className="flex-1 bg-slate-200 relative flex flex-col items-center justify-center p-6">
+                 {/* Fallback para Móviles */}
+                 <div className="md:hidden flex flex-col items-center justify-center text-center space-y-4 w-full h-full bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-4xl mb-2 shadow-inner">📑</div>
+                    <h3 className="text-lg font-black text-primary-color">Documento Listo</h3>
+                    <p className="text-gray-400 font-medium text-sm">Los navegadores móviles no admiten la vista previa directa de este formato.</p>
+                    <p className="text-secondary-color font-black uppercase text-[10px] tracking-widest bg-secondary-color/10 px-4 py-2 rounded-full inline-block mt-2">Usa el botón "Descargar Ahora" arriba</p>
+                 </div>
+                 
+                 {/* Vista Iframe para Desktop */}
                  <iframe 
                    src={`${pdfPreviewUrl}#toolbar=0`} 
-                   className="w-full h-full border-none"
+                   className="hidden md:block w-full h-full border-none"
                    title="PDF Preview"
                  ></iframe>
               </div>

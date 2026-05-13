@@ -146,4 +146,24 @@
     z-index: 110; 
     pointer-events: auto !important;
   }
+  
+  .notif-dropdown {
+    position: fixed;
+    top: 75px;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-width: none;
+    transform-origin: top right;
+  }
+
+  .user-dropdown {
+    position: fixed;
+    top: 75px;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-width: none;
+    transform-origin: top right;
+  }
 }

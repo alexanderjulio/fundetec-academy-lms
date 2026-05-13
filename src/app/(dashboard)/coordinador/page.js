@@ -159,92 +159,94 @@ export default function CoordinatorDashboard() {
         </div>
         
         {/* FILTROS DE FECHA CLASE APPLE */}
-        <div className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-[32px] border border-gray-100 shadow-xl w-full md:w-auto">
-          <div className="flex items-center gap-2 px-4 border-r border-gray-100 last:border-0 h-full">
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 bg-white p-4 rounded-[24px] md:rounded-[32px] border border-gray-100 shadow-xl w-full md:w-auto">
+          <div className="flex flex-col md:flex-row items-start md:items-center w-full md:w-auto gap-1 md:gap-2 px-2 md:px-4 border-b md:border-b-0 md:border-r border-gray-50 md:border-gray-100 pb-3 md:pb-0 h-full">
             <span className="text-[9px] font-black uppercase tracking-widest text-gray-300">Desde</span>
             <input 
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="bg-transparent border-none outline-none font-bold text-xs text-primary-color cursor-pointer"
+              className="w-full md:w-auto bg-slate-50 md:bg-transparent border border-gray-50 md:border-none rounded-xl md:rounded-none px-3 py-2 md:p-0 outline-none font-bold text-sm md:text-xs text-primary-color cursor-pointer block"
             />
           </div>
-          <div className="flex items-center gap-2 px-4 border-r border-gray-100 last:border-0 h-full">
+          <div className="flex flex-col md:flex-row items-start md:items-center w-full md:w-auto gap-1 md:gap-2 px-2 md:px-4 border-b md:border-b-0 md:border-r border-gray-50 md:border-gray-100 py-3 md:py-0 h-full last:border-0 last:pb-0">
             <span className="text-[9px] font-black uppercase tracking-widest text-gray-300">Hasta</span>
             <input 
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="bg-transparent border-none outline-none font-bold text-xs text-primary-color cursor-pointer"
+              className="w-full md:w-auto bg-slate-50 md:bg-transparent border border-gray-50 md:border-none rounded-xl md:rounded-none px-3 py-2 md:p-0 outline-none font-bold text-sm md:text-xs text-primary-color cursor-pointer block"
             />
           </div>
           {(startDate || endDate) && (
             <button 
               onClick={clearFilters}
-              className="w-10 h-10 rounded-full bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
-            >✕</button>
+              className="w-full md:w-10 h-10 mt-2 md:mt-0 rounded-[16px] md:rounded-full bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm flex-shrink-0"
+            >
+              <span className="md:hidden text-[10px] font-black uppercase tracking-widest mr-2">Limpiar Filtros</span> ✕
+            </button>
           )}
         </div>
       </header>
 
       {/* METRICS BENTO GRID EVO */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm flex flex-col justify-between group hover:shadow-2xl transition-all duration-700">
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="bg-white p-6 md:p-10 rounded-[32px] md:rounded-[48px] border border-gray-100 shadow-sm flex flex-col justify-between group hover:shadow-2xl transition-all duration-700">
            <div className="flex justify-between items-start">
               <span className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">Estudiantes</span>
               <span className="text-2xl group-hover:scale-125 transition-transform duration-500">🎓</span>
            </div>
-           <div className="mt-10">
-              <span className="text-6xl font-black text-primary-color tracking-tighter leading-none">{metrics.totalStudents}</span>
-              <p className="text-[10px] font-bold text-gray-300 uppercase mt-4">Inscripciones {startDate || endDate ? 'en periodo' : 'totales'}</p>
+           <div className="mt-6 md:mt-10">
+              <span className="text-5xl md:text-6xl font-black text-primary-color tracking-tighter leading-none">{metrics.totalStudents}</span>
+              <p className="text-[9px] md:text-[10px] font-bold text-gray-300 uppercase mt-2 md:mt-4">Inscripciones {startDate || endDate ? 'en periodo' : 'totales'}</p>
            </div>
         </div>
 
-        <div className="bg-primary-color p-10 rounded-[48px] shadow-2xl shadow-primary-color/20 flex flex-col justify-between group overflow-hidden relative">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10"></div>
+        <div className="bg-primary-color p-6 md:p-10 rounded-[32px] md:rounded-[48px] shadow-2xl shadow-primary-color/20 flex flex-col justify-between group overflow-hidden relative">
+           <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-white/5 rounded-full -mr-8 -mt-8 md:-mr-10 md:-mt-10"></div>
            <div className="flex justify-between items-start relative z-10">
               <span className="text-[10px] font-black uppercase text-white/50 tracking-[0.2em]">Recaudo Personal</span>
               <span className="text-2xl group-hover:rotate-12 transition-transform duration-500">💰</span>
            </div>
-           <div className="mt-10 relative z-10">
-              <span className="text-4xl font-black text-white tracking-tighter leading-none">${metrics.totalCollected.toLocaleString()}</span>
-              <p className="text-[10px] font-bold text-white/30 uppercase mt-4">Valor {startDate || endDate ? 'en periodo' : 'histórico'}</p>
+           <div className="mt-6 md:mt-10 relative z-10">
+              <span className="text-3xl md:text-4xl font-black text-white tracking-tighter leading-none">${metrics.totalCollected.toLocaleString()}</span>
+              <p className="text-[9px] md:text-[10px] font-bold text-white/30 uppercase mt-2 md:mt-4">Valor {startDate || endDate ? 'en periodo' : 'histórico'}</p>
            </div>
         </div>
 
-        <div className="bg-amber-500 p-10 rounded-[48px] shadow-2xl shadow-amber-500/20 flex flex-col justify-between group overflow-hidden relative">
-           <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12"></div>
+        <div className="bg-amber-500 p-6 md:p-10 rounded-[32px] md:rounded-[48px] shadow-2xl shadow-amber-500/20 flex flex-col justify-between group overflow-hidden relative">
+           <div className="absolute bottom-0 left-0 w-20 h-20 md:w-24 md:h-24 bg-black/5 rounded-full -ml-8 -mb-8 md:-ml-12 md:-mb-12"></div>
            <div className="flex justify-between items-start relative z-10">
               <span className="text-[10px] font-black uppercase text-white/50 tracking-[0.2em]">Cartera Pendiente</span>
               <span className="text-2xl group-hover:-rotate-12 transition-transform duration-500">🚨</span>
            </div>
-           <div className="mt-10 relative z-10">
-              <span className="text-4xl font-black text-white tracking-tighter leading-none">${metrics.portfolioBalance.toLocaleString()}</span>
-              <p className="text-[10px] font-bold text-white/30 uppercase mt-4">Saldo total por cobrar</p>
+           <div className="mt-6 md:mt-10 relative z-10">
+              <span className="text-3xl md:text-4xl font-black text-white tracking-tighter leading-none">${metrics.portfolioBalance.toLocaleString()}</span>
+              <p className="text-[9px] md:text-[10px] font-bold text-white/30 uppercase mt-2 md:mt-4">Saldo total por cobrar</p>
            </div>
         </div>
 
-        <div className="bg-white p-10 rounded-[48px] border border-secondary-color/20 shadow-sm flex flex-col justify-between group hover:border-secondary-color transition-all duration-700">
+        <div className="bg-white p-6 md:p-10 rounded-[32px] md:rounded-[48px] border border-secondary-color/20 shadow-sm flex flex-col justify-between group hover:border-secondary-color transition-all duration-700">
            <div className="flex justify-between items-start">
               <span className="text-[10px] font-black uppercase text-secondary-color tracking-[0.2em]">Programas Activos</span>
               <span className="text-2xl group-hover:scale-125 transition-transform duration-500">📚</span>
            </div>
-           <div className="mt-10">
-              <span className="text-6xl font-black text-secondary-color tracking-tighter leading-none">{metrics.activeEnrollments}</span>
-              <p className="text-[10px] font-bold text-gray-300 uppercase mt-4">Matrículas en curso</p>
+           <div className="mt-6 md:mt-10">
+              <span className="text-5xl md:text-6xl font-black text-secondary-color tracking-tighter leading-none">{metrics.activeEnrollments}</span>
+              <p className="text-[9px] md:text-[10px] font-bold text-gray-300 uppercase mt-2 md:mt-4">Matrículas en curso</p>
            </div>
         </div>
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* SOPORTE Y CONTACTO */}
-        <section className="lg:col-span-5 bg-emerald-500 p-12 rounded-[64px] shadow-2xl shadow-emerald-500/10 flex flex-col justify-between gap-10 relative overflow-hidden group">
+        <section className="lg:col-span-5 bg-emerald-500 p-8 md:p-12 rounded-[40px] md:rounded-[64px] shadow-2xl shadow-emerald-500/10 flex flex-col justify-between gap-8 md:gap-10 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -mr-40 -mt-40"></div>
           <div className="space-y-6 relative z-10">
-             <div className="w-20 h-20 bg-white rounded-[32px] flex items-center justify-center text-4xl shadow-xl shadow-emerald-600/20 group-hover:scale-110 transition-transform duration-700">📱</div>
+             <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-[24px] md:rounded-[32px] flex items-center justify-center text-3xl md:text-4xl shadow-xl shadow-emerald-600/20 group-hover:scale-110 transition-transform duration-700">📱</div>
              <div className="space-y-2">
-                <h2 className="text-3xl font-black text-white tracking-tight">Canal de Soporte</h2>
-                <p className="text-emerald-100 font-medium">Este número se mostrará a tus alumnos para que te contacten directamente.</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Canal de Soporte</h2>
+                <p className="text-sm md:text-base text-emerald-100 font-medium">Este número se mostrará a tus alumnos para que te contacten directamente.</p>
              </div>
           </div>
 
@@ -253,13 +255,13 @@ export default function CoordinatorDashboard() {
               type="text" 
               value={whatsapp} 
               onChange={(e) => setWhatsapp(e.target.value)} 
-              className="w-full bg-white/10 border border-white/20 p-6 rounded-[32px] outline-none font-black text-white placeholder:text-white/30 text-lg focus:bg-white/20 transition-all backdrop-blur-md"
+              className="w-full bg-white/10 border border-white/20 p-5 md:p-6 rounded-[24px] md:rounded-[32px] outline-none font-black text-white placeholder:text-white/30 text-base md:text-lg focus:bg-white/20 transition-all backdrop-blur-md"
               placeholder="WhatsApp (Cód + Número)"
             />
             <button 
               onClick={handleUpdateContact} 
               disabled={updating}
-              className="w-full py-6 bg-white text-emerald-600 rounded-[32px] font-black text-[11px] uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all shadow-xl"
+              className="w-full py-5 md:py-6 bg-white text-emerald-600 rounded-[24px] md:rounded-[32px] font-black text-[10px] md:text-[11px] uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all shadow-xl"
             >
               {updating ? 'Procesando...' : 'Actualizar mi Identidad Digital'}
             </button>
@@ -267,32 +269,32 @@ export default function CoordinatorDashboard() {
         </section>
 
         {/* ACTIVIDAD RECIENTE */}
-        <section className="lg:col-span-7 bg-white p-12 rounded-[64px] border border-gray-100 shadow-sm space-y-10">
-           <header className="flex justify-between items-end border-b border-gray-50 pb-8">
+        <section className="lg:col-span-7 bg-white p-6 md:p-12 rounded-[40px] md:rounded-[64px] border border-gray-100 shadow-sm space-y-6 md:space-y-10">
+           <header className="flex flex-row justify-between items-center md:items-end border-b border-gray-50 pb-4 md:pb-8">
               <div className="space-y-1">
-                 <h2 className="text-3xl font-black text-primary-color tracking-tight font-display">Recién Registrados</h2>
-                 <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Alumnos bajo tu tutoría</p>
+                 <h2 className="text-2xl md:text-3xl font-black text-primary-color tracking-tight font-display">Recién Registrados</h2>
+                 <p className="text-[9px] md:text-[10px] font-black text-gray-300 uppercase tracking-widest">Alumnos bajo tu tutoría</p>
               </div>
-              <Link href="/coordinador/students" className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl hover:bg-primary-color hover:text-white transition-all">👤</Link>
+              <Link href="/coordinador/students" className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-[16px] md:rounded-2xl flex items-center justify-center text-lg md:text-xl hover:bg-primary-color hover:text-white transition-all flex-shrink-0">👤</Link>
            </header>
 
-           <div className="space-y-6">
+           <div className="space-y-4 md:space-y-6">
               {recentStudents.length === 0 ? (
-                <div className="p-20 text-center bg-slate-50 rounded-[48px] text-gray-300 font-bold italic">Aún no hay inscripciones registradas.</div>
+                <div className="p-10 md:p-20 text-center bg-slate-50 rounded-[32px] md:rounded-[48px] text-gray-300 font-bold italic">Aún no hay inscripciones registradas.</div>
               ) : (
                 recentStudents.map((s) => (
-                  <div key={s.id} className="flex items-center gap-6 p-6 bg-white hover:bg-slate-50/50 rounded-[40px] border border-transparent hover:border-gray-50 transition-all group">
-                    <div className="w-16 h-16 rounded-[24px] bg-primary-color text-white flex items-center justify-center font-black text-lg shadow-lg shadow-primary-color/10 group-hover:scale-105 transition-transform duration-500">
+                  <div key={s.id} className="flex items-center gap-3 md:gap-6 p-4 md:p-6 bg-white hover:bg-slate-50/50 rounded-[24px] md:rounded-[40px] border border-transparent hover:border-gray-50 transition-all group">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-[16px] md:rounded-[24px] bg-primary-color text-white flex items-center justify-center font-black text-sm md:text-lg shadow-lg shadow-primary-color/10 group-hover:scale-105 transition-transform duration-500 flex-shrink-0">
                       {s.full_name?.substring(0,2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-md font-black text-primary-color truncate uppercase leading-tight">{s.full_name}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                        <p className="text-[9px] font-black text-gray-400 tracking-widest uppercase">INSCRITO: {new Date(s.created_at).toLocaleDateString()}</p>
+                      <p className="text-sm md:text-md font-black text-primary-color truncate uppercase leading-tight">{s.full_name}</p>
+                      <div className="flex items-center gap-2 mt-1 md:mt-2">
+                        <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-emerald-400 rounded-full flex-shrink-0"></span>
+                        <p className="text-[8px] md:text-[9px] font-black text-gray-400 tracking-widest uppercase truncate">INS: {new Date(s.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <Link href="/coordinador/students" className="px-8 py-3 bg-slate-50 text-gray-400 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all shadow-sm">Gestión</Link>
+                    <Link href="/coordinador/students" className="px-4 py-2 md:px-8 md:py-3 bg-slate-50 text-gray-400 rounded-[12px] md:rounded-2xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-primary-color hover:text-white transition-all shadow-sm flex-shrink-0">Gestión</Link>
                   </div>
                 ))
               )}
