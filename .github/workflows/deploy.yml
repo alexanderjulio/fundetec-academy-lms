@@ -8,6 +8,10 @@ on:
       - '**.md'
       - '.gitignore'
 
+concurrency:
+  group: deploy-produccion
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy en VPS
@@ -29,6 +33,9 @@ jobs:
 
             echo ">>> Instalando dependencias..."
             npm install --production=false
+
+            echo ">>> Limpiando lock de build anterior si existe..."
+            rm -f .next/build-manifest.json.lock 2>/dev/null || true
 
             echo ">>> Construyendo aplicación..."
             npm run build
