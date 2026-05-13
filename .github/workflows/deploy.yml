@@ -1,54 +1,43 @@
-name: Deploy Fundetec to cPanel
+name: Deploy Fundetec a VPS
 
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy
+  deploy:
+    name: Deploy en VPS
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Conectar y desplegar en VPS
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          node-version: '20'
-          cache: 'npm'
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /var/www/fundetec-academy-lms
 
-      - name: Install Dependencies
-        run: npm install
+            echo ">>> Obteniendo cambios de GitHub..."
+            git pull origin main
 
-      - name: Build Platform
-        run: npm run build
+            echo ">>> Instalando dependencias..."
+            npm install --production=false
 
-      - name: Prepare Deployment Folder
-        run: |
-          mkdir deploy
-          # Copiar el servidor standalone y sus dependencias
-          cp -r .next/standalone/. deploy/
-          # Copiar archivos estáticos (Next.js no los incluye en standalone por defecto)
-          mkdir -p deploy/.next/static
-          cp -r .next/static/. deploy/.next/static/
-          cp -r public/. deploy/public/
-          # Nota: cPanel buscará 'server.js' en la raíz de la aplicación.
-          # Next.js ya genera uno en .next/standalone/server.js que ahora está en deploy/server.js
+            echo ">>> Construyendo aplicación..."
+            npm run build
 
-      - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: ./deploy/
-          server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
+            echo ">>> Copiando archivos estáticos..."
+            cp -r .next/static .next/standalone/.next/static
+            cp -r public .next/standalone/public
+
+            echo ">>> Reiniciando servidor con PM2..."
+            pm2 restart fundetec
+
+            echo "Deploy completado exitosamente"
