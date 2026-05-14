@@ -26,10 +26,10 @@ export default function CoordinatorDashboard() {
   const fetchCoordinatorStats = useCallback(async (isSilent = false) => {
     if (!isSilent) setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-      const userId = session.user.id;
+      const userId = user.id;
 
       // 1. Obtener Perfil (Solo la primera vez o si cambia)
       if (!profile) {

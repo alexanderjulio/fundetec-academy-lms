@@ -31,25 +31,23 @@ export async function proxy(request) {
     }
   );
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
 
   const url = request.nextUrl.clone();
   const path = url.pathname;
 
   // 1. Prohibir acceso a rutas protegidas sin sesión
-  if (!session && (path.startsWith('/dashboard') || path.startsWith('/admin') || path.startsWith('/coordinador'))) {
+  if (!user && (path.startsWith('/dashboard') || path.startsWith('/admin') || path.startsWith('/coordinador'))) {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
   // 2. Seguridad Estricta por Rol
-  if (session) {
+  if (user) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role_id')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
 
     const role = profile?.role_id;

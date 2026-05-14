@@ -36,10 +36,10 @@ export default function AdminLandingPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
     setCurrentUser(profile);
 
     const { data } = await supabase.from('landing_sections').select('*').order('id', { ascending: true });

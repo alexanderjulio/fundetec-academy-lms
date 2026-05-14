@@ -33,15 +33,15 @@ export default function ProfilePage() {
   const fetchProfileData = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-      const { data: profileData } = await supabase.from('profiles').select('*, roles(name)').eq('id', session.user.id).single();
+      const { data: profileData } = await supabase.from('profiles').select('*, roles(name)').eq('id', user.id).single();
       if (profileData) {
         setProfile(profileData);
         setFormData({ full_name: profileData.full_name || '', whatsapp: profileData.whatsapp || '' });
         
-        if (profileData.role_id === 1) fetchAdminStats(session.user.id);
+        if (profileData.role_id === 1) fetchAdminStats(user.id);
       }
     } catch (error) {
       console.error('Profile fetch error:', error);
@@ -67,8 +67,8 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const { error } = await supabase.from('profiles').update({ full_name: formData.full_name, whatsapp: formData.whatsapp }).eq('id', session.user.id);
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from('profiles').update({ full_name: formData.full_name, whatsapp: formData.whatsapp }).eq('id', user.id);
       if (error) throw error;
       showNotification('Identidad actualizada.', 'success');
       await supabase.auth.updateUser({ data: { full_name: formData.full_name } });

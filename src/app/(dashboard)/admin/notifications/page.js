@@ -24,9 +24,9 @@ export default function AdminNotificationsPage() {
 
   useEffect(() => {
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: profile } = await supabase.from('profiles').select('role_id').eq('id', session.user.id).single();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('role_id').eq('id', user.id).single();
         setUserRole(profile?.role_id);
       }
       fetchCoordinators();
@@ -91,13 +91,13 @@ export default function AdminNotificationsPage() {
     setLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { user } } = await supabase.auth.getUser();
       
       const payload = {
         title: formData.title,
         message: formData.message,
         type: formData.type,
-        sender_id: session.user.id,
+        sender_id: user.id,
         target_type: formData.target_type,
         coordinator_id: formData.target_type === 'coordinator_group' ? formData.coordinator_id : null
       };

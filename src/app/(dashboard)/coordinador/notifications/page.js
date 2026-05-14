@@ -25,10 +25,10 @@ export default function CoordinatorNotificationsPage() {
 
   useEffect(() => {
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setCurrentCordinador(session.user.id);
-        fetchNotifications(session.user.id);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentCordinador(user.id);
+        fetchNotifications(user.id);
       }
     }
     init();

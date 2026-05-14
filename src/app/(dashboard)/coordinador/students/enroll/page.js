@@ -45,12 +45,12 @@ function EnrollmentForm() {
         .select('*')
         .eq('is_published', true);
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
         const { data: myProfile } = await supabase
           .from('profiles')
           .select('role_id')
-          .eq('id', session.user.id)
+          .eq('id', user.id)
           .single();
         setIsAdmin(myProfile?.role_id === 1);
       }
@@ -74,7 +74,7 @@ function EnrollmentForm() {
     setSubmitting(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { user } } = await supabase.auth.getUser();
       
       const { data: enrollment, error: enrError } = await supabase
         .from('enrollments')
@@ -98,7 +98,7 @@ function EnrollmentForm() {
             amount: parseFloat(initialPayment),
             payment_method: 'efectivo',
             notes: 'Cuota inicial de matrícula',
-            registered_by: session.user.id
+            registered_by: user.id
           });
       }
 

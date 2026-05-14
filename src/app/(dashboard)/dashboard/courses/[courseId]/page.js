@@ -17,8 +17,8 @@ export default function CourseDetailPage() {
   useEffect(() => {
     async function fetchCourseData() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
         // Fetch course info
         const { data: courseData } = await supabase
@@ -52,14 +52,14 @@ export default function CourseDetailPage() {
         const { data: progressData } = await supabase
           .from('progress')
           .select('lesson_id')
-          .eq('student_id', session.user.id)
+          .eq('student_id', user.id)
           .eq('is_completed', true);
 
         // Fetch exam submissions to show status
         const { data: submissionsData } = await supabase
           .from('exam_submissions')
           .select('exam_id, passed')
-          .eq('student_id', session.user.id);
+          .eq('student_id', user.id);
 
         setCourse(courseData);
         setModules(modulesData || []);

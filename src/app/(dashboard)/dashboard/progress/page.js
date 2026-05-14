@@ -20,14 +20,14 @@ export default function ProgressPage() {
   useEffect(() => {
     async function fetchProgressData() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
         // 1. Fetch Enrollments
         const { data: enrollments } = await supabase
           .from('enrollments')
           .select('id, course_id, courses(id, title, thumbnail_url)')
-          .eq('student_id', session.user.id);
+          .eq('student_id', user.id);
 
         if (!enrollments) return;
 
@@ -35,14 +35,14 @@ export default function ProgressPage() {
         const { data: progress } = await supabase
           .from('progress')
           .select('lesson_id')
-          .eq('student_id', session.user.id)
+          .eq('student_id', user.id)
           .eq('is_completed', true);
 
         // 3. Fetch Exam Submissions (Rectified: Removed non-existent created_at column)
         const { data: submissions, error: subError } = await supabase
           .from('exam_submissions')
           .select('*, exams(title)')
-          .eq('student_id', session.user.id);
+          .eq('student_id', user.id);
 
         if (subError) console.error('💠 DB Debug (Logros):', subError.message);
         console.log('💠 DB Debug (Logros):', submissions?.length, 'registros recuperados.');
@@ -64,7 +64,7 @@ export default function ProgressPage() {
           const { count: completedCount } = await supabase
             .from('progress')
             .select('id, lessons!inner(modules!inner(course_id))', { count: 'exact', head: true })
-            .eq('student_id', session.user.id)
+            .eq('student_id', user.id)
             .eq('lessons.modules.course_id', course.id)
             .eq('is_completed', true);
 

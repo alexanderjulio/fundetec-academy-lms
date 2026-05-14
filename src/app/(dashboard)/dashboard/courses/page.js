@@ -11,8 +11,8 @@ export default function StudentCoursesPage() {
   useEffect(() => {
     async function fetchMyCourses() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
         // Fetch enrollments with course details
         const { data: enrollments, error } = await supabase
@@ -26,7 +26,7 @@ export default function StudentCoursesPage() {
               thumbnail_url
             )
           `)
-          .eq('student_id', session.user.id);
+          .eq('student_id', user.id);
 
         if (error) throw error;
 
@@ -44,7 +44,7 @@ export default function StudentCoursesPage() {
           const { count: completedLessons } = await supabase
             .from('progress')
             .select('id, lessons!inner(modules!inner(course_id))', { count: 'exact', head: true })
-            .eq('student_id', session.user.id)
+            .eq('student_id', user.id)
             .eq('lessons.modules.course_id', course.id)
             .eq('is_completed', true);
 

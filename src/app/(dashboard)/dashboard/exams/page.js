@@ -17,8 +17,8 @@ export default function StudentExamsListPage() {
   const fetchExams = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       // 1. Fetch enrollments
       const { data: enrollments } = await supabase
@@ -27,7 +27,7 @@ export default function StudentExamsListPage() {
           course_id,
           courses ( title )
         `)
-        .eq('student_id', session.user.id);
+        .eq('student_id', user.id);
 
       if (!enrollments || enrollments.length === 0) {
         setExamData([]);
@@ -59,7 +59,7 @@ export default function StudentExamsListPage() {
       const { data: submissions } = await supabase
         .from('exam_submissions')
         .select('exam_id, passed, score')
-        .eq('student_id', session.user.id);
+        .eq('student_id', user.id);
 
       // Group exams by course
       const grouped = enrollments.map(enr => {

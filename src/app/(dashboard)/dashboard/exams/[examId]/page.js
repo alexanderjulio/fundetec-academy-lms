@@ -23,8 +23,8 @@ export default function ExamSessionPage() {
   useEffect(() => {
     async function fetchExamData() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
         // 1. Fetch Exam Settings
         const { data: examData } = await supabase
@@ -38,7 +38,7 @@ export default function ExamSessionPage() {
           .from('exam_submissions')
           .select('id, score, passed')
           .eq('exam_id', examId)
-          .eq('student_id', session.user.id);
+          .eq('student_id', user.id);
 
         const usedAttempts = prevSubmissions?.length || 0;
         const allowedAttempts = examData?.max_attempts || 10;
@@ -116,7 +116,7 @@ export default function ExamSessionPage() {
 
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { user } } = await supabase.auth.getUser();
       
       let correctPoints = 0;
       questions.forEach(q => {
@@ -152,7 +152,7 @@ export default function ExamSessionPage() {
         .from('exam_submissions')
         .insert({
           exam_id: examId,
-          student_id: session.user.id,
+          student_id: user.id,
           score: finalScore,
           passed: passed,
           attempt_number: attemptsInfo.used + 1

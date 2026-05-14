@@ -50,9 +50,9 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed, isMobil
   }, []);
 
   const fetchProfile = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
       setProfile(data);
     }
   };

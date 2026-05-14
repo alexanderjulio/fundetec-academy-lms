@@ -18,23 +18,23 @@ export default function StudentNotificationsPage() {
   const fetchEverything = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
       // Fetch all relevant notifications
       const { data: notifs } = await supabase
         .from('global_notifications')
         .select('*, sender:sender_id(full_name)')
-        .or(`target_type.eq.all,and(target_type.eq.coordinator_group,coordinator_id.eq.${profile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${session.user.id})`)
+        .or(`target_type.eq.all,and(target_type.eq.coordinator_group,coordinator_id.eq.${profile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${user.id})`)
         .order('created_at', { ascending: false });
 
       // Fetch which ones are read
       const { data: reads } = await supabase
         .from('notification_reads')
         .select('notification_id')
-        .eq('user_id', session.user.id);
+        .eq('user_id', user.id);
 
       setNotifications(notifs || []);
       setReadIds(reads?.map(r => r.notification_id) || []);
@@ -46,15 +46,15 @@ export default function StudentNotificationsPage() {
   };
 
   const markAllAsRead = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
     const unreadNotifs = notifications.filter(n => !readIds.includes(n.id));
     if (unreadNotifs.length === 0) return;
 
     const inserts = unreadNotifs.map(n => ({
       notification_id: n.id,
-      user_id: session.user.id
+      user_id: user.id
     }));
 
     await supabase.from('notification_reads').upsert(inserts);
@@ -64,10 +64,10 @@ export default function StudentNotificationsPage() {
   const markSingleAsRead = async (id) => {
     if (readIds.includes(id)) return;
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
     await supabase.from('notification_reads').upsert({
       notification_id: id,
-      user_id: session.user.id
+      user_id: user.id
     });
     setReadIds([...readIds, id]);
   };

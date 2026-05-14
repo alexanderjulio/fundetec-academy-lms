@@ -80,8 +80,8 @@ export default function LessonPlayerPage() {
   useEffect(() => {
     async function fetchLessonData() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
         // Fetch current lesson
         const { data: lessonData } = await supabase
@@ -123,7 +123,7 @@ export default function LessonPlayerPage() {
         const { data: progressData } = await supabase
           .from('progress')
           .select('lesson_id, is_completed')
-          .eq('student_id', session.user.id)
+          .eq('student_id', user.id)
           .eq('is_completed', true);
 
         const currentCompleted = progressData?.some(p => p.lesson_id === lessonId);
@@ -151,15 +151,15 @@ export default function LessonPlayerPage() {
 
   const handleToggleComplete = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       const newStatus = !isCompleted;
 
       const { error } = await supabase
         .from('progress')
         .upsert({
-          student_id: session.user.id,
+          student_id: user.id,
           lesson_id: lessonId,
           is_completed: newStatus,
           completed_at: newStatus ? new Date().toISOString() : null
@@ -170,7 +170,7 @@ export default function LessonPlayerPage() {
       if (newStatus) {
         setCompletedLessons([...completedLessons, lessonId]);
         // Verificar si completó el curso y notificar
-        checkAndNotifyCourseCompletion(session.user.id, courseId);
+        checkAndNotifyCourseCompletion(user.id, courseId);
       }
       else setCompletedLessons(completedLessons.filter(id => id !== lessonId));
     } catch (error) {

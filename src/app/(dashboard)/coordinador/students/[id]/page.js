@@ -29,8 +29,8 @@ export default function StudentProfilePage({ params }) {
   const fetchStudentData = useCallback(async (isSilent = false) => {
     if (!isSilent) setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       // 1. Perfil del Estudiante
       const { data: profileData, error: profileError } = await supabase

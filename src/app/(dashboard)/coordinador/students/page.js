@@ -51,9 +51,9 @@ export default function StudentsPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    setCurrentUserId(session.user.id);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    setCurrentUserId(user.id);
 
     // 1. Fetch Mis Estudiantes
     const myReq = supabase
@@ -68,7 +68,7 @@ export default function StudentsPage() {
         whatsapp,
         coordinator:coordinator_id(full_name)
       `)
-      .eq('coordinator_id', session.user.id)
+      .eq('coordinator_id', user.id)
       .eq('role_id', 3)
       .order('created_at', { ascending: false });
 
@@ -115,8 +115,8 @@ export default function StudentsPage() {
     
     setIsGraduating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await manualGraduateStudent(studentId, session.user.user_metadata.role_id || 2);
+      const { data: { user } } = await supabase.auth.getUser();
+      const res = await manualGraduateStudent(studentId, user.user_metadata.role_id || 2);
       
       if (res.success) {
         alert('🎓 Estudiante graduado con éxito.');

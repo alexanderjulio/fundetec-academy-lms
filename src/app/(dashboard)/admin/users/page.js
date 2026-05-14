@@ -61,14 +61,14 @@ export default function AdminUsersPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
     // Obtener perfil del usuario actual para saber su rol
     const { data: profile } = await supabase
       .from('profiles')
       .select('id, role_id')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
     
     setCurrentUser(profile);

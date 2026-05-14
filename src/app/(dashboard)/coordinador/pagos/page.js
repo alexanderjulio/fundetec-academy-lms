@@ -53,7 +53,7 @@ export default function ManualPaymentsPage() {
       return;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('profiles')
       .select(`
@@ -67,7 +67,7 @@ export default function ManualPaymentsPage() {
           payments(amount)
         )
       `)
-      .eq('coordinator_id', session.user.id)
+      .eq('coordinator_id', user.id)
       .ilike('full_name', `%${term}%`)
       .limit(6);
 
@@ -96,13 +96,13 @@ export default function ManualPaymentsPage() {
   };
 
   const fetchRecentPayments = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
     const { data, error } = await supabase
       .from('payments')
       .select('*, enrollment:enrollment_id(courses(title), student:student_id(full_name))')
-      .eq('registered_by', session.user.id)
+      .eq('registered_by', user.id)
       .order('created_at', { ascending: false })
       .limit(10);
 
@@ -116,7 +116,7 @@ export default function ManualPaymentsPage() {
       const { data: allData } = await supabase
         .from('payments')
         .select('amount, created_at')
-        .eq('registered_by', session.user.id);
+        .eq('registered_by', user.id);
 
       if (allData) {
         const todayTotal = allData
@@ -140,7 +140,7 @@ export default function ManualPaymentsPage() {
     setLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { user } } = await supabase.auth.getUser();
       let receiptUrl = '';
 
       if (file) {
@@ -164,7 +164,7 @@ export default function ManualPaymentsPage() {
           payment_method: paymentMethod,
           notes: notes,
           receipt_url: receiptUrl,
-          registered_by: session.user.id
+          registered_by: user.id
         }])
         .select()
         .single();

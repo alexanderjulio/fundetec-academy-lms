@@ -115,12 +115,12 @@ export default function AdminCoursesPage() {
     e.preventDefault();
     setLoading(true);
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
     
     const payload = {
       ...formData,
       price: parseFloat(formData.price),
-      created_by: session.user.id
+      created_by: user.id
     };
 
     let error;

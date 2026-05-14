@@ -28,13 +28,13 @@ export default function DashboardLayout({ children }) {
     async function getProfileAndNotifs() {
       try {
         setLoading(true);
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { user } } = await supabase.auth.getUser();
         
-        if (session) {
+        if (user) {
           const { data: profileData, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', session.user.id)
+            .eq('id', user.id)
             .single();
 
           if (error) {
@@ -43,11 +43,11 @@ export default function DashboardLayout({ children }) {
 
           if (profileData) {
             setProfile(profileData);
-            setDisplayName(profileData.full_name || session.user.user_metadata?.full_name || 'Usuario Fundetec');
-            fetchNotifications(session.user.id, profileData);
+            setDisplayName(profileData.full_name || user.user_metadata?.full_name || 'Usuario Fundetec');
+            fetchNotifications(user.id, profileData);
           } else {
             // Fallback al nombre de la sesión si no hay perfil
-            setDisplayName(session.user.user_metadata?.full_name || 'Usuario Fundetec');
+            setDisplayName(user.user_metadata?.full_name || 'Usuario Fundetec');
           }
         } else {
           window.location.href = '/login';
@@ -139,12 +139,12 @@ export default function DashboardLayout({ children }) {
   };
 
   const markAsRead = async (notifId) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
     await supabase.from('notification_reads').upsert({
       notification_id: notifId,
-      user_id: session.user.id
+      user_id: user.id
     });
 
     setUnreadCount(prev => Math.max(0, prev - 1));
