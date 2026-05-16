@@ -199,6 +199,47 @@ export async function confirmEmailManual(userId) {
 }
 
 /**
+ * Crear una factura para un estudiante.
+ * @param {{ studentId: string, amount: number, concept: string, actorRole: number }} params
+ * @returns {{ data: any, error: string|null }}
+ */
+export async function createInvoice({ studentId, amount, concept, actorRole }) {
+  if (actorRole > 2) return { data: null, error: 'Acción restringida a administradores y coordinadores.' };
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceRoleKey) return { data: null, error: 'Error de configuración del servidor.' };
+
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+  try {
+    if (!studentId) throw new Error('El ID del estudiante es obligatorio.');
+    if (!amount || amount <= 0) throw new Error('El monto debe ser mayor a cero.');
+    if (!concept) throw new Error('El concepto de la factura es obligatorio.');
+
+    const { data, error } = await adminClient
+      .from('invoices')
+      .insert({
+        student_id: studentId,
+        amount,
+        concept,
+        status: 'pendiente',
+        issued_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error en createInvoice:', error.message);
+    return { data: null, error: error.message };
+  }
+}
+
+/**
  * Force graduation status for a student.
  */
 export async function manualGraduateStudent(studentId, actorRole) {

@@ -38,6 +38,18 @@ const Icons = {
   ),
   Leads: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>
+  ),
+  Billing: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+  ),
+  Ledger: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M8 7h6"/><path d="M8 11h8"/><path d="M8 15h5"/></svg>
+  ),
+  Reportes: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+  ),
+  Landing: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
   )
 };
 
@@ -63,6 +75,10 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed, isMobil
       { name: 'Cursos', href: '/admin/courses', icon: <Icons.Cursos /> },
       { name: 'Comunidad', href: '/admin/users', icon: <Icons.Users /> },
       { name: 'Prospectos', href: '/admin/leads', icon: <Icons.Leads /> },
+      { name: 'Facturación', href: '/admin/billing', icon: <Icons.Billing /> },
+      { name: 'Libro Mayor', href: '/admin/ledger', icon: <Icons.Ledger /> },
+      { name: 'Reportes', href: '/admin/reportes', icon: <Icons.Reportes /> },
+      { name: 'Landing', href: '/admin/landing', icon: <Icons.Landing /> },
       { name: 'Notificaciones', href: '/admin/notifications', icon: <Icons.Notifications /> },
       { name: 'Mi Perfil', href: '/admin/profile', icon: <Icons.Settings /> },
     ],
