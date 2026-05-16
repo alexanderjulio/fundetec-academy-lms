@@ -69,6 +69,36 @@ export async function sendLeadNotification(leadData) {
 }
 
 /**
+ * Notifica a Make (webhook) con los datos del lead para automatizaciones.
+ */
+export async function notifyMakeWebhook(leadData) {
+  const url = process.env.MAKE_WEBHOOK_URL;
+  if (!url) {
+    console.warn('MAKE_WEBHOOK_URL no configurada.');
+    return { success: false };
+  }
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: leadData.full_name,
+        whatsapp: leadData.whatsapp,
+        email: leadData.email,
+        programa: leadData.program_of_interest,
+        mensaje: leadData.message_detail || '',
+        fecha: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+      }),
+    });
+    return { success: res.ok };
+  } catch (err) {
+    console.error('Error Make webhook:', err.message);
+    return { success: false };
+  }
+}
+
+/**
  * Registra un lead en Google Sheets.
  * Requiere en .env.local:
  *   GOOGLE_CLIENT_EMAIL  — email de la Service Account
