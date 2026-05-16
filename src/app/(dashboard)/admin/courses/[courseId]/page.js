@@ -157,9 +157,10 @@ export default function CourseStructurePage() {
       
       {/* HEADER BENTO */}
       <header className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-        <div className="lg:col-span-12 mb-4">
-          <Link href="/admin/courses" className="inline-flex items-center gap-2 px-6 py-2 bg-white border border-gray-100 rounded-full text-[10px] font-black uppercase tracking-widest text-primary-color hover:bg-slate-50 transition-all shadow-sm">
-            ← Volver a Cursos
+        <div className="lg:col-span-12 mb-2">
+          <Link href="/admin/courses" className="group inline-flex items-center gap-3 bg-primary-color px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-secondary-color hover:text-primary-color transition-all shadow-lg shadow-primary-color/20">
+            <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span>
+            Volver a Cursos
           </Link>
         </div>
         

@@ -210,7 +210,7 @@ export default function ModuleContentPage() {
   return (
     <div className="module-content-page">
       <nav className="mb-10 animate-fade-in">
-        <Link href={`/admin/courses/${courseId}`} className="group inline-flex items-center gap-3 bg-slate-50 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:bg-primary-color hover:text-white transition-all shadow-sm">
+        <Link href={`/admin/courses/${courseId}`} className="group inline-flex items-center gap-3 bg-primary-color px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-secondary-color hover:text-primary-color transition-all shadow-lg shadow-primary-color/20">
           <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span>
           Volver a la Malla del Curso
         </Link>

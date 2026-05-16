@@ -1,6 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
+import { google } from 'googleapis';
 
 // Inicializamos Resend solo si la clave existe para evitar errores en compilación
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -63,6 +64,57 @@ export async function sendLeadNotification(leadData) {
     return { success: true, data };
   } catch (err) {
     console.error('Email Action Error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Registra un lead en Google Sheets.
+ * Requiere en .env.local:
+ *   GOOGLE_CLIENT_EMAIL  — email de la Service Account
+ *   GOOGLE_PRIVATE_KEY   — clave privada (con \n literales)
+ *   GOOGLE_SHEET_ID      — ID del spreadsheet
+ */
+export async function appendLeadToSheet(leadData) {
+  const { GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEET_ID } = process.env;
+
+  if (!GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || !GOOGLE_SHEET_ID) {
+    console.warn('Google Sheets no configurado — faltan variables de entorno.');
+    return { success: false, error: 'Sheets no configurado.' };
+  }
+
+  try {
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: GOOGLE_CLIENT_EMAIL,
+        private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      },
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    const fecha = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: GOOGLE_SHEET_ID,
+      range: 'Leads!A:F',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[
+          fecha,
+          leadData.full_name,
+          leadData.whatsapp,
+          leadData.email,
+          leadData.program_of_interest,
+          leadData.message_detail || '',
+        ]],
+      },
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error al escribir en Google Sheets:', err.message);
     return { success: false, error: err.message };
   }
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useNotification } from '@/context/NotificationContext';
-import { sendLeadNotification } from '@/app/actions/email_actions';
+import { sendLeadNotification, appendLeadToSheet } from '@/app/actions/email_actions';
 
 export default function ContactForm() {
   const { showNotification } = useNotification();
@@ -28,8 +28,12 @@ export default function ContactForm() {
 
       if (error) throw error;
 
-      const res = await sendLeadNotification(formData);
-    
+      // Enviar en paralelo: email + Google Sheets
+      const [res] = await Promise.all([
+        sendLeadNotification(formData),
+        appendLeadToSheet(formData),
+      ]);
+
     if (res.success) {
       showNotification('¡Mensaje enviado con éxito! Un asesor te contactará pronto.', 'success');
     } else {
