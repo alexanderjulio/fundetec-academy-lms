@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useNotification } from '@/context/NotificationContext';
 import { exportToPDF, exportToExcel, exportToCSV } from '@/utils/export_finance';
+import { createInvoice } from '@/app/actions/admin_actions';
 
 export default function AdminBillingPage() {
   const { showNotification } = useNotification();
@@ -15,15 +16,48 @@ export default function AdminBillingPage() {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    total_amount: '',
-    notes: ''
-  });
+  const [formData, setFormData] = useState({ total_amount: '', notes: '' });
+
+  // Pestaña activa en el panel lateral
+  const [activeTab, setActiveTab] = useState('coordinador');
+
+  // Estado para factura directa a estudiante
+  const [allStudents, setAllStudents] = useState([]);
+  const [directForm, setDirectForm] = useState({ studentId: '', amount: '', concept: '' });
+  const [submittingDirect, setSubmittingDirect] = useState(false);
 
   useEffect(() => {
     fetchCoordinators();
     fetchInvoices();
+    fetchAllStudents();
   }, []);
+
+  const fetchAllStudents = async () => {
+    const { data } = await supabase.from('profiles').select('id, full_name').eq('role_id', 3).order('full_name');
+    setAllStudents(data || []);
+  };
+
+  const handleDirectInvoice = async (e) => {
+    e.preventDefault();
+    setSubmittingDirect(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: profile } = await supabase.from('profiles').select('role_id').eq('id', user.id).single();
+
+    const { error } = await createInvoice({
+      studentId: directForm.studentId,
+      amount: parseFloat(directForm.amount),
+      concept: directForm.concept,
+      actorRole: profile?.role_id ?? 1,
+    });
+
+    if (error) {
+      showNotification('Error: ' + error, 'error');
+    } else {
+      showNotification('Factura generada con éxito.', 'success');
+      setDirectForm({ studentId: '', amount: '', concept: '' });
+    }
+    setSubmittingDirect(false);
+  };
 
   const fetchCoordinators = async () => {
     const { data } = await supabase.from('profiles').select('id, full_name, email').eq('role_id', 2);
@@ -201,7 +235,65 @@ export default function AdminBillingPage() {
             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-none">Facturación de Alumnos</p>
           </div>
 
-          <div className="space-y-6">
+          {/* Pestañas */}
+          <div className="flex bg-slate-50 rounded-2xl p-1 gap-1">
+            <button
+              onClick={() => setActiveTab('coordinador')}
+              className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'coordinador' ? 'bg-white text-primary-color shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            >
+              Por Coordinador
+            </button>
+            <button
+              onClick={() => setActiveTab('directo')}
+              className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'directo' ? 'bg-white text-primary-color shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            >
+              Factura Directa
+            </button>
+          </div>
+
+          {/* Formulario: Factura Directa */}
+          {activeTab === 'directo' && (
+            <form onSubmit={handleDirectInvoice} className="space-y-6 animate-fade-in">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Estudiante</label>
+                <select
+                  required
+                  value={directForm.studentId}
+                  onChange={e => setDirectForm({ ...directForm, studentId: e.target.value })}
+                  className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color cursor-pointer appearance-none shadow-inner"
+                >
+                  <option value="">-- Seleccionar estudiante --</option>
+                  {allStudents.map(s => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Concepto</label>
+                <input
+                  type="text" required
+                  value={directForm.concept}
+                  onChange={e => setDirectForm({ ...directForm, concept: e.target.value })}
+                  placeholder="Ej: Inscripción, Mensualidad..."
+                  className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-bold text-primary-color shadow-inner"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Monto (USD)</label>
+                <input
+                  type="number" required min="0.01" step="0.01"
+                  value={directForm.amount}
+                  onChange={e => setDirectForm({ ...directForm, amount: e.target.value })}
+                  placeholder="0.00"
+                  className="w-full bg-slate-50 border-none p-5 rounded-3xl outline-none focus:ring-4 focus:ring-secondary-color/10 font-black text-xl text-primary-color shadow-inner"
+                />
+              </div>
+              <button type="submit" disabled={submittingDirect} className="w-full py-5 bg-primary-color text-white rounded-[32px] font-black text-xs uppercase tracking-widest hover:bg-secondary-color hover:text-primary-color transition-all shadow-xl shadow-primary-color/10 disabled:opacity-50">
+                {submittingDirect ? 'Procesando...' : 'Generar Factura'}
+              </button>
+            </form>
+          )}
+
+          {/* Formulario: Por Coordinador */}
+          {activeTab === 'coordinador' && <div className="space-y-6 animate-fade-in">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Entidad Responsable</label>
               <select 
@@ -269,7 +361,7 @@ export default function AdminBillingPage() {
                 )}
               </div>
             )}
-          </div>
+          </div>}
         </aside>
 
         {/* HISTORIAL DE FACTURACIÓN */}
