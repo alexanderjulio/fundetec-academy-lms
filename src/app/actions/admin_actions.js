@@ -276,3 +276,67 @@ export async function manualGraduateStudent(studentId, actorRole) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Guardar un curso completo importado desde PDF/DOCX.
+ * Crea el curso, sus módulos y lecciones en una sola operación.
+ */
+export async function importCourse({ estructura, adminId }) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+  try {
+    // 1. Crear el curso
+    const { data: curso, error: cursoError } = await adminClient
+      .from('courses')
+      .insert({
+        title: estructura.titulo,
+        description: estructura.descripcion || '',
+        price: 0,
+        is_published: false,
+        created_by: adminId,
+      })
+      .select()
+      .single();
+
+    if (cursoError) throw cursoError;
+
+    // 2. Crear módulos y lecciones en orden
+    for (let mi = 0; mi < estructura.modulos.length; mi++) {
+      const modulo = estructura.modulos[mi];
+
+      const { data: mod, error: modError } = await adminClient
+        .from('modules')
+        .insert({
+          course_id: curso.id,
+          title: modulo.nombre,
+          order_index: mi + 1,
+        })
+        .select()
+        .single();
+
+      if (modError) throw modError;
+
+      for (let li = 0; li < modulo.lecciones.length; li++) {
+        const leccion = modulo.lecciones[li];
+
+        const { error: lecError } = await adminClient
+          .from('lessons')
+          .insert({
+            module_id: mod.id,
+            title: leccion.titulo,
+            content: leccion.contenido_html || '',
+            order_index: li + 1,
+          });
+
+        if (lecError) throw lecError;
+      }
+    }
+
+    return { success: true, courseId: curso.id };
+  } catch (error) {
+    console.error('Error en importCourse:', error.message);
+    return { success: false, error: error.message };
+  }
+}
