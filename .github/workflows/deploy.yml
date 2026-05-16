@@ -46,8 +46,8 @@ jobs:
             echo ">>> Instalando dependencias..."
             npm install --production=false
 
-            echo ">>> Limpiando lock de build anterior si existe..."
-            rm -f .next/build-manifest.json.lock 2>/dev/null || true
+            echo ">>> Limpiando build anterior..."
+            rm -rf .next
 
             echo ">>> Construyendo aplicación..."
             NODE_OPTIONS="--max-old-space-size=1536" npm run build

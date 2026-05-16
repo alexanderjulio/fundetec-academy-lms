@@ -3,8 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 
 export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Instancia lazy para evitar errores en build cuando la env var no está definida
+function getOpenAI() {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 function getAdminClient() {
   return createClient(
@@ -96,7 +100,7 @@ Devuelve ÚNICAMENTE el JSON válido con esta estructura exacta, sin texto adici
 CONTENIDO DEL DOCUMENTO:
 ${String(content).substring(0, 80000)}`; // límite de tokens
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: 'gpt-4o',
     max_tokens: 4096,
     temperature: 0.3,
