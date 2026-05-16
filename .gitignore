@@ -49,6 +49,9 @@ database*.sql
 
 # Backups & Credentials
 /backups/
+
+# Assets locales de migración (archivos pesados, no van en el repo)
+/data/uploads/
 service_account.json
 oauth_credentials.json
 token.json
