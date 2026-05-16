@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Sidebar from '@/components/dashboard/Sidebar';
 import CoordinatorChat from '@/components/dashboard/CoordinatorChat';
+import ChatbotWidget from '@/components/dashboard/ChatbotWidget';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useNotification } from '@/context/NotificationContext';
@@ -282,6 +283,9 @@ export default function DashboardLayout({ children }) {
 
       {/* Floating Coordinator Chat for Students */}
       <CoordinatorChat studentProfile={profile} />
+
+      {/* Profesor Virtual — solo para estudiantes */}
+      {userRole === 'student' && <ChatbotWidget />}
 
     </div>
   );

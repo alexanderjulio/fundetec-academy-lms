@@ -50,6 +50,9 @@ const Icons = {
   ),
   Landing: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+  ),
+  Chatbot: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
   )
 };
 
@@ -79,6 +82,7 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed, isMobil
       { name: 'Libro Mayor', href: '/admin/ledger', icon: <Icons.Ledger /> },
       { name: 'Reportes', href: '/admin/reportes', icon: <Icons.Reportes /> },
       { name: 'Landing', href: '/admin/landing', icon: <Icons.Landing /> },
+      { name: 'Profesor Virtual', href: '/admin/chatbot', icon: <Icons.Chatbot /> },
       { name: 'Notificaciones', href: '/admin/notifications', icon: <Icons.Notifications /> },
       { name: 'Mi Perfil', href: '/admin/profile', icon: <Icons.Settings /> },
     ],
