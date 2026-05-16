@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 function getAdminClient() {
   return createClient(
@@ -74,7 +74,7 @@ export async function sendMessage({ studentId, message }) {
   if (!message?.trim()) return { reply: null, error: 'Mensaje vacío.' };
 
   const supabase = getAdminClient();
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   // Obtener config del bot
   const { data: config } = await getChatbotConfig();
@@ -86,28 +86,28 @@ export async function sendMessage({ studentId, message }) {
   // Guardar mensaje del estudiante
   await supabase.from('chatbot_messages').insert({ student_id: studentId, role: 'user', content: message });
 
-  // Armar mensajes para Claude
+  // Armar mensajes para OpenAI
   const messages = [
+    { role: 'system', content: config.system_prompt },
     ...history.map(m => ({ role: m.role, content: m.content })),
     { role: 'user', content: message },
   ];
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
       max_tokens: 1024,
-      system: config.system_prompt,
       messages,
     });
 
-    const reply = response.content[0]?.text || 'No pude generar una respuesta.';
+    const reply = response.choices[0]?.message?.content || 'No pude generar una respuesta.';
 
     // Guardar respuesta del bot
     await supabase.from('chatbot_messages').insert({ student_id: studentId, role: 'assistant', content: reply });
 
     return { reply, error: null };
   } catch (err) {
-    console.error('Error Anthropic:', err.message);
+    console.error('Error OpenAI:', err.message);
     return { reply: null, error: 'Error al conectar con el profesor virtual.' };
   }
 }
