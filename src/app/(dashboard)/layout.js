@@ -100,11 +100,23 @@ export default function DashboardLayout({ children }) {
         { event: 'INSERT', schema: 'public', table: 'global_notifications' },
         (payload) => {
           const n = payload.new;
-          const isTargeted = 
-            n.target_type === 'all' || 
-            (n.target_type === 'coordinator_group' && n.coordinator_id === profile.coordinator_id) ||
-            (n.target_type === 'individual' && n.coordinator_id === profile.id);
-          
+          const roleId = profile.role_id;
+
+          // Filtrar por rol: mismo criterio que la carga inicial
+          let isTargeted = false;
+          if (roleId === 1) {
+            // Admin: recibe todas las notificaciones
+            isTargeted = true;
+          } else if (roleId === 2) {
+            // Coordinador: solo su grupo + individuales para él
+            isTargeted =
+              (n.target_type === 'coordinator_group' && n.coordinator_id === profile.coordinator_id) ||
+              (n.target_type === 'individual' && n.coordinator_id === profile.id);
+          } else {
+            // Estudiante: solo individuales para él
+            isTargeted = n.target_type === 'individual' && n.coordinator_id === profile.id;
+          }
+
           if (isTargeted) {
             showNotification(n.title, 'success');
             setNotifications(prev => [n, ...prev].slice(0, 10));
@@ -120,12 +132,27 @@ export default function DashboardLayout({ children }) {
   }, [profile, isAdmin, isCoordinator, showNotification]);
 
   const fetchNotifications = async (userId, userProfile) => {
-    const { data: notifs } = await supabase
+    // Construir filtro según rol
+    let query = supabase
       .from('global_notifications')
       .select('*')
-      .or(`target_type.eq.all,and(target_type.eq.coordinator_group,coordinator_id.eq.${userProfile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${userId})`)
       .order('created_at', { ascending: false })
       .limit(10);
+
+    if (userProfile.role_id === 1) {
+      // Admin: ve absolutamente todas las notificaciones
+      // (sin filtro adicional)
+    } else if (userProfile.role_id === 2) {
+      // Coordinador: solo notificaciones de su grupo + individuales para él
+      query = query.or(
+        `and(target_type.eq.coordinator_group,coordinator_id.eq.${userProfile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${userId})`
+      );
+    } else {
+      // Estudiante: solo notificaciones individuales dirigidas a él
+      query = query.eq('target_type', 'individual').eq('coordinator_id', userId);
+    }
+
+    const { data: notifs } = await query;
 
     const { data: reads } = await supabase
       .from('notification_reads')
@@ -210,7 +237,10 @@ export default function DashboardLayout({ children }) {
                 <div className="notif-dropdown glass-card animate-pop-dashboard">
                   <div className="dropdown-header">
                     <h4>Notificaciones</h4>
-                    <Link href="/dashboard/notifications" onClick={() => setShowNotifs(false)}>Ver todas</Link>
+                    <Link
+                      href={isAdmin ? '/admin/notifications' : '/dashboard/notifications'}
+                      onClick={() => setShowNotifs(false)}
+                    >Ver todas</Link>
                   </div>
                   <div className="dropdown-body">
                     {notifications.length === 0 ? (

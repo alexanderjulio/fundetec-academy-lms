@@ -23,12 +23,23 @@ export default function StudentNotificationsPage() {
 
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
-      // Fetch all relevant notifications
-      const { data: notifs } = await supabase
+      // Filtrar por rol: coordinadores ven su grupo + individuales; estudiantes solo individuales
+      let notifsQuery = supabase
         .from('global_notifications')
         .select('*, sender:sender_id(full_name)')
-        .or(`target_type.eq.all,and(target_type.eq.coordinator_group,coordinator_id.eq.${profile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${user.id})`)
         .order('created_at', { ascending: false });
+
+      if (profile.role_id === 2) {
+        // Coordinador: notificaciones de su grupo + individuales para él
+        notifsQuery = notifsQuery.or(
+          `and(target_type.eq.coordinator_group,coordinator_id.eq.${profile.coordinator_id}),and(target_type.eq.individual,coordinator_id.eq.${user.id})`
+        );
+      } else {
+        // Estudiante: solo individuales dirigidas a él
+        notifsQuery = notifsQuery.eq('target_type', 'individual').eq('coordinator_id', user.id);
+      }
+
+      const { data: notifs } = await notifsQuery;
 
       // Fetch which ones are read
       const { data: reads } = await supabase
