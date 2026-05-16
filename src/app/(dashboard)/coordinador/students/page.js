@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useNotification } from '@/context/NotificationContext';
@@ -38,6 +39,7 @@ export default function StudentsPage() {
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [pdfPreviewTitle, setPdfPreviewTitle] = useState('');
   const [isGraduating, setIsGraduating] = useState(false);
+  const [graduateConfirm, setGraduateConfirm] = useState(null);
   
   const [formData, setFormData] = useState({
     full_name: '', email: '', password: '', whatsapp: '', 
@@ -110,20 +112,24 @@ export default function StudentsPage() {
     setLoading(false);
   };
 
-  const handleManualGraduate = async (studentId) => {
-    if (!confirm('¿Estás seguro de graduar oficialmente a este estudiante? Esta acción no se puede deshacer.')) return;
-    
+  const handleManualGraduate = (studentId) => {
+    setGraduateConfirm(studentId);
+  };
+
+  const confirmGraduate = async () => {
+    if (!graduateConfirm) return;
+    setGraduateConfirm(null);
     setIsGraduating(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const res = await manualGraduateStudent(studentId, user.user_metadata.role_id || 2);
-      
+      const res = await manualGraduateStudent(graduateConfirm, user.user_metadata.role_id || 2);
+
       if (res.success) {
-        alert('🎓 Estudiante graduado con éxito.');
+        showNotification('Estudiante graduado con éxito.', 'success');
         setSelectedStudentDetail(prev => ({ ...prev, status: 'graduado' }));
         fetchData();
       } else {
-        alert(`Error: ${res.error}`);
+        showNotification(`Error: ${res.error}`, 'error');
       }
     } catch (err) {
       console.error(err);
@@ -671,6 +677,30 @@ export default function StudentsPage() {
         .animate-pop { animation: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .coordinator-students { font-family: 'Outfit', sans-serif; }
       `}</style>
+
+      {/* MODAL CONFIRMAR GRADUACIÓN */}
+      {graduateConfirm && createPortal(
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl animate-fade-in" onClick={() => setGraduateConfirm(null)} />
+          <div className="relative bg-white rounded-[40px] shadow-2xl p-10 max-w-md w-full text-center space-y-6 animate-pop">
+            <div className="w-16 h-16 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-primary-color font-display tracking-tighter">Graduar Estudiante</h3>
+              <p className="text-sm text-gray-400 mt-2">Esta acción no se puede deshacer. El estudiante será graduado oficialmente.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setGraduateConfirm(null)} className="flex-1 bg-slate-50 text-gray-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all">
+                Cancelar
+              </button>
+              <button onClick={confirmGraduate} className="flex-1 bg-emerald-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30">
+                Sí, Graduar
+              </button>
+            </div>
+          </div>
+        </div>
+      , document.body)}
     </div>
   );
 }

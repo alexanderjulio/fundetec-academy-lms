@@ -53,11 +53,14 @@ async function parseDocx(buffer, supabase) {
   return result.value; // HTML limpio con imágenes ya subidas
 }
 
-// Parsear PDF con pdf-parse
+// Parsear PDF con unpdf (diseñado para servidor, sin web workers)
 async function parsePdf(buffer) {
-  const pdfParse = (await import('pdf-parse')).default;
-  const data = await pdfParse(buffer);
-  return data.text;
+  const { extractText } = await import('unpdf');
+  const result = await extractText(new Uint8Array(buffer));
+  if (typeof result === 'string') return result;
+  if (result?.text) return String(result.text);
+  // Si es objeto con totalPages y páginas, unir todo el texto
+  return JSON.stringify(result);
 }
 
 // Estructurar contenido con GPT-4o
@@ -91,7 +94,7 @@ Devuelve ÚNICAMENTE el JSON válido con esta estructura exacta, sin texto adici
 }
 
 CONTENIDO DEL DOCUMENTO:
-${content.substring(0, 80000)}`; // límite de tokens
+${String(content).substring(0, 80000)}`; // límite de tokens
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
@@ -131,7 +134,7 @@ export async function POST(request) {
       content = await parseDocx(buffer, supabase);
     }
 
-    if (!content?.trim()) {
+    if (!content || (typeof content === 'string' && !content.trim())) {
       return NextResponse.json({ error: 'No se pudo extraer contenido del archivo.' }, { status: 422 });
     }
 

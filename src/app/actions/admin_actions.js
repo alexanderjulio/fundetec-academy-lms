@@ -327,6 +327,7 @@ export async function importCourse({ estructura, adminId }) {
             module_id: mod.id,
             title: leccion.titulo,
             content: leccion.contenido_html || '',
+            content_type: 'html',
             order_index: li + 1,
           });
 

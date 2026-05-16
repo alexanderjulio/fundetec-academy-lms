@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -16,6 +17,7 @@ export default function CourseStructurePage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingModule, setEditingModule] = useState(null);
+  const [deleteModuleConfirm, setDeleteModuleConfirm] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     icon_url: ''
@@ -99,17 +101,21 @@ export default function CourseStructurePage() {
     setLoading(false);
   };
 
-  const handleDeleteModule = async (id) => {
-    if (!confirm('¿Eliminar este módulo? Se borrarán todas las lecciones y exámenes asociados.')) return;
-    
+  const handleDeleteModule = (id) => {
+    setDeleteModuleConfirm(id);
+  };
+
+  const confirmDeleteModule = async () => {
+    if (!deleteModuleConfirm) return;
     setLoading(true);
-    const { error } = await supabase.from('modules').delete().eq('id', id);
+    const { error } = await supabase.from('modules').delete().eq('id', deleteModuleConfirm);
     if (!error) {
       showNotification('Módulo removido de la malla.', 'success');
       fetchCourseAndModules();
     } else {
       showNotification('Error al eliminar: ' + error.message, 'error');
     }
+    setDeleteModuleConfirm(null);
     setLoading(false);
   };
 
@@ -331,6 +337,30 @@ export default function CourseStructurePage() {
         .animate-pop { animation: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .font-display { font-family: 'Outfit', sans-serif; }
       `}</style>
+
+      {/* MODAL CONFIRMAR ELIMINACIÓN DE MÓDULO */}
+      {deleteModuleConfirm && createPortal(
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl animate-fade-in" onClick={() => setDeleteModuleConfirm(null)} />
+          <div className="relative bg-white rounded-[40px] shadow-2xl p-10 max-w-md w-full text-center space-y-6 animate-pop">
+            <div className="w-16 h-16 bg-red-50 rounded-3xl flex items-center justify-center mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-primary-color font-display tracking-tighter">Eliminar Módulo</h3>
+              <p className="text-sm text-gray-400 mt-2">Se borrarán todas las lecciones y exámenes asociados. Esta acción es irreversible.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteModuleConfirm(null)} className="flex-1 bg-slate-50 text-gray-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all">
+                Cancelar
+              </button>
+              <button onClick={confirmDeleteModule} className="flex-1 bg-red-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/30">
+                Sí, Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      , document.body)}
     </div>
   );
 }

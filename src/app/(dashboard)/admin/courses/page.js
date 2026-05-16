@@ -27,6 +27,9 @@ export default function AdminCoursesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Modal de confirmación de eliminación
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // courseId a eliminar
+
   // Importación desde PDF/DOCX
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -155,17 +158,21 @@ export default function AdminCoursesPage() {
     setLoading(false);
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este curso? Esta acción es irreversible.')) return;
-    
+  const handleDelete = (id) => {
+    setDeleteConfirm(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
     setLoading(true);
-    const { error } = await supabase.from('courses').delete().eq('id', id);
+    const { error } = await supabase.from('courses').delete().eq('id', deleteConfirm);
     if (!error) {
        showNotification('Curso removido de la oferta académica.', 'success');
        fetchCourses();
     } else {
        showNotification('Error al eliminar: ' + error.message, 'error');
     }
+    setDeleteConfirm(null);
     setLoading(false);
   };
 
@@ -605,6 +612,30 @@ export default function AdminCoursesPage() {
                    </button>
                 </div>
              </form>
+          </div>
+        </div>
+      , document.body)}
+
+      {/* MODAL CONFIRMAR ELIMINACIÓN */}
+      {deleteConfirm && createPortal(
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl animate-fade-in" onClick={() => setDeleteConfirm(null)} />
+          <div className="relative bg-white rounded-[40px] shadow-2xl p-10 max-w-md w-full text-center space-y-6 animate-pop">
+            <div className="w-16 h-16 bg-red-50 rounded-3xl flex items-center justify-center mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-primary-color font-display tracking-tighter">Eliminar Curso</h3>
+              <p className="text-sm text-gray-400 mt-2">Esta acción es irreversible. Se eliminarán todos los módulos, lecciones e inscripciones asociadas.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 bg-slate-50 text-gray-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all">
+                Cancelar
+              </button>
+              <button onClick={confirmDelete} className="flex-1 bg-red-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/30">
+                Sí, Eliminar
+              </button>
+            </div>
           </div>
         </div>
       , document.body)}
